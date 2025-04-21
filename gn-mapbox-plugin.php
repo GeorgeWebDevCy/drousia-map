@@ -8,6 +8,22 @@ Author: George Nicolaou
 
 defined('ABSPATH') || exit;
 
+require 'plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+	'https://github.com/GeorgeWebDevCy/drousia-map/',
+	__FILE__,
+	'gn-mapbox-plugin'
+);
+
+//Set the branch that contains the stable release.
+$myUpdateChecker->setBranch('main');
+
+//Optional: If you're using a private repository, specify the access token like this:
+//$myUpdateChecker->setAuthentication('your-token-here');
+
+
 // Register Custom Post Type
 function gn_register_map_location_cpt() {
     register_post_type('map_location', [
