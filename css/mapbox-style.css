@@ -1,0 +1,97 @@
+/* Ensure popup container isn't limiting the content */
+#gn-mapbox-map .mapboxgl-popup-content {
+  max-width: 95vw !important;
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+/* Style the actual .popup-content div inside */
+#gn-mapbox-map .mapboxgl-popup-content .popup-content {
+  padding: 20px !important;
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  box-sizing: border-box !important;
+}
+
+/* Typography inside */
+#gn-mapbox-map .mapboxgl-popup-content .popup-content h1,
+#gn-mapbox-map .mapboxgl-popup-content .popup-content h2,
+#gn-mapbox-map .mapboxgl-popup-content .popup-content h3 {
+  font-size: 1.25rem !important;
+  margin-top: 0 !important;
+}
+
+#gn-mapbox-map .mapboxgl-popup-content .popup-content p {
+  margin-bottom: 1em !important;
+}
+
+/* Images */
+#gn-mapbox-map.mapboxgl-popup-content .popup-content img {
+  width: 100% !important;
+  height: auto !important;
+  margin-bottom: 15px !important;
+  border-radius: 6px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+/* Embedded videos */
+#gn-mapbox-map .mapboxgl-popup-content .popup-content iframe {
+  width: 100% !important;
+  height: 300px !important;
+  margin-bottom: 15px !important;
+  border: none !important;
+  border-radius: 6px !important;
+}
+
+/* Gallery support */
+#gn-mapbox-map .mapboxgl-popup-content .popup-content .gallery {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 15px !important;
+}
+
+#gn-mapbox-map .mapboxgl-popup-content .popup-content .gallery img {
+  width: 48% !important;
+  height: auto !important;
+  border-radius: 4px !important;
+  object-fit: cover !important;
+}
+
+/* Optional scrollbars for long content */
+#gn-mapbox-map .mapboxgl-popup-content .popup-content::-webkit-scrollbar {
+  width: 6px;
+}
+#gn-mapbox-map .mapboxgl-popup-content .popup-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+
+/* Force popup anchor to not restrict width */
+.mapboxgl-popup.mapboxgl-popup-anchor-top {
+  transform: none !important;
+  left: auto !important;
+  right: auto !important;
+}
+
+/* Allow full-width and centered rendering */
+.mapboxgl-popup-content {
+  max-width: 95vw !important;
+  width: auto !important;
+  min-width: 300px !important;
+}
+
+/* Optional: Adjust popup tip position so it still points to marker */
+.mapboxgl-popup-tip {
+  margin: 0 auto !important;
+  display: block !important;
+}
