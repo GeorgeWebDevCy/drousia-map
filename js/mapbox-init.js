@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
 
+  let coords = [];
+
   function log(...args) {
     if (debugEnabled) {
       const logContainer = document.getElementById("gn-debug-log");
@@ -68,9 +70,10 @@ document.addEventListener("DOMContentLoaded", function () {
     navPanel.innerHTML = `
       <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
       <div style="padding: 10px; background: white;">
-        <button onclick="setMode('driving')">Driving</button>
-        <button onclick="setMode('walking')">Walking</button>
-        <button onclick="setMode('cycling')">Cycling</button>
+        <button class="gn-nav-btn" onclick="setMode('driving')">Driving</button>
+        <button class="gn-nav-btn" onclick="setMode('walking')">Walking</button>
+        <button class="gn-nav-btn" onclick="setMode('cycling')">Cycling</button>
+        <button class="gn-nav-btn" id="gn-start-nav">Start Navigation</button>
       </div>
     `;
     navPanel.style.cssText = `
@@ -82,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       background: #fff;
+      font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
 
@@ -107,26 +111,8 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     };
     header.ondragstart = () => false;
-  }
 
-  function addStartNavigationButton() {
-    const btn = document.createElement("button");
-    btn.id = "gn-start-nav";
-    btn.textContent = "Start Navigation";
-    btn.style.cssText = `
-      position: fixed;
-      top: 180px;
-      left: 10px;
-      z-index: 9999;
-      background: #007cbf;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      font-size: 14px;
-      cursor: pointer;
-    `;
-    btn.onclick = startNavigation;
-    document.body.appendChild(btn);
+    document.getElementById("gn-start-nav").onclick = startNavigation;
   }
 
   window.setMode = function (mode) {
@@ -201,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
   map.on("load", () => {
     log("Map loaded");
 
-    const coords = [];
+    coords = [];
     gnMapData.locations.forEach((loc) => {
       const popupHTML = `
         <div class="popup-content">
@@ -239,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
       log("Route LineString drawn with", coords.length, "points");
     }
 
-    // Elevation chart
+    // Elevation profile
     const DEM_TILE_URL = 'https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=' + mapboxgl.accessToken;
     const elevationCanvas = document.createElement('canvas');
     const ctx = elevationCanvas.getContext('2d');
@@ -310,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     })();
 
-    // Live tracking
+    // Live location
     if ("geolocation" in navigator) {
       navigator.geolocation.watchPosition(
         (pos) => {
@@ -340,7 +326,5 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       log("Geolocation not supported");
     }
-
-    addStartNavigationButton();
   });
 });

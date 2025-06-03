@@ -123,3 +123,18 @@
     bottom: 10vh !important;
   }
 }
+
+.gn-nav-btn {
+  display: block;
+  margin-bottom: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  background-color: #007cbf;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+.gn-nav-btn:hover {
+  background-color: #005f91;
+}
