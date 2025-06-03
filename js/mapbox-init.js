@@ -145,9 +145,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
+      if (!window.speechSynthesis) {
+        alert("Voice guidance is not supported in your browser.");
+      } else if (!localStorage.getItem("gn_voice_prompted")) {
+        const consent = confirm("Enable Greek voice directions during navigation?");
+        if (!consent) localStorage.setItem("gn_voice_muted", true);
+        localStorage.setItem("gn_voice_prompted", true);
+      }
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
-      const destination = coords[coords.length - 1];
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLngLat.join(',')};${destination.join(',')}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+      const allPoints = [userLngLat, ...coords];
+      const coordPairs = allPoints.map(p => p.join(',')).join(';');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&access_token=${mapboxgl.accessToken}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -182,6 +190,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
       const steps = data.routes[0].legs[0].steps;
+      const totalDistance = data.routes[0].distance / 1000;
+      const totalDuration = data.routes[0].duration / 60;
+      log(`Total route distance: ${totalDistance.toFixed(2)} km`);
+      log(`Total route duration: ${totalDuration.toFixed(1)} minutes`);
       for (const step of steps) {
         const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
         msg.lang = 'el-GR';
@@ -190,6 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.volume = 1.0;
         if (!voiceMuted) window.speechSynthesis.speak(msg);
         await new Promise(res => setTimeout(res, step.duration * 1000));
+        animateAlongRoute(data.routes[0].geometry.coordinates);
       }
     }, err => {
       log("Geolocation error:", err.message);
@@ -198,6 +211,91 @@ document.addEventListener("DOMContentLoaded", function () {
 
   setupDebugPanel();
   setupNavPanel();
+
+  function animateAlongRoute(routeCoords) {
+    if (!routeCoords || routeCoords.length < 2) return;
+
+    if (!map.getSource('route-tracker')) {
+      map.addSource('route-tracker', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: routeCoords[0]
+          }
+        }
+      });
+
+      map.loadImage('https://cdn-icons-png.flaticon.com/512/535/535239.png', (error, image) => {
+        if (error) throw error;
+        if (!map.hasImage('hiker-icon')) map.addImage('hiker-icon', image);
+
+        map.addLayer({
+          id: 'route-tracker',
+          type: 'symbol',
+          source: 'route-tracker',
+          layout: {
+            'icon-image': 'hiker-icon',
+            'icon-size': 0.1,
+            'icon-rotate': 0
+          }
+        });
+      });
+    }
+
+    if (!map.getSource('trail-line')) {
+      map.addSource('trail-line', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: []
+          }
+        }
+      });
+      map.addLayer({
+        id: 'trail-line',
+        type: 'line',
+        source: 'trail-line',
+        paint: {
+          'line-color': '#00f',
+          'line-width': 3,
+          'line-opacity': 0.5
+        }
+      });
+    }
+
+    let i = 0;
+    let trail = [];
+    let paused = false;
+
+    window.pauseTracker = () => { paused = true; log("Tracking paused"); };
+    window.resumeTracker = () => { paused = false; move(); log("Tracking resumed"); };
+    function move() {
+      if (i < routeCoords.length) {
+        const point = routeCoords[i];
+        map.getSource('route-tracker').setData({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: point }
+        });
+        i++;
+        trail.push(point);
+        map.getSource('trail-line').setData({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: trail }
+        });
+        setTimeout(() => {
+          if (!paused) requestAnimationFrame(move);
+        }, 100);
+      } else {
+        log("Animated marker reached end of route");
+        log("Use pauseTracker() and resumeTracker() to control animation.");
+      }
+    }
+    move();
+  }
 
   const map = new mapboxgl.Map({
     container: "gn-mapbox-map",
