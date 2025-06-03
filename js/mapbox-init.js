@@ -1,15 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
+  let currentMode = "driving";
 
   function log(...args) {
     const timestamp = new Date().toLocaleTimeString();
-    const msg = `[${timestamp}] ${args.map(String).join(" ")}`;
+    const message = `[${timestamp}] ${args.join(" ")}`;
     if (debugEnabled) {
       const logContainer = document.getElementById("gn-debug-log");
       if (logContainer) {
         const div = document.createElement("div");
-        div.textContent = msg;
+        div.textContent = message;
         logContainer.appendChild(div);
         logContainer.scrollTop = logContainer.scrollHeight;
       }
@@ -18,36 +19,22 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function setupDebugPanel() {
-    if (!debugEnabled) return;
-    if (document.getElementById("gn-debug-panel")) return;
-
+    if (!debugEnabled || document.getElementById("gn-debug-panel")) return;
     const panel = document.createElement("div");
     panel.id = "gn-debug-panel";
     panel.style.cssText = `
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      z-index: 9999;
-      background: rgba(0,0,0,0.85);
-      color: #0f0;
-      font-family: monospace;
-      font-size: 12px;
-      max-height: 40vh;
-      width: 300px;
-      overflow-y: auto;
-      border: 1px solid #0f0;
-      padding: 10px;
+      position: fixed; bottom: 10px; right: 10px; z-index: 9999;
+      background: rgba(0,0,0,0.85); color: #0f0;
+      font-family: monospace; font-size: 12px;
+      max-height: 40vh; width: 300px; overflow-y: auto;
+      border: 1px solid #0f0; padding: 10px;
     `;
 
     const clearBtn = document.createElement("button");
     clearBtn.textContent = "Clear";
     clearBtn.style.cssText = `
-      display: block;
-      margin-bottom: 10px;
-      background: #222;
-      color: #0f0;
-      border: 1px solid #0f0;
-      cursor: pointer;
+      display: block; margin-bottom: 10px; background: #222;
+      color: #0f0; border: 1px solid #0f0; cursor: pointer;
     `;
     clearBtn.onclick = () => {
       const logContainer = document.getElementById("gn-debug-log");
@@ -56,8 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const logContainer = document.createElement("div");
     logContainer.id = "gn-debug-log";
-    logContainer.style.overflowY = "auto";
     logContainer.style.maxHeight = "30vh";
+    logContainer.style.overflowY = "auto";
 
     panel.appendChild(clearBtn);
     panel.appendChild(logContainer);
@@ -87,14 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
   `;
   navigationPanel.style.cssText = `
-    position: fixed;
-    top: 100px;
-    left: 10px;
-    width: 200px;
-    z-index: 9998;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    background: #fff;
+    position: fixed; top: 100px; left: 10px; width: 200px;
+    z-index: 9998; border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); background: #fff;
   `;
   document.body.appendChild(navigationPanel);
 
@@ -103,47 +85,80 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     let shiftX = e.clientX - navigationPanel.getBoundingClientRect().left;
     let shiftY = e.clientY - navigationPanel.getBoundingClientRect().top;
-
-    function moveAt(pageX, pageY) {
-      navigationPanel.style.left = pageX - shiftX + "px";
-      navigationPanel.style.top = pageY - shiftY + "px";
+    function moveAt(x, y) {
+      navigationPanel.style.left = x - shiftX + "px";
+      navigationPanel.style.top = y - shiftY + "px";
     }
-
     function onMouseMove(e) {
       moveAt(e.pageX, e.pageY);
     }
-
     document.addEventListener("mousemove", onMouseMove);
-    document.onmouseup = function () {
+    document.onmouseup = () => {
       document.removeEventListener("mousemove", onMouseMove);
       document.onmouseup = null;
     };
   };
   header.ondragstart = () => false;
 
-  // VOICE routing helper
-  function speak(text) {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      window.speechSynthesis.speak(utterance);
-    } else {
-      log("Voice not supported in this browser");
-    }
-  }
-
-  let currentMode = "driving";
-
   function setMode(mode) {
     currentMode = mode;
     log("Navigation mode set to:", mode);
-    speak(`Navigation mode set to ${mode}`);
-    // TODO: Trigger directions update if desired
   }
 
   document.getElementById("gn-mode-driving").addEventListener("click", () => setMode("driving"));
   document.getElementById("gn-mode-walking").addEventListener("click", () => setMode("walking"));
   document.getElementById("gn-mode-cycling").addEventListener("click", () => setMode("cycling"));
+
+  function speak(text) {
+    if (!window.speechSynthesis) return;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    window.speechSynthesis.speak(utter);
+  }
+
+  async function getRoute(start, end) {
+    const profile = currentMode;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${start.join(",")};${end.join(",")}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const route = data.routes[0].geometry;
+
+    if (map.getSource("route")) {
+      map.getSource("route").setData({
+        type: "Feature",
+        geometry: route,
+      });
+    } else {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: route,
+        },
+      });
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#ff0000",
+          "line-width": 4,
+        },
+      });
+    }
+
+    const steps = data.routes[0].legs[0].steps;
+    steps.forEach((step, i) => {
+      setTimeout(() => {
+        log("🗣️ " + step.maneuver.instruction);
+        speak(step.maneuver.instruction);
+      }, i * 5000); // stagger speech
+    });
+  }
 
   map.on("load", () => {
     log("Map loaded");
@@ -156,25 +171,25 @@ document.addEventListener("DOMContentLoaded", function () {
           <div>${loc.content}</div>
         </div>
       `;
-
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-      const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
-
+      const marker = new mapboxgl.Marker()
+        .setLngLat([loc.lng, loc.lat])
+        .setPopup(popup)
+        .addTo(map);
       log("Marker added:", loc.title, [loc.lng, loc.lat]);
     });
 
     if ("geolocation" in navigator) {
       navigator.geolocation.watchPosition(
         (position) => {
-          const userCoords = [position.coords.longitude, position.coords.latitude];
-          log("Geolocation updated:", userCoords);
+          const coords = [position.coords.longitude, position.coords.latitude];
+          log("Geolocation updated:", coords);
 
           if (!map.getSource("user-location")) {
             map.addSource("user-location", {
               type: "geojson",
-              data: { type: "Point", coordinates: userCoords },
+              data: { type: "Point", coordinates: coords },
             });
-
             map.addLayer({
               id: "user-location",
               type: "circle",
@@ -185,7 +200,13 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             });
           } else {
-            map.getSource("user-location").setData({ type: "Point", coordinates: userCoords });
+            map.getSource("user-location").setData({ type: "Point", coordinates: coords });
+          }
+
+          // For demo: navigate to the first location
+          if (gnMapData.locations.length) {
+            const first = gnMapData.locations[0];
+            getRoute(coords, [first.lng, first.lat]);
           }
         },
         (error) => log("Geolocation error:", error.message),
