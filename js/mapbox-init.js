@@ -1,293 +1,179 @@
-document.addEventListener('DOMContentLoaded', function () {
-  if (!gnMapData || !gnMapData.accessToken) return;
-
+document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
 
-  const debug = gnMapData.debug === true;
-  const map = new mapboxgl.Map({
-    container: 'gn-mapbox-map',
-    style: 'mapbox://styles/mapbox/outdoors-v12',
-    center: [33.4299, 35.1264],
-    zoom: 13,
-  });
+  const debugEnabled = gnMapData.debug === true;
 
-  let userCoords = null;
-  let destinationCoords = null;
-  let elevationChart = null;
+  function log(...args) {
+    if (debugEnabled) {
+      const logContainer = document.getElementById("gn-debug-log");
+      const timestamp = new Date().toLocaleTimeString();
+      const msg = `[${timestamp}] ${args.map(String).join(" ")}`;
+      if (logContainer) {
+        const div = document.createElement("div");
+        div.textContent = msg;
+        logContainer.appendChild(div);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+    }
+    console.log(...args);
+  }
 
-  // Debug Panel
-  let debugPanel;
-  if (debug) {
-    debugPanel = document.createElement('div');
-    debugPanel.id = 'gn-debug-panel';
-    debugPanel.style.cssText = `
-      position: absolute;
-      top: 10px;
+  function setupDebugPanel() {
+    if (!debugEnabled) return;
+    if (document.getElementById("gn-debug-panel")) return;
+
+    const panel = document.createElement("div");
+    panel.id = "gn-debug-panel";
+    panel.style.cssText = `
+      position: fixed;
+      bottom: 10px;
       right: 10px;
-      max-height: 35vh;
-      max-width: 90vw;
-      overflow-y: auto;
+      z-index: 9999;
       background: rgba(0,0,0,0.85);
       color: #0f0;
       font-family: monospace;
-      font-size: 11px;
-      line-height: 1.4;
-      padding: 8px 8px 32px;
-      border-radius: 6px;
-      z-index: 9999;
-      white-space: pre-wrap;
+      font-size: 12px;
+      max-height: 40vh;
+      width: 300px;
+      overflow-y: auto;
+      border: 1px solid #0f0;
+      padding: 10px;
     `;
-    const clearBtn = document.createElement('button');
-    clearBtn.innerText = 'Clear';
+
+    const clearBtn = document.createElement("button");
+    clearBtn.textContent = "Clear";
     clearBtn.style.cssText = `
-      position: absolute;
-      bottom: 5px;
-      right: 8px;
-      font-size: 10px;
-      padding: 2px 6px;
+      display: block;
+      margin-bottom: 10px;
       background: #222;
       color: #0f0;
-      border: 1px solid #444;
-      border-radius: 4px;
+      border: 1px solid #0f0;
       cursor: pointer;
     `;
-    clearBtn.onclick = () => debugPanel.textContent = '';
-    debugPanel.appendChild(clearBtn);
-    document.getElementById('gn-mapbox-map').appendChild(debugPanel);
+    clearBtn.onclick = () => {
+      const logContainer = document.getElementById("gn-debug-log");
+      if (logContainer) logContainer.innerHTML = "";
+    };
+
+    const logContainer = document.createElement("div");
+    logContainer.id = "gn-debug-log";
+    logContainer.style.overflowY = "auto";
+    logContainer.style.maxHeight = "30vh";
+
+    panel.appendChild(clearBtn);
+    panel.appendChild(logContainer);
+    document.body.appendChild(panel);
   }
 
-  const log = (...args) => {
-    const msg = '[GN DEBUG] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(' ');
-    if (debugPanel) debugPanel.textContent += msg + '\n';
-    console.log(...args);
-  };
+  setupDebugPanel();
 
-  const directions = new MapboxDirections({
-    accessToken: mapboxgl.accessToken,
-    unit: 'metric',
-    profile: 'mapbox/driving',
-    controls: { instructions: true, inputs: false }
+  const map = new mapboxgl.Map({
+    container: "gn-mapbox-map",
+    style: "mapbox://styles/mapbox/streets-v11",
+    center: [33.366, 35.146],
+    zoom: 12,
   });
 
-  map.addControl(new mapboxgl.NavigationControl());
-  map.addControl(directions, 'top-left');
+  const nav = new mapboxgl.NavigationControl();
+  map.addControl(nav, "top-left");
 
-  // Navigation Panel (bottom-left)
-  const ui = document.createElement('div');
-  ui.className = 'navigation-ui';
-  ui.style.cssText = `
-    position: absolute;
-    bottom: 10px;
+  const navigationPanel = document.createElement("div");
+  navigationPanel.id = "gn-nav-panel";
+  navigationPanel.innerHTML = `
+    <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
+    <div style="padding: 10px; background: white;">
+      <button onclick="setMode('driving')">Driving</button>
+      <button onclick="setMode('walking')">Walking</button>
+      <button onclick="setMode('cycling')">Cycling</button>
+    </div>
+  `;
+  navigationPanel.style.cssText = `
+    position: fixed;
+    top: 100px;
     left: 10px;
-    background: white;
-    padding: 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    width: 200px;
     z-index: 9998;
-    font-size: 14px;
-    max-width: 90vw;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    background: #fff;
   `;
-  ui.innerHTML = `
-    <strong>Navigate to Destination</strong><br>
-    <label for="nav-mode">Mode:</label>
-    <select id="nav-mode">
-      <option value="driving">Driving</option>
-      <option value="walking">Walking</option>
-      <option value="cycling">Cycling</option>
-    </select><br>
-    <button id="start-navigation" disabled>Start Navigation</button>
-    <div><canvas id="elevation-chart" style="margin-top:10px; max-height:200px;"></canvas></div>
-  `;
-  map.getContainer().appendChild(ui);
+  document.body.appendChild(navigationPanel);
 
-  // Markers
-  gnMapData.locations.forEach(loc => {
-    const popupHTML = `
-      <div class="popup-content">
-        ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ''}
-        <h3>${loc.title}</h3>
-        <div>${loc.content}</div>
-        <button class="select-destination" data-lng="${loc.lng}" data-lat="${loc.lat}">Navigate Here</button>
-      </div>
-    `;
-    const popup = new mapboxgl.Popup().setHTML(popupHTML);
-    new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
-    log('Marker added:', loc.title, [loc.lng, loc.lat]);
-  });
+  // Draggable panel
+  const header = navigationPanel.querySelector("div");
+  header.onmousedown = function (e) {
+    e.preventDefault();
+    let shiftX = e.clientX - navigationPanel.getBoundingClientRect().left;
+    let shiftY = e.clientY - navigationPanel.getBoundingClientRect().top;
 
-  // Set destination
-  document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('select-destination')) {
-      destinationCoords = [
-        parseFloat(e.target.dataset.lng),
-        parseFloat(e.target.dataset.lat)
-      ];
-      document.getElementById('start-navigation').disabled = false;
-      log('Destination selected:', destinationCoords);
+    function moveAt(pageX, pageY) {
+      navigationPanel.style.left = pageX - shiftX + "px";
+      navigationPanel.style.top = pageY - shiftY + "px";
     }
-  });
 
-  // Start navigation
-  document.addEventListener('click', function (e) {
-    if (e.target.id === 'start-navigation') {
-      if (!userCoords || !destinationCoords) return;
-      const mode = document.getElementById('nav-mode').value;
-
-      directions.removeRoutes();
-      directions.setProfile(`mapbox/${mode}`);
-      directions.setOrigin(userCoords);
-      directions.setDestination(destinationCoords);
-
-      log('Navigation started', { mode, from: userCoords, to: destinationCoords });
+    function onMouseMove(e) {
+      moveAt(e.pageX, e.pageY);
     }
-  });
 
-  // Load-safe geolocation + elevation
-  map.on('load', () => {
-    if (navigator.geolocation) {
+    document.addEventListener("mousemove", onMouseMove);
+    document.onmouseup = function () {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.onmouseup = null;
+    };
+  };
+  header.ondragstart = () => false;
+
+  function setMode(mode) {
+    log("Navigation mode set to:", mode);
+    // Hook into your Directions logic here...
+  }
+
+  map.on("load", () => {
+    gnMapData.locations.forEach((loc) => {
+      const popupHTML = `
+        <div class="popup-content">
+          ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
+          <h3>${loc.title}</h3>
+          <div>${loc.content}</div>
+        </div>
+      `;
+
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
+      const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
+
+      log("Marker added:", loc.title, [loc.lng, loc.lat]);
+    });
+
+    if ("geolocation" in navigator) {
       navigator.geolocation.watchPosition(
-        pos => {
-          userCoords = [pos.coords.longitude, pos.coords.latitude];
-          log('Geolocation updated:', userCoords);
+        (position) => {
+          const userCoords = [position.coords.longitude, position.coords.latitude];
+          log("Geolocation updated:", userCoords);
 
-          if (!map.getSource('user-location')) {
-            map.addSource('user-location', {
-              type: 'geojson',
-              data: {
-                type: 'Point',
-                coordinates: userCoords
-              }
+          if (!map.getSource("user-location")) {
+            map.addSource("user-location", {
+              type: "geojson",
+              data: { type: "Point", coordinates: userCoords },
             });
+
             map.addLayer({
-              id: 'user-location',
-              type: 'circle',
-              source: 'user-location',
+              id: "user-location",
+              type: "circle",
+              source: "user-location",
               paint: {
-                'circle-radius': 6,
-                'circle-color': '#007cbf'
-              }
+                "circle-radius": 6,
+                "circle-color": "#007cbf",
+              },
             });
           } else {
-            map.getSource('user-location').setData({
-              type: 'Point',
-              coordinates: userCoords
-            });
+            map.getSource("user-location").setData({ type: "Point", coordinates: userCoords });
           }
         },
-        err => log('Geolocation error:', err),
+        (error) => log("Geolocation error:", error.message),
         { enableHighAccuracy: true }
       );
+    } else {
+      log("Geolocation not supported");
     }
-
-    directions.on('route', async (e) => {
-      const steps = e.route?.[0]?.legs?.[0]?.steps;
-      if (steps?.length) {
-        speak(steps[0].maneuver.instruction);
-        log('First instruction:', steps[0].maneuver.instruction);
-      }
-
-      const coords = e.route?.[0]?.geometry?.coordinates || [];
-      if (coords.length) {
-        const elevation = await fetchElevation(coords);
-        renderElevationChart(elevation);
-      }
-    });
   });
-
-  function speak(text) {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utterance);
-      log('Voice instruction:', text);
-    }
-  }
-
-  async function fetchElevation(coords) {
-    const samples = coords.filter((_, i) => i % Math.ceil(coords.length / 200) === 0);
-    const results = [];
-    const start = performance.now();
-
-    for (let i = 0; i < samples.length; i++) {
-      const [lng, lat] = samples[i];
-      const z = 14;
-      const tile = pointToTile(lng, lat, z);
-      const px = longLatToPixelXY(lng, lat, z);
-      const url = `https://api.mapbox.com/v4/mapbox.terrain-rgb/${z}/${tile.x}/${tile.y}@2x.pngraw?access_token=${mapboxgl.accessToken}`;
-
-      try {
-        const img = await loadImage(url);
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const data = ctx.getImageData(px.x % 512, px.y % 512, 1, 1).data;
-        const elevation = -10000 + ((data[0] * 256 * 256 + data[1] * 256 + data[2]) * 0.1);
-        results.push({ distance: i, elevation });
-      } catch (err) {
-        log('Elevation error:', err);
-        results.push({ distance: i, elevation: 0 });
-      }
-    }
-
-    const end = performance.now();
-    const min = Math.min(...results.map(r => r.elevation));
-    const max = Math.max(...results.map(r => r.elevation));
-    log(`Elevation: ${results.length} points in ${(end - start).toFixed(0)}ms`);
-    log(`Min: ${min.toFixed(1)}m, Max: ${max.toFixed(1)}m, Gain: ${(max - min).toFixed(1)}m`);
-    return results;
-  }
-
-  function renderElevationChart(data) {
-    const ctx = document.getElementById('elevation-chart').getContext('2d');
-    const labels = data.map(d => d.distance);
-    const values = data.map(d => d.elevation.toFixed(1));
-    if (elevationChart) elevationChart.destroy();
-    elevationChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Elevation (m)',
-          data: values,
-          borderColor: '#3e95cd',
-          fill: true,
-          backgroundColor: 'rgba(62,149,205,0.2)',
-          tension: 0.3,
-          pointRadius: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: false }
-        }
-      }
-    });
-    log('Elevation chart rendered.');
-  }
-
-  function pointToTile(lon, lat, z) {
-    const x = Math.floor(((lon + 180) / 360) * Math.pow(2, z));
-    const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) +
-      1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
-    return { x, y };
-  }
-
-  function longLatToPixelXY(lon, lat, zoom) {
-    const sinLat = Math.sin(lat * Math.PI / 180);
-    const pixelX = ((lon + 180) / 360) * 512 * Math.pow(2, zoom);
-    const pixelY = (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * 512 * Math.pow(2, zoom);
-    return { x: Math.floor(pixelX), y: Math.floor(pixelY) };
-  }
-
-  function loadImage(src) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = src;
-    });
-  }
 });
