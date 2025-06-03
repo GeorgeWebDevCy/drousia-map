@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
+
   const debugEnabled = gnMapData.debug === true;
 
   function log(...args) {
@@ -64,7 +65,60 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.appendChild(panel);
   }
 
+  function setupNavigationUI() {
+    const navPanel = document.createElement("div");
+    navPanel.id = "gn-nav-panel";
+    navPanel.innerHTML = `
+      <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
+      <div style="padding: 10px; background: white;">
+        <button onclick="setMode('driving')">Driving</button>
+        <button onclick="setMode('walking')">Walking</button>
+        <button onclick="setMode('cycling')">Cycling</button>
+      </div>
+    `;
+    navPanel.style.cssText = `
+      position: fixed;
+      top: 100px;
+      left: 10px;
+      width: 200px;
+      z-index: 9998;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      background: #fff;
+    `;
+    document.body.appendChild(navPanel);
+
+    const header = navPanel.querySelector("div");
+    header.onmousedown = function (e) {
+      e.preventDefault();
+      let shiftX = e.clientX - navPanel.getBoundingClientRect().left;
+      let shiftY = e.clientY - navPanel.getBoundingClientRect().top;
+
+      function moveAt(pageX, pageY) {
+        navPanel.style.left = pageX - shiftX + "px";
+        navPanel.style.top = pageY - shiftY + "px";
+      }
+
+      function onMouseMove(e) {
+        moveAt(e.pageX, e.pageY);
+      }
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.onmouseup = function () {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.onmouseup = null;
+      };
+    };
+    header.ondragstart = () => false;
+  }
+
+  function setMode(mode) {
+    log("Navigation mode set to:", mode);
+    // To be used when integrating with directions logic
+  }
+
   setupDebugPanel();
+  setupNavigationUI();
 
   const map = new mapboxgl.Map({
     container: "gn-mapbox-map",
@@ -73,73 +127,9 @@ document.addEventListener("DOMContentLoaded", function () {
     zoom: 12,
   });
 
-  const nav = new mapboxgl.NavigationControl();
-  map.addControl(nav, "top-left");
-
-  // Floating draggable navigation panel
-  const navigationPanel = document.createElement("div");
-  navigationPanel.id = "gn-nav-panel";
-  navigationPanel.innerHTML = `
-    <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
-    <div style="padding: 10px; background: white;">
-      <button onclick="setMode('driving')">Driving</button>
-      <button onclick="setMode('walking')">Walking</button>
-      <button onclick="setMode('cycling')">Cycling</button>
-    </div>
-  `;
-  navigationPanel.style.cssText = `
-    position: fixed;
-    top: 100px;
-    left: 10px;
-    width: 200px;
-    z-index: 9998;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    background: #fff;
-  `;
-  document.body.appendChild(navigationPanel);
-
-  const header = navigationPanel.querySelector("div");
-  header.onmousedown = function (e) {
-    e.preventDefault();
-    let shiftX = e.clientX - navigationPanel.getBoundingClientRect().left;
-    let shiftY = e.clientY - navigationPanel.getBoundingClientRect().top;
-
-    function moveAt(pageX, pageY) {
-      navigationPanel.style.left = pageX - shiftX + "px";
-      navigationPanel.style.top = pageY - shiftY + "px";
-    }
-
-    function onMouseMove(e) {
-      moveAt(e.pageX, e.pageY);
-    }
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.onmouseup = function () {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.onmouseup = null;
-    };
-  };
-  header.ondragstart = () => false;
-
-  function setMode(mode) {
-    log("Navigation mode set to:", mode);
-    // Extend here for Mapbox Directions if desired
-  }
-
   map.on("load", () => {
-    // ✅ Elevation source and terrain
-    map.addSource('elevation', {
-      type: 'raster-dem',
-      url: 'mapbox://mapbox.terrain-rgb',
-      tileSize: 512,
-      maxzoom: 14
-    });
+    log("Map loaded");
 
-    map.setTerrain({ source: 'elevation', exaggeration: 1.5 });
-    log("Elevation source and terrain added");
-
-    // Add markers
     gnMapData.locations.forEach((loc) => {
       const popupHTML = `
         <div class="popup-content">
@@ -150,10 +140,10 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
       new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
+
       log("Marker added:", loc.title, [loc.lng, loc.lat]);
     });
 
-    // Geolocation with dynamic updates
     if ("geolocation" in navigator) {
       navigator.geolocation.watchPosition(
         (position) => {
