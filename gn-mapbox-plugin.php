@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with Navigation
 Description: Display locations with Mapbox, live user tracking, and route navigation using Mapbox Directions API.
-Version: 2.0
+Version: 2.1
 Author: George Nicolaou
 */
 
