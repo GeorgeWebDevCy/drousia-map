@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
   if (!document.getElementById("gn-mapbox-map")) return;
+
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
-
   let coords = [];
 
   function log(...args) {
@@ -114,6 +114,24 @@ document.addEventListener("DOMContentLoaded", function () {
     header.ondragstart = () => false;
 
     document.getElementById("gn-start-nav").onclick = startNavigation;
+    addVoiceToggleButton();
+  }
+
+  function addVoiceToggleButton() {
+    const btn = document.createElement("button");
+    btn.id = "gn-voice-toggle";
+    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "Unmute Voice" : "Mute Voice";
+    btn.className = "gn-nav-btn";
+    btn.style.marginTop = "10px";
+
+    btn.onclick = () => {
+      const isMuted = localStorage.getItem("gn_voice_muted") === "true";
+      localStorage.setItem("gn_voice_muted", !isMuted);
+      btn.textContent = !isMuted ? "Unmute Voice" : "Mute Voice";
+    };
+
+    const panel = document.getElementById("gn-nav-panel");
+    panel.querySelector("div:last-child").appendChild(btn);
   }
 
   window.setMode = function (mode) {
@@ -162,10 +180,15 @@ document.addEventListener("DOMContentLoaded", function () {
       map.flyTo({ center: userLngLat, zoom: 15 });
       log("Navigation route displayed.");
 
+      let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
       const steps = data.routes[0].legs[0].steps;
       for (const step of steps) {
         const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
-        window.speechSynthesis.speak(msg);
+        msg.lang = 'el-GR';
+        msg.rate = 0.95;
+        msg.pitch = 1;
+        msg.volume = 1.0;
+        if (!voiceMuted) window.speechSynthesis.speak(msg);
         await new Promise(res => setTimeout(res, step.duration * 1000));
       }
     }, err => {
@@ -202,130 +225,5 @@ document.addEventListener("DOMContentLoaded", function () {
       coords.push([loc.lng, loc.lat]);
       log("Marker added:", loc.title, [loc.lng, loc.lat]);
     });
-
-    if (coords.length > 1) {
-      map.addSource("route", {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: coords,
-          },
-        },
-      });
-
-      map.addLayer({
-        id: "route",
-        type: "line",
-        source: "route",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#ff0000", "line-width": 4 },
-      });
-
-      log("Route LineString drawn with", coords.length, "points");
-    }
-
-    // Elevation profile
-    const DEM_TILE_URL = 'https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=' + mapboxgl.accessToken;
-    const elevationCanvas = document.createElement('canvas');
-    const ctx = elevationCanvas.getContext('2d');
-    const elevationData = [];
-
-    async function getElevationAt(lng, lat) {
-      const zoom = 15;
-      const worldCoord = [
-        (lng + 180) / 360 * Math.pow(2, zoom),
-        (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)
-      ];
-      const xTile = Math.floor(worldCoord[0]);
-      const yTile = Math.floor(worldCoord[1]);
-      const url = DEM_TILE_URL.replace('{z}', zoom).replace('{x}', xTile).replace('{y}', yTile);
-
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.onload = () => {
-          elevationCanvas.width = img.width;
-          elevationCanvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          const x = Math.floor((worldCoord[0] - xTile) * img.width);
-          const y = Math.floor((worldCoord[1] - yTile) * img.height);
-          const [r, g, b] = ctx.getImageData(x, y, 1, 1).data;
-          const elevation = -10000 + ((r * 256 * 256 + g * 256 + b) * 0.1);
-          resolve(Math.round(elevation));
-        };
-        img.onerror = () => resolve(null);
-        img.src = url;
-      });
-    }
-
-    const chartContainer = document.createElement('div');
-    chartContainer.innerHTML = `<canvas id="elevation-profile" style="max-width:100%;max-height:200px;"></canvas>`;
-    chartContainer.style.margin = '20px auto';
-    document.getElementById('gn-mapbox-map').after(chartContainer);
-
-    (async () => {
-      for (const [lng, lat] of coords) {
-        const elev = await getElevationAt(lng, lat);
-        elevationData.push(elev);
-        log(`Elevation at ${lat}, ${lng}: ${elev}m`);
-      }
-
-      new Chart(document.getElementById("elevation-profile"), {
-        type: 'line',
-        data: {
-          labels: elevationData.map((_, i) => `${i + 1}`),
-          datasets: [{
-            label: 'Elevation (m)',
-            data: elevationData,
-            fill: true,
-            borderColor: 'rgba(255, 99, 132, 1)',
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            tension: 0.3,
-            pointRadius: 0,
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { title: { display: true, text: 'Point Index' }},
-            y: { title: { display: true, text: 'Elevation (m)' }}
-          }
-        }
-      });
-    })();
-
-    // Live location
-    if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(
-        (pos) => {
-          const userCoords = [pos.coords.longitude, pos.coords.latitude];
-          log("Geolocation updated:", userCoords);
-          if (!map.getSource("user-location")) {
-            map.addSource("user-location", {
-              type: "geojson",
-              data: { type: "Point", coordinates: userCoords }
-            });
-            map.addLayer({
-              id: "user-location",
-              type: "circle",
-              source: "user-location",
-              paint: { "circle-radius": 6, "circle-color": "#007cbf" },
-            });
-          } else {
-            map.getSource("user-location").setData({
-              type: "Point",
-              coordinates: userCoords,
-            });
-          }
-        },
-        (err) => log("Geolocation error:", err.message),
-        { enableHighAccuracy: true }
-      );
-    } else {
-      log("Geolocation not supported");
-    }
   });
 });
