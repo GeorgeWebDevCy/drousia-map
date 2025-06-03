@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
     style: "mapbox://styles/mapbox/streets-v11",
     center: [32.4000, 35.0400], // ✅ centered on Droushia
 
-    zoom: 8,
+    zoom: 13,
   });
 
   map.addControl(new mapboxgl.NavigationControl(), "top-left");
