@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with Navigation
 Description: Mapbox map with CPT locations, live tracking, elevation, voice navigation, and debug panel.
-Version: 2.4.1
+Version: 2.4.2
 Author: George Nicolaou
 */
 
