@@ -121,7 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const map = new mapboxgl.Map({
     container: "gn-mapbox-map",
     style: "mapbox://styles/mapbox/streets-v11",
-    center: [33.366, 35.146],
+    center: [32.4000, 35.0400], // ✅ centered on Droushia
+
     zoom: 13,
   });
 
