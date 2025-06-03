@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setupDebugPanel() {
     if (!debugEnabled || document.getElementById("gn-debug-panel")) return;
-
     const panel = document.createElement("div");
     panel.id = "gn-debug-panel";
     panel.style.cssText = `
@@ -110,10 +109,82 @@ document.addEventListener("DOMContentLoaded", function () {
     header.ondragstart = () => false;
   }
 
+  function addStartNavigationButton() {
+    const btn = document.createElement("button");
+    btn.id = "gn-start-nav";
+    btn.textContent = "Start Navigation";
+    btn.style.cssText = `
+      position: fixed;
+      top: 180px;
+      left: 10px;
+      z-index: 9999;
+      background: #007cbf;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+    `;
+    btn.onclick = startNavigation;
+    document.body.appendChild(btn);
+  }
+
   window.setMode = function (mode) {
     log("Navigation mode set to:", mode);
-    // Add voice navigation logic if needed
   };
+
+  async function startNavigation() {
+    if (!navigator.geolocation) {
+      log("Geolocation not supported.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const userLngLat = [pos.coords.longitude, pos.coords.latitude];
+      const destination = coords[coords.length - 1];
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLngLat.join(',')};${destination.join(',')}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.routes || !data.routes[0]) {
+        log("No route found.");
+        return;
+      }
+
+      const routeGeoJSON = {
+        type: "Feature",
+        geometry: data.routes[0].geometry,
+      };
+
+      if (map.getSource("nav-route")) {
+        map.getSource("nav-route").setData(routeGeoJSON);
+      } else {
+        map.addSource("nav-route", { type: "geojson", data: routeGeoJSON });
+        map.addLayer({
+          id: "nav-route",
+          type: "line",
+          source: "nav-route",
+          paint: {
+            "line-color": "#007cbf",
+            "line-width": 6,
+            "line-dasharray": [2, 2],
+          },
+        });
+      }
+
+      map.flyTo({ center: userLngLat, zoom: 15 });
+      log("Navigation route displayed.");
+
+      const steps = data.routes[0].legs[0].steps;
+      for (const step of steps) {
+        const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
+        window.speechSynthesis.speak(msg);
+        await new Promise(res => setTimeout(res, step.duration * 1000));
+      }
+    }, err => {
+      log("Geolocation error:", err.message);
+    });
+  }
 
   setupDebugPanel();
   setupNavPanel();
@@ -130,7 +201,6 @@ document.addEventListener("DOMContentLoaded", function () {
   map.on("load", () => {
     log("Map loaded");
 
-    // Add markers and collect coordinates
     const coords = [];
     gnMapData.locations.forEach((loc) => {
       const popupHTML = `
@@ -140,18 +210,12 @@ document.addEventListener("DOMContentLoaded", function () {
           <div>${loc.content}</div>
         </div>
       `;
-
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-      new mapboxgl.Marker()
-        .setLngLat([loc.lng, loc.lat])
-        .setPopup(popup)
-        .addTo(map);
-
+      new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
       coords.push([loc.lng, loc.lat]);
       log("Marker added:", loc.title, [loc.lng, loc.lat]);
     });
 
-    // Draw route as LineString
     if (coords.length > 1) {
       map.addSource("route", {
         type: "geojson",
@@ -168,18 +232,83 @@ document.addEventListener("DOMContentLoaded", function () {
         id: "route",
         type: "line",
         source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#ff0000",
-          "line-width": 4,
-        },
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#ff0000", "line-width": 4 },
       });
 
       log("Route LineString drawn with", coords.length, "points");
     }
+
+    // Elevation chart
+    const DEM_TILE_URL = 'https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=' + mapboxgl.accessToken;
+    const elevationCanvas = document.createElement('canvas');
+    const ctx = elevationCanvas.getContext('2d');
+    const elevationData = [];
+
+    async function getElevationAt(lng, lat) {
+      const zoom = 15;
+      const worldCoord = [
+        (lng + 180) / 360 * Math.pow(2, zoom),
+        (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)
+      ];
+      const xTile = Math.floor(worldCoord[0]);
+      const yTile = Math.floor(worldCoord[1]);
+      const url = DEM_TILE_URL.replace('{z}', zoom).replace('{x}', xTile).replace('{y}', yTile);
+
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+          elevationCanvas.width = img.width;
+          elevationCanvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          const x = Math.floor((worldCoord[0] - xTile) * img.width);
+          const y = Math.floor((worldCoord[1] - yTile) * img.height);
+          const [r, g, b] = ctx.getImageData(x, y, 1, 1).data;
+          const elevation = -10000 + ((r * 256 * 256 + g * 256 + b) * 0.1);
+          resolve(Math.round(elevation));
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    const chartContainer = document.createElement('div');
+    chartContainer.innerHTML = `<canvas id="elevation-profile" style="max-width:100%;max-height:200px;"></canvas>`;
+    chartContainer.style.margin = '20px auto';
+    document.getElementById('gn-mapbox-map').after(chartContainer);
+
+    (async () => {
+      for (const [lng, lat] of coords) {
+        const elev = await getElevationAt(lng, lat);
+        elevationData.push(elev);
+        log(`Elevation at ${lat}, ${lng}: ${elev}m`);
+      }
+
+      new Chart(document.getElementById("elevation-profile"), {
+        type: 'line',
+        data: {
+          labels: elevationData.map((_, i) => `${i + 1}`),
+          datasets: [{
+            label: 'Elevation (m)',
+            data: elevationData,
+            fill: true,
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.3,
+            pointRadius: 0,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Point Index' }},
+            y: { title: { display: true, text: 'Elevation (m)' }}
+          }
+        }
+      });
+    })();
 
     // Live tracking
     if ("geolocation" in navigator) {
@@ -187,23 +316,16 @@ document.addEventListener("DOMContentLoaded", function () {
         (pos) => {
           const userCoords = [pos.coords.longitude, pos.coords.latitude];
           log("Geolocation updated:", userCoords);
-
           if (!map.getSource("user-location")) {
             map.addSource("user-location", {
               type: "geojson",
-              data: {
-                type: "Point",
-                coordinates: userCoords,
-              },
+              data: { type: "Point", coordinates: userCoords }
             });
             map.addLayer({
               id: "user-location",
               type: "circle",
               source: "user-location",
-              paint: {
-                "circle-radius": 6,
-                "circle-color": "#007cbf",
-              },
+              paint: { "circle-radius": 6, "circle-color": "#007cbf" },
             });
           } else {
             map.getSource("user-location").setData({
@@ -218,5 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       log("Geolocation not supported");
     }
+
+    addStartNavigationButton();
   });
 });
