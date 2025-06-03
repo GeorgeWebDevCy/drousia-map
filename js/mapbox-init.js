@@ -196,7 +196,8 @@ document.addEventListener("DOMContentLoaded", function () {
       log(`Total route duration: ${totalDuration.toFixed(1)} minutes`);
       for (const step of steps) {
         const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
-        msg.lang = 'el-GR';
+        //msg.lang = 'el-GR';
+        msg.lang = 'en-GB';
         msg.rate = 0.95;
         msg.pitch = 1;
         msg.volume = 1.0;
