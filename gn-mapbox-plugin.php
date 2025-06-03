@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: GN Mapbox Locations with Navigation
-Description: Mapbox map with CPT locations, live tracking, elevation profiles, directions, voice navigation, and debug mode.
-Version: 2.3
+Description: Mapbox map with CPT locations, live tracking, elevation, voice navigation, and debug panel.
+Version: 2.4
 Author: George Nicolaou
 */
 
 if (!defined('ABSPATH')) exit;
 
-// GitHub Auto Update (optional)
+// Auto Update (GitHub)
 require 'plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 $updateChecker = PucFactory::buildUpdateChecker(
@@ -18,7 +18,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 );
 $updateChecker->setBranch('main');
 
-// Register CPT
+// CPT
 function gn_register_map_location_cpt() {
     register_post_type('map_location', [
         'label' => 'Map Locations',
@@ -30,14 +30,11 @@ function gn_register_map_location_cpt() {
 }
 add_action('init', 'gn_register_map_location_cpt');
 
-// Get ACF coordinates
+// Get ACF-based map locations
 function gn_get_map_locations() {
-    $query = new WP_Query([
-        'post_type' => 'map_location',
-        'posts_per_page' => -1,
-    ]);
-
+    $query = new WP_Query(['post_type' => 'map_location', 'posts_per_page' => -1]);
     $locations = [];
+
     while ($query->have_posts()) {
         $query->the_post();
         $lat = get_field('latitude');
@@ -52,6 +49,7 @@ function gn_get_map_locations() {
             ];
         }
     }
+
     wp_reset_postdata();
     return $locations;
 }
@@ -77,20 +75,20 @@ function gn_enqueue_mapbox_assets() {
 
         wp_localize_script('gn-mapbox-init', 'gnMapData', [
             'accessToken' => get_option('gn_mapbox_token'),
-            'locations'   => gn_get_map_locations(),
-            'debug'       => (bool) get_option('gn_mapbox_debug'),
+            'locations' => gn_get_map_locations(),
+            'debug' => (bool) get_option('gn_mapbox_debug'),
         ]);
     }
 }
 add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets');
 
-// Admin menu
+// Admin Page
 function gn_mapbox_add_admin_menu() {
     add_options_page('GN Mapbox Settings', 'GN Mapbox', 'manage_options', 'gn-mapbox', 'gn_mapbox_settings_page');
 }
 add_action('admin_menu', 'gn_mapbox_add_admin_menu');
 
-// Admin UI
+// Settings UI
 function gn_mapbox_settings_page() {
     ?>
     <div class="wrap">
@@ -106,7 +104,7 @@ function gn_mapbox_settings_page() {
     <?php
 }
 
-// Register settings
+// Settings
 function gn_mapbox_settings_init() {
     register_setting('gn_mapbox_settings', 'gn_mapbox_token');
     register_setting('gn_mapbox_settings', 'gn_mapbox_debug');
@@ -114,13 +112,12 @@ function gn_mapbox_settings_init() {
     add_settings_section('gn_mapbox_section', 'Mapbox Settings', null, 'gn-mapbox');
 
     add_settings_field('gn_mapbox_token', 'Mapbox Access Token', function () {
-        $val = get_option('gn_mapbox_token');
-        echo '<input type="password" name="gn_mapbox_token" value="' . esc_attr($val) . '" style="width: 400px;" />';
+        echo '<input type="password" name="gn_mapbox_token" value="' . esc_attr(get_option('gn_mapbox_token')) . '" style="width:400px;" />';
     }, 'gn-mapbox', 'gn_mapbox_section');
 
     add_settings_field('gn_mapbox_debug', 'Enable Debug Mode', function () {
         $checked = checked(1, get_option('gn_mapbox_debug'), false);
-        echo '<label><input type="checkbox" name="gn_mapbox_debug" value="1" ' . $checked . '> Show console debug messages</label>';
+        echo '<label><input type="checkbox" name="gn_mapbox_debug" value="1" ' . $checked . '> Show floating debug panel & log data</label>';
     }, 'gn-mapbox', 'gn_mapbox_section');
 }
 add_action('admin_init', 'gn_mapbox_settings_init');

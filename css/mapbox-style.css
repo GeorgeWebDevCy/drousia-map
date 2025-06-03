@@ -16,28 +16,24 @@
   font-size: 14px;
   max-width: 90vw;
 }
-
 @media (max-width: 480px) {
   .navigation-ui {
     left: 50%;
     transform: translateX(-50%);
     width: 90vw;
   }
-
   .navigation-ui button,
   .navigation-ui select {
     width: 100%;
     margin-top: 6px;
   }
 }
-
 .popup-content img {
   width: 100%;
   height: auto;
   margin-bottom: 10px;
   border-radius: 4px;
 }
-
 .popup-content button.select-destination {
   margin-top: 10px;
   padding: 8px 12px;
@@ -48,11 +44,39 @@
   cursor: pointer;
   font-size: 14px;
 }
-
 #elevation-chart {
   background: #fff;
   padding: 10px;
   border-radius: 6px;
   margin-top: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+/* Debug Panel */
+#gn-debug-panel {
+  font-family: monospace;
+  font-size: 11px;
+  color: #0f0;
+  background: rgba(0,0,0,0.85);
+  padding: 8px;
+  border-radius: 6px;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  max-height: 30vh;
+  max-width: 45vw;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  z-index: 9999;
+}
+#gn-debug-panel button {
+  position: absolute;
+  bottom: 5px;
+  right: 8px;
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #222;
+  color: #0f0;
+  border: 1px solid #444;
+  border-radius: 4px;
+  cursor: pointer;
 }
