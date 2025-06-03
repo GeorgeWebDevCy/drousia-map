@@ -15,17 +15,17 @@ document.addEventListener('DOMContentLoaded', function () {
   let destinationCoords = null;
   let elevationChart = null;
 
-  // Floating debug panel
+  // Debug Panel
   let debugPanel;
   if (debug) {
     debugPanel = document.createElement('div');
     debugPanel.id = 'gn-debug-panel';
     debugPanel.style.cssText = `
       position: absolute;
-      bottom: 10px;
-      left: 10px;
-      max-height: 30vh;
-      max-width: 45vw;
+      top: 10px;
+      right: 10px;
+      max-height: 35vh;
+      max-width: 90vw;
       overflow-y: auto;
       background: rgba(0,0,0,0.85);
       color: #0f0;
@@ -68,12 +68,25 @@ document.addEventListener('DOMContentLoaded', function () {
     profile: 'mapbox/driving',
     controls: { instructions: true, inputs: false }
   });
+
   map.addControl(new mapboxgl.NavigationControl());
   map.addControl(directions, 'top-left');
 
-  // Navigation UI
+  // Navigation Panel (bottom-left)
   const ui = document.createElement('div');
   ui.className = 'navigation-ui';
+  ui.style.cssText = `
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 9998;
+    font-size: 14px;
+    max-width: 90vw;
+  `;
   ui.innerHTML = `
     <strong>Navigate to Destination</strong><br>
     <label for="nav-mode">Mode:</label>
@@ -87,40 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
   `;
   map.getContainer().appendChild(ui);
 
-  navigator.geolocation.watchPosition(
-    pos => {
-      userCoords = [pos.coords.longitude, pos.coords.latitude];
-      log('Geolocation updated:', userCoords);
-
-      if (!map.getSource('user-location')) {
-        map.addSource('user-location', {
-          type: 'geojson',
-          data: {
-            type: 'Point',
-            coordinates: userCoords
-          }
-        });
-        map.addLayer({
-          id: 'user-location',
-          type: 'circle',
-          source: 'user-location',
-          paint: {
-            'circle-radius': 6,
-            'circle-color': '#007cbf'
-          }
-        });
-      } else {
-        map.getSource('user-location').setData({
-          type: 'Point',
-          coordinates: userCoords
-        });
-      }
-    },
-    err => log('Geolocation error:', err),
-    { enableHighAccuracy: true }
-  );
-
-  // Add markers from CPT
+  // Markers
   gnMapData.locations.forEach(loc => {
     const popupHTML = `
       <div class="popup-content">
@@ -162,19 +142,56 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Voice + elevation on route load
-  directions.on('route', async (e) => {
-    const steps = e.route?.[0]?.legs?.[0]?.steps;
-    if (steps?.length) {
-      speak(steps[0].maneuver.instruction);
-      log('First instruction:', steps[0].maneuver.instruction);
+  // Load-safe geolocation + elevation
+  map.on('load', () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        pos => {
+          userCoords = [pos.coords.longitude, pos.coords.latitude];
+          log('Geolocation updated:', userCoords);
+
+          if (!map.getSource('user-location')) {
+            map.addSource('user-location', {
+              type: 'geojson',
+              data: {
+                type: 'Point',
+                coordinates: userCoords
+              }
+            });
+            map.addLayer({
+              id: 'user-location',
+              type: 'circle',
+              source: 'user-location',
+              paint: {
+                'circle-radius': 6,
+                'circle-color': '#007cbf'
+              }
+            });
+          } else {
+            map.getSource('user-location').setData({
+              type: 'Point',
+              coordinates: userCoords
+            });
+          }
+        },
+        err => log('Geolocation error:', err),
+        { enableHighAccuracy: true }
+      );
     }
 
-    const coords = e.route?.[0]?.geometry?.coordinates || [];
-    if (coords.length) {
-      const elevation = await fetchElevation(coords);
-      renderElevationChart(elevation);
-    }
+    directions.on('route', async (e) => {
+      const steps = e.route?.[0]?.legs?.[0]?.steps;
+      if (steps?.length) {
+        speak(steps[0].maneuver.instruction);
+        log('First instruction:', steps[0].maneuver.instruction);
+      }
+
+      const coords = e.route?.[0]?.geometry?.coordinates || [];
+      if (coords.length) {
+        const elevation = await fetchElevation(coords);
+        renderElevationChart(elevation);
+      }
+    });
   });
 
   function speak(text) {
@@ -216,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const end = performance.now();
     const min = Math.min(...results.map(r => r.elevation));
     const max = Math.max(...results.map(r => r.elevation));
-    log(`Elevation: ${results.length} points in ${Math.round(end - start)}ms`);
+    log(`Elevation: ${results.length} points in ${(end - start).toFixed(0)}ms`);
     log(`Min: ${min.toFixed(1)}m, Max: ${max.toFixed(1)}m, Gain: ${(max - min).toFixed(1)}m`);
     return results;
   }
