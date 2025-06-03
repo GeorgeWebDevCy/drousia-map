@@ -225,5 +225,35 @@ document.addEventListener("DOMContentLoaded", function () {
       coords.push([loc.lng, loc.lat]);
       log("Marker added:", loc.title, [loc.lng, loc.lat]);
     });
+
+    if (coords.length > 1) {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: coords,
+          },
+        },
+      });
+
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        paint: {
+          "line-color": "#ff0000",
+          "line-width": 4
+        }
+      });
+
+      log("Route LineString drawn with", coords.length, "points");
+    }
+  });
   });
 });
