@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
-
   const debugEnabled = gnMapData.debug === true;
 
   function log(...args) {
+    const timestamp = new Date().toLocaleTimeString();
+    const msg = `[${timestamp}] ${args.map(String).join(" ")}`;
     if (debugEnabled) {
       const logContainer = document.getElementById("gn-debug-log");
-      const timestamp = new Date().toLocaleTimeString();
-      const msg = `[${timestamp}] ${args.map(String).join(" ")}`;
       if (logContainer) {
         const div = document.createElement("div");
         div.textContent = msg;
@@ -77,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const nav = new mapboxgl.NavigationControl();
   map.addControl(nav, "top-left");
 
+  // Floating draggable navigation panel
   const navigationPanel = document.createElement("div");
   navigationPanel.id = "gn-nav-panel";
   navigationPanel.innerHTML = `
@@ -99,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
   document.body.appendChild(navigationPanel);
 
-  // Draggable panel
   const header = navigationPanel.querySelector("div");
   header.onmousedown = function (e) {
     e.preventDefault();
@@ -125,10 +124,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setMode(mode) {
     log("Navigation mode set to:", mode);
-    // Hook into your Directions logic here...
+    // Extend here for Mapbox Directions if desired
   }
 
   map.on("load", () => {
+    // ✅ Elevation source and terrain
+    map.addSource('elevation', {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.terrain-rgb',
+      tileSize: 512,
+      maxzoom: 14
+    });
+
+    map.setTerrain({ source: 'elevation', exaggeration: 1.5 });
+    log("Elevation source and terrain added");
+
+    // Add markers
     gnMapData.locations.forEach((loc) => {
       const popupHTML = `
         <div class="popup-content">
@@ -137,13 +148,12 @@ document.addEventListener("DOMContentLoaded", function () {
           <div>${loc.content}</div>
         </div>
       `;
-
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-      const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
-
+      new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
       log("Marker added:", loc.title, [loc.lng, loc.lat]);
     });
 
+    // Geolocation with dynamic updates
     if ("geolocation" in navigator) {
       navigator.geolocation.watchPosition(
         (position) => {
