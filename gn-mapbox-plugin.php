@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: GN Mapbox Locations with Navigation
-Description: Display locations with Mapbox, live user tracking, and route navigation using Mapbox Directions API.
-Version: 2.1
+Description: Display locations with Mapbox, live user tracking, elevation profiles, and route navigation using Mapbox Directions API.
+Version: 2.2
 Author: George Nicolaou
 */
 
@@ -18,7 +18,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 );
 $myUpdateChecker->setBranch('main');
 
-// Custom Post Type
+// CPT
 function gn_register_map_location_cpt() {
   register_post_type('map_location', [
     'label' => 'Map Locations',
@@ -30,7 +30,7 @@ function gn_register_map_location_cpt() {
 }
 add_action('init', 'gn_register_map_location_cpt');
 
-// Enqueue Mapbox Scripts + Styles
+// Enqueue assets if shortcode found
 function gn_enqueue_mapbox_assets_conditionally() {
   if (is_singular() && has_shortcode(get_post()->post_content, 'gn_map')) {
     wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
@@ -39,17 +39,19 @@ function gn_enqueue_mapbox_assets_conditionally() {
 
     wp_enqueue_script('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js', [], null, true);
     wp_enqueue_script('mapbox-directions', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js', ['mapbox-gl'], null, true);
-    wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery', 'mapbox-directions'], null, true);
+    wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
+    wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery', 'mapbox-directions', 'chartjs'], null, true);
 
     wp_localize_script('gn-mapbox-init', 'gnMapData', [
       'accessToken' => get_option('gn_mapbox_token'),
       'locations' => gn_get_map_locations(),
+      'debug' => (bool)get_option('gn_mapbox_debug'),
     ]);
   }
 }
 add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets_conditionally');
 
-// Fetch Map Locations
+// Get locations
 function gn_get_map_locations() {
   $query = new WP_Query([
     'post_type' => 'map_location',
@@ -82,12 +84,13 @@ function gn_map_shortcode($atts) {
 }
 add_shortcode('gn_map', 'gn_map_shortcode');
 
-// Admin Settings
+// Admin menu
 function gn_mapbox_add_admin_menu() {
   add_options_page('GN Mapbox Settings', 'GN Mapbox', 'manage_options', 'gn-mapbox', 'gn_mapbox_settings_page');
 }
 add_action('admin_menu', 'gn_mapbox_add_admin_menu');
 
+// Settings page HTML
 function gn_mapbox_settings_page() {
   ?>
   <div class="wrap">
@@ -103,14 +106,21 @@ function gn_mapbox_settings_page() {
   <?php
 }
 
+// Register settings
 function gn_mapbox_settings_init() {
   register_setting('gn_mapbox_settings', 'gn_mapbox_token');
-  add_settings_section('gn_mapbox_section', 'Mapbox API Key', null, 'gn-mapbox');
-  add_settings_field('gn_mapbox_token', 'Access Token', 'gn_mapbox_token_render', 'gn-mapbox', 'gn_mapbox_section');
+  register_setting('gn_mapbox_settings', 'gn_mapbox_debug');
+
+  add_settings_section('gn_mapbox_section', 'Mapbox Settings', null, 'gn-mapbox');
+
+  add_settings_field('gn_mapbox_token', 'Access Token', function () {
+    $value = get_option('gn_mapbox_token');
+    echo '<input type="password" name="gn_mapbox_token" value="' . esc_attr($value) . '" style="width: 400px;">';
+  }, 'gn-mapbox', 'gn_mapbox_section');
+
+  add_settings_field('gn_mapbox_debug', 'Enable Debug Mode', function () {
+    $checked = checked(1, get_option('gn_mapbox_debug'), false);
+    echo "<input type='checkbox' name='gn_mapbox_debug' value='1' $checked> Show debug messages in browser console.";
+  }, 'gn-mapbox', 'gn_mapbox_section');
 }
 add_action('admin_init', 'gn_mapbox_settings_init');
-
-function gn_mapbox_token_render() {
-  $value = get_option('gn_mapbox_token');
-  echo '<input type="password" name="gn_mapbox_token" value="' . esc_attr($value) . '" style="width: 400px;">';
-}

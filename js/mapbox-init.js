@@ -24,11 +24,16 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   map.addControl(directions, 'top-left');
 
+  function debug(...args) {
+    if (gnMapData.debug) console.log('[GN MAPBOX DEBUG]:', ...args);
+  }
+
   function speak(text) {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       speechSynthesis.cancel();
       speechSynthesis.speak(utterance);
+      debug('Voice:', text);
     }
   }
 
@@ -57,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
   navigator.geolocation.watchPosition(
     pos => {
       userCoords = [pos.coords.longitude, pos.coords.latitude];
+      debug('Geolocation success:', userCoords);
+
       if (!map.getSource('user-location')) {
         map.addSource('user-location', {
           type: 'geojson',
@@ -81,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
     },
-    err => console.warn('Geolocation error:', err),
+    err => debug('Geolocation error:', err),
     { enableHighAccuracy: true }
   );
 
@@ -102,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.target.classList.contains('select-destination')) {
       destinationCoords = [parseFloat(e.target.dataset.lng), parseFloat(e.target.dataset.lat)];
       document.getElementById('start-navigation').disabled = false;
+      debug('Destination set to:', destinationCoords);
     }
   });
 
@@ -112,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
       directions.setProfile(`mapbox/${mode}`);
       directions.setOrigin(userCoords);
       directions.setDestination(destinationCoords);
+      debug('Navigation started from', userCoords, 'to', destinationCoords, 'via', mode);
     }
   });
 
@@ -128,9 +137,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Fetch elevation using Mapbox Terrain-RGB tiles
   async function fetchElevation(coords) {
-    const samples = coords.filter((_, i) => i % Math.ceil(coords.length / 200) === 0); // 200 max points
+    const samples = coords.filter((_, i) => i % Math.ceil(coords.length / 200) === 0);
     const results = [];
 
     for (let i = 0; i < samples.length; i++) {
@@ -151,12 +159,13 @@ document.addEventListener('DOMContentLoaded', function () {
       results.push({ dist: i, elevation });
     }
 
+    debug('Elevation data:', results);
     return results;
   }
 
   function renderElevationChart(data) {
     const ctx = document.getElementById('elevation-chart').getContext('2d');
-    const labels = data.map((d, i) => `${i} km`);
+    const labels = data.map((d, i) => `${i}`);
     const values = data.map(d => d.elevation.toFixed(1));
 
     if (elevationChart) elevationChart.destroy();
@@ -182,6 +191,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     });
+
+    debug('Elevation chart rendered.');
   }
 
   function pointToTile(lon, lat, z) {
