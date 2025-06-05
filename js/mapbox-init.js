@@ -30,25 +30,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function checkVoiceAvailability(lang) {
-    if (!window.speechSynthesis) return false;
-    const verify = (voices) => {
-      const base = lang.toLowerCase().split("-")[0];
-      const found = voices.some(v => {
-        const vLang = String(v.lang).toLowerCase();
-        const vBase = vLang.split("-")[0];
-        return vLang === lang.toLowerCase() || vBase === base;
-      });
-      if (!found) {
-        alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
-      }
-    };
-    if (voicesLoaded) {
-      verify(window.speechSynthesis.getVoices());
-    } else {
-      ensureVoicesLoaded(verify);
+  if (!window.speechSynthesis) return false;
+
+  const verify = (voices) => {
+    const base = lang.toLowerCase().split("-")[0];
+    const found = voices.some(v => {
+      const vLang = String(v.lang).toLowerCase();
+      const vBase = vLang.split("-")[0];
+      return vLang === lang.toLowerCase() || vBase === base;
+    });
+    if (!found) {
+      alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
     }
-    return true;
+    return found;
+  };
+
+  if (voicesLoaded) {
+    return verify(window.speechSynthesis.getVoices());
+  } else {
+    ensureVoicesLoaded(verify);
+    return true; // Assume true until voices load callback runs
   }
+}
+
 
   function log(...args) {
     if (debugEnabled) {
