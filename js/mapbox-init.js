@@ -31,15 +31,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function checkVoiceAvailability(lang) {
     if (!window.speechSynthesis) return false;
-    let available = true;
     const verify = (voices) => {
-      const base = lang.split("-")[0].toLowerCase();
+      const base = lang.toLowerCase().split("-")[0];
       const found = voices.some(v => {
-        const vBase = v.lang.split("-")[0].toLowerCase();
-        return v.lang === lang || vBase === base;
+        const vLang = String(v.lang).toLowerCase();
+        const vBase = vLang.split("-")[0];
+        return vLang === lang.toLowerCase() || vBase === base;
       });
       if (!found) {
-        available = false;
         alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
       }
     };
@@ -48,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       ensureVoicesLoaded(verify);
     }
-    return available;
+    return true;
   }
 
   function log(...args) {
