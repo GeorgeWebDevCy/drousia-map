@@ -17,8 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!voices.length) return true;
     const hasVoice = voices.some(v => v.lang === lang);
     if (!hasVoice) {
+
       alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
-    }
+   }
     return hasVoice;
   }
 
