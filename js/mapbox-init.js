@@ -14,12 +14,22 @@ document.addEventListener("DOMContentLoaded", function () {
   function checkVoiceAvailability(lang) {
     if (!window.speechSynthesis) return false;
     const voices = window.speechSynthesis.getVoices();
-    if (!voices.length) return true;
+    if (!voices.length) {
+      const onVoicesChanged = () => {
+        const updatedVoices = window.speechSynthesis.getVoices();
+        window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
+        if (!updatedVoices.some(v => v.lang === lang)) {
+          alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+        }
+      };
+      window.speechSynthesis.addEventListener("voiceschanged", onVoicesChanged);
+      window.speechSynthesis.getVoices();
+      return true;
+    }
     const hasVoice = voices.some(v => v.lang === lang);
     if (!hasVoice) {
-
       alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
-   }
+    }
     return hasVoice;
   }
 
