@@ -33,7 +33,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!window.speechSynthesis) return false;
     let available = true;
     const verify = (voices) => {
-      if (!voices.some(v => v.lang === lang)) {
+      const base = lang.split("-")[0].toLowerCase();
+      const found = voices.some(v => {
+        const vBase = v.lang.split("-")[0].toLowerCase();
+        return v.lang === lang || vBase === base;
+      });
+      if (!found) {
         available = false;
         alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
       }
