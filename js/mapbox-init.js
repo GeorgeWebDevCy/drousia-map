@@ -17,8 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!voices.length) return true;
     const hasVoice = voices.some(v => v.lang === lang);
     if (!hasVoice) {
-      alert(`Voice for ${lang} not found. Please install it on your device for spoken directions.`);
-    }
+
+      alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+   }
     return hasVoice;
   }
 
@@ -189,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
       const allPoints = [userLngLat, ...coords];
       const coordPairs = allPoints.map(p => p.join(',')).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&access_token=${mapboxgl.accessToken}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&language=${lang}&access_token=${mapboxgl.accessToken}`;
 
       const res = await fetch(url);
       const data = await res.json();
