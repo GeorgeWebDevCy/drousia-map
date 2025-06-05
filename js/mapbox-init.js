@@ -4,6 +4,23 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
+  const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
+
+  function getSelectedLanguage() {
+    const sel = document.getElementById("gn-language-select");
+    return sel ? sel.value : defaultLang;
+  }
+
+  function checkVoiceAvailability(lang) {
+    if (!window.speechSynthesis) return false;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return true;
+    const hasVoice = voices.some(v => v.lang === lang);
+    if (!hasVoice) {
+      alert(`Voice for ${lang} not found. Please install it on your device for spoken directions.`);
+    }
+    return hasVoice;
+  }
 
   function log(...args) {
     if (debugEnabled) {
@@ -74,6 +91,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <button class="gn-nav-btn" onclick="setMode('driving')">Driving</button>
         <button class="gn-nav-btn" onclick="setMode('walking')">Walking</button>
         <button class="gn-nav-btn" onclick="setMode('cycling')">Cycling</button>
+        <select id="gn-language-select" class="gn-nav-select">
+          <option value="en-US">English</option>
+          <option value="el-GR">Ελληνικά</option>
+        </select>
         <button class="gn-nav-btn" id="gn-start-nav">Start Navigation</button>
       </div>
     `;
@@ -89,6 +110,15 @@ document.addEventListener("DOMContentLoaded", function () {
       font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
+
+    const langSel = navPanel.querySelector("#gn-language-select");
+    if (langSel) {
+      langSel.value = defaultLang;
+      langSel.onchange = () => {
+        localStorage.setItem("gn_voice_lang", langSel.value);
+        checkVoiceAvailability(langSel.value);
+      };
+    }
 
     const header = navPanel.querySelector("div");
     header.onmousedown = function (e) {
@@ -145,13 +175,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
-      if (!window.speechSynthesis) {
-        alert("Voice guidance is not supported in your browser.");
-      } else if (!localStorage.getItem("gn_voice_prompted")) {
-        const consent = confirm("Enable Greek voice directions during navigation?");
-        if (!consent) localStorage.setItem("gn_voice_muted", true);
-        localStorage.setItem("gn_voice_prompted", true);
-      }
+        const lang = getSelectedLanguage();
+        if (!window.speechSynthesis) {
+          alert("Voice guidance is not supported in your browser.");
+        } else {
+          checkVoiceAvailability(lang);
+          if (!localStorage.getItem("gn_voice_prompted")) {
+            const consent = confirm(`Enable voice directions in ${lang}?`);
+            if (!consent) localStorage.setItem("gn_voice_muted", true);
+            localStorage.setItem("gn_voice_prompted", true);
+          }
+        }
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
       const allPoints = [userLngLat, ...coords];
       const coordPairs = allPoints.map(p => p.join(',')).join(';');
@@ -196,8 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
       log(`Total route duration: ${totalDuration.toFixed(1)} minutes`);
       for (const step of steps) {
         const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
-        msg.lang = 'el-GR';
-        //msg.lang = 'en-GB';
+        msg.lang = lang;
         msg.rate = 0.95;
         msg.pitch = 1;
         msg.volume = 1.0;
