@@ -11,16 +11,39 @@ document.addEventListener("DOMContentLoaded", function () {
     return sel ? sel.value : defaultLang;
   }
 
+  let voicesLoaded = false;
+
+  function ensureVoicesLoaded(callback) {
+    if (!window.speechSynthesis) return callback([]);
+    const loaded = window.speechSynthesis.getVoices();
+    if (loaded.length) {
+      voicesLoaded = true;
+      return callback(loaded);
+    }
+    const onVoicesChanged = () => {
+      voicesLoaded = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
+      callback(window.speechSynthesis.getVoices());
+    };
+    window.speechSynthesis.addEventListener("voiceschanged", onVoicesChanged);
+    window.speechSynthesis.getVoices();
+  }
+
   function checkVoiceAvailability(lang) {
     if (!window.speechSynthesis) return false;
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices.length) return true;
-    const hasVoice = voices.some(v => v.lang === lang);
-    if (!hasVoice) {
-
-      alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
-   }
-    return hasVoice;
+    let available = true;
+    const verify = (voices) => {
+      if (!voices.some(v => v.lang === lang)) {
+        available = false;
+        alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+      }
+    };
+    if (voicesLoaded) {
+      verify(window.speechSynthesis.getVoices());
+    } else {
+      ensureVoicesLoaded(verify);
+    }
+    return available;
   }
 
   function log(...args) {
