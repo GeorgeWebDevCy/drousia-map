@@ -11,27 +11,48 @@ document.addEventListener("DOMContentLoaded", function () {
     return sel ? sel.value : defaultLang;
   }
 
-  function checkVoiceAvailability(lang) {
-    if (!window.speechSynthesis) return false;
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices.length) {
-      const onVoicesChanged = () => {
-        const updatedVoices = window.speechSynthesis.getVoices();
-        window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
-        if (!updatedVoices.some(v => v.lang === lang)) {
-          alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
-        }
-      };
-      window.speechSynthesis.addEventListener("voiceschanged", onVoicesChanged);
-      window.speechSynthesis.getVoices();
-      return true;
+  let voicesLoaded = false;
+
+  function ensureVoicesLoaded(callback) {
+    if (!window.speechSynthesis) return callback([]);
+    const loaded = window.speechSynthesis.getVoices();
+    if (loaded.length) {
+      voicesLoaded = true;
+      return callback(loaded);
     }
-    const hasVoice = voices.some(v => v.lang === lang);
-    if (!hasVoice) {
+    const onVoicesChanged = () => {
+      voicesLoaded = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
+      callback(window.speechSynthesis.getVoices());
+    };
+    window.speechSynthesis.addEventListener("voiceschanged", onVoicesChanged);
+    window.speechSynthesis.getVoices();
+  }
+
+  function checkVoiceAvailability(lang) {
+  if (!window.speechSynthesis) return false;
+
+  const verify = (voices) => {
+    const base = lang.toLowerCase().split("-")[0];
+    const found = voices.some(v => {
+      const vLang = String(v.lang).toLowerCase();
+      const vBase = vLang.split("-")[0];
+      return vLang === lang.toLowerCase() || vBase === base;
+    });
+    if (!found) {
       alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
     }
-    return hasVoice;
+    return found;
+  };
+
+  if (voicesLoaded) {
+    return verify(window.speechSynthesis.getVoices());
+  } else {
+    ensureVoicesLoaded(verify);
+    return true; // Assume true until voices load callback runs
   }
+}
+
 
   function log(...args) {
     if (debugEnabled) {
