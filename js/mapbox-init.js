@@ -4,6 +4,27 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
+  const defaultVoiceLang = 'el-GR';
+
+  function promptVoiceLanguage() {
+    const current = localStorage.getItem("gn_voice_lang") || defaultVoiceLang;
+    const lang = prompt(
+      'Voice direction language (e.g., "el-GR" for Greek, "en-GB" for English):',
+      current
+    );
+    if (lang) {
+      localStorage.setItem("gn_voice_lang", lang);
+      if (!window.speechSynthesis.getVoices().some((v) => v.lang.startsWith(lang))) {
+        alert(
+          'Language pack for ' +
+            lang +
+            ' not found. Please install it on your device for voice guidance.'
+        );
+      }
+      return lang;
+    }
+    return current;
+  }
 
   function log(...args) {
     if (debugEnabled) {
@@ -115,6 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("gn-start-nav").onclick = startNavigation;
     addVoiceToggleButton();
+    addLanguageButton();
   }
 
   function addVoiceToggleButton() {
@@ -134,6 +156,17 @@ document.addEventListener("DOMContentLoaded", function () {
     panel.querySelector("div:last-child").appendChild(btn);
   }
 
+  function addLanguageButton() {
+    const btn = document.createElement("button");
+    btn.id = "gn-lang-select";
+    btn.textContent = "Set Voice Language";
+    btn.className = "gn-nav-btn";
+    btn.style.marginTop = "10px";
+    btn.onclick = promptVoiceLanguage;
+    const panel = document.getElementById("gn-nav-panel");
+    panel.querySelector("div:last-child").appendChild(btn);
+  }
+
   window.setMode = function (mode) {
     log("Navigation mode set to:", mode);
   };
@@ -148,8 +181,12 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!window.speechSynthesis) {
         alert("Voice guidance is not supported in your browser.");
       } else if (!localStorage.getItem("gn_voice_prompted")) {
-        const consent = confirm("Enable Greek voice directions during navigation?");
-        if (!consent) localStorage.setItem("gn_voice_muted", true);
+        const consent = confirm("Enable voice directions during navigation?");
+        if (consent) {
+          promptVoiceLanguage();
+        } else {
+          localStorage.setItem("gn_voice_muted", true);
+        }
         localStorage.setItem("gn_voice_prompted", true);
       }
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
@@ -194,10 +231,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const totalDuration = data.routes[0].duration / 60;
       log(`Total route distance: ${totalDistance.toFixed(2)} km`);
       log(`Total route duration: ${totalDuration.toFixed(1)} minutes`);
+      const lang = localStorage.getItem("gn_voice_lang") || defaultVoiceLang;
       for (const step of steps) {
         const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
-        msg.lang = 'el-GR';
-        //msg.lang = 'en-GB';
+        msg.lang = lang;
         msg.rate = 0.95;
         msg.pitch = 1;
         msg.volume = 1.0;
