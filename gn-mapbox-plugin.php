@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, and full debug panel.
-Version: 2.5.26
+Version: 2.6.0
 Author: George Nicolaou
 */
 
@@ -34,11 +34,13 @@ function gn_enqueue_mapbox_assets() {
     wp_enqueue_script('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js', [], null, true);
     wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
     wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery'], null, true);
+    wp_enqueue_script('gn-sw-register', plugin_dir_url(__FILE__) . 'js/sw-register.js', [], null, true);
 
     wp_localize_script('gn-mapbox-init', 'gnMapData', [
         'accessToken' => get_option('gn_mapbox_token'),
         'locations'   => gn_get_map_locations(),
         'debug'       => get_option('gn_mapbox_debug') === '1',
+        'swPath'      => home_url('/?gn_map_sw=1'),
     ]);
 }
 add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets');
@@ -123,3 +125,12 @@ function gn_mapbox_debug_render() {
     $checked = get_option('gn_mapbox_debug') === '1' ? 'checked' : '';
     echo '<label><input type="checkbox" name="gn_mapbox_debug" value="1" ' . $checked . '> Show Debug Panel</label>';
 }
+
+function gn_mapbox_serve_sw() {
+    if (isset($_GET['gn_map_sw'])) {
+        header('Content-Type: application/javascript');
+        readfile(__DIR__ . '/js/gn-mapbox-sw.js');
+        exit;
+    }
+}
+add_action('init', 'gn_mapbox_serve_sw');
