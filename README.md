@@ -40,6 +40,9 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.13.0
+- Prevent default form submission to avoid redirect errors
+
 ### 2.12.0
 - Expanded documentation with detailed feature descriptions
 
