@@ -3,16 +3,18 @@
 This WordPress plugin displays custom post type locations on a Mapbox map. It allows visitors to view markers, follow routes and even get spoken navigation.
 
 ## Features
-- Custom post type for locations
-- Map display via shortcode `[gn_map]`
-- Navigation panel with voice directions
-- Route animation and elevation chart
-- Optional debug panel
-- Verbose console debugging when enabled
-- **Offline map caching** (new in 2.6.0)
-- Upload a photo gallery for each location
-- Front-end photo uploads with admin approval
-- Photo upload form available inside map popups
+- "Map Location" custom post type stores coordinates, descriptions and optional photo galleries.
+- Embed a full Mapbox map anywhere with the `[gn_map]` shortcode.
+- Draggable navigation panel provides driving, walking and cycling directions with voice guidance.
+- Spoken instructions use the browser's speech synthesis API and can be muted or unmuted.
+- Animated route line tracks progress and may be paused or resumed at any time.
+- Optional elevation graph and route statistics.
+- On-screen debug panel and console logs when debugging is enabled.
+- Service worker caches Mapbox tiles so viewed maps continue working offline.
+- Front-end photo uploads let visitors contribute images pending admin approval.
+- Upload forms appear automatically in each map popup and within the location post.
+- Example locations from `data/locations.json` are imported if none exist.
+- Built-in update checker fetches new versions directly from GitHub.
 
 ## Installation
 1. Upload the plugin to your `/wp-content/plugins/` directory.
@@ -38,6 +40,9 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.12.0
+- Expanded documentation with detailed feature descriptions
+
 ### 2.11.0
 - Fix pending photo approval listing
 - Include location in upload success message

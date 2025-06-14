@@ -3,14 +3,26 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.11.0
+Stable tag: 2.12.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Display custom map locations using Mapbox with navigation, voice directions and offline caching.
+Display custom map locations on a Mapbox-powered map complete with voice guided navigation, animated routes, offline caching and photo galleries.
 
 == Description ==
-This plugin lets you add Map Location posts containing coordinates and display them with a shortcode. It includes a navigation panel with voice instructions, an optional debug mode and now offline map tile caching via service worker.
+GN Mapbox Locations with ACF creates a **Map Location** post type for storing coordinates, descriptions and images. Place the `[gn_map]` shortcode anywhere to display an interactive map. A draggable navigation panel gives visitors driving, walking or cycling directions with spoken instructions that can be muted. Routes can be animated and paused or resumed, while a service worker caches tiles for offline use. A debug panel outputs verbose logs when enabled. Visitors can submit photos from the front end which administrators approve before publishing. Example locations are automatically imported if none exist.
+== Features ==
+* "Map Location" custom post type storing coordinates, descriptions and galleries.
+* `[gn_map]` shortcode displays an interactive Mapbox map with all locations.
+* Draggable navigation panel for driving, walking or cycling directions with voice guidance.
+* Voice instructions can be muted or unmuted and support multiple languages.
+* Animated route line with optional elevation graph and statistics.
+* Debug panel outputs verbose logs on screen and to the browser console.
+* Offline map tile caching via service worker.
+* Visitors may upload photos on the front end; submissions require admin approval.
+* Upload forms automatically appear in map popups and inside each location post.
+* Example locations from `data/locations.json` are imported when none exist.
+* Automatic update checks from GitHub.
 
 == Installation ==
 1. Upload the plugin folder to `/wp-content/plugins/`.
@@ -21,6 +33,9 @@ This plugin lets you add Map Location posts containing coordinates and display t
 Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose logs to the browser console.
 
 == Changelog ==
+= 2.12.0 
+* Expanded documentation with detailed feature descriptions
+
 = 2.11.0 =
 * Fixed pending uploads missing from Approvals screen
 * Upload success message shows location name
