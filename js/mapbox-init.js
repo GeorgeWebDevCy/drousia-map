@@ -356,11 +356,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     coords = [];
     gnMapData.locations.forEach((loc) => {
+      const galleryHTML = loc.gallery && loc.gallery.length
+        ? '<div class="gallery">' +
+          loc.gallery.map(url => `<img src="${url}" alt="${loc.title}">`).join('') +
+          '</div>'
+        : '';
       const popupHTML = `
         <div class="popup-content">
           ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
           <h3>${loc.title}</h3>
           <div>${loc.content}</div>
+          ${galleryHTML}
         </div>
       `;
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);

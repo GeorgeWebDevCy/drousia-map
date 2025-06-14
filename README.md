@@ -9,6 +9,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 - Route animation and elevation chart
 - Optional debug panel
 - **Offline map caching** (new in 2.6.0)
+- Upload a photo gallery for each location
 
 ## Installation
 1. Upload the plugin to your `/wp-content/plugins/` directory.
@@ -22,6 +23,9 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 A service worker caches Mapbox tiles for offline use once a page has been loaded online. The map will then continue working with the cached tiles when the network is unavailable.
 
 ## Changelog
+### 2.7.0
+- Added photo gallery support for locations
+
 ### 2.6.0
 - Added offline map caching using a service worker
 - Updated documentation
