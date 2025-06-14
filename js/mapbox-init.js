@@ -367,8 +367,8 @@ document.addEventListener("DOMContentLoaded", function () {
           ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
           <h3>${loc.title}</h3>
           <div>${loc.content}</div>
-          ${uploadHTML}
           ${galleryHTML}
+          ${uploadHTML}
         </div>
       `;
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
