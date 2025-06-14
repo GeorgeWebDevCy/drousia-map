@@ -6,7 +6,7 @@ jQuery(function ($) {
         const statusEl = $(form).find('.gn-upload-status');
         const data = new FormData(form);
         data.append('ajax', '1');
-        const url = form.getAttribute('action');
+        const url = form.getAttribute('action') || form.action;
         statusEl.text('Uploading...');
         log('Sending upload to', url);
         fetch(url, { method: 'POST', body: data, credentials: 'same-origin' })
