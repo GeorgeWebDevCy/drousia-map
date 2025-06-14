@@ -42,6 +42,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.16.0
+- Navigation panel more compact
 ### 2.15.0
 - Images in popups now open in a responsive lightbox
 - Documentation expanded with full feature list

@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     navPanel.id = "gn-nav-panel";
     navPanel.innerHTML = `
       <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
-      <div style="padding: 10px; background: white;">
+      <div style="padding: 6px; background: white;">
         <button class="gn-nav-btn" onclick="setMode('driving')">Driving</button>
         <button class="gn-nav-btn" onclick="setMode('walking')">Walking</button>
         <button class="gn-nav-btn" onclick="setMode('cycling')">Cycling</button>
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
       position: fixed;
       top: 100px;
       left: 10px;
-      width: 200px;
+      width: 160px;
       z-index: 9998;
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);

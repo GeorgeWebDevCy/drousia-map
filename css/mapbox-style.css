@@ -127,13 +127,13 @@
 
 .gn-nav-btn {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 6px 8px;
   background-color: #007cbf;
   color: #fff;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
 }
 .gn-nav-btn:hover {
@@ -142,10 +142,10 @@
 
 .gn-nav-select {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   width: 100%;
-  padding: 6px 8px;
-  font-size: 14px;
+  padding: 4px 6px;
+  font-size: 13px;
 }
 
 .gn-upload-msg {
