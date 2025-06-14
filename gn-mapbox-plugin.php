@@ -181,12 +181,14 @@ function gn_get_map_locations() {
             }
 
             $locations[] = [
-                'title'   => get_the_title(),
-                'content' => apply_filters('the_content', get_the_content()),
-                'image'   => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
-                'gallery' => $gallery,
-                'lat'     => floatval($lat),
-                'lng'     => floatval($lng),
+                'id'          => get_the_ID(),
+                'title'       => get_the_title(),
+                'content'     => apply_filters('the_content', get_the_content()),
+                'image'       => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
+                'gallery'     => $gallery,
+                'upload_form' => do_shortcode('[gn_photo_upload location="' . get_the_ID() . '"]'),
+                'lat'         => floatval($lat),
+                'lng'         => floatval($lng),
             ];
         }
     }
