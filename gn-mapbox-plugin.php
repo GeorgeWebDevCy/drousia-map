@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.9.3
+Version: 2.9.4
 Author: George Nicolaou
 */
 
@@ -28,6 +28,36 @@ function gn_register_map_location_cpt() {
 }
 add_action('init', 'gn_register_map_location_cpt');
 
+function gn_location_exists($title, $lat = null, $lng = null) {
+    $existing = get_page_by_title($title, OBJECT, 'map_location');
+    if ($existing) {
+        return true;
+    }
+    if ($lat !== null && $lng !== null) {
+        $query = new WP_Query([
+            'post_type'      => 'map_location',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'   => 'latitude',
+                    'value' => $lat,
+                ],
+                [
+                    'key'   => 'longitude',
+                    'value' => $lng,
+                ],
+            ],
+        ]);
+        $exists = $query->have_posts();
+        wp_reset_postdata();
+        if ($exists) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function gn_import_default_locations() {
     $json_file = plugin_dir_path(__FILE__) . 'data/locations.json';
     if (!file_exists($json_file)) {
@@ -45,8 +75,9 @@ function gn_import_default_locations() {
             continue;
         }
 
-        $existing = get_page_by_title($location['title'], OBJECT, 'map_location');
-        if ($existing) {
+        $lat = $location['lat'] ?? null;
+        $lng = $location['lng'] ?? null;
+        if (gn_location_exists($location['title'], $lat, $lng)) {
             continue;
         }
 
@@ -238,18 +269,57 @@ function gn_get_map_locations() {
     error_log('Total locations returned: ' . count($locations));
 
     if (empty($locations)) {
-        $json_file = plugin_dir_path(__FILE__) . 'data/locations.json';
-        if (file_exists($json_file)) {
-            $json = file_get_contents($json_file);
-            $data = json_decode($json, true);
-            if (is_array($data)) {
-                $locations = $data;
-                error_log('Loaded ' . count($locations) . ' locations from JSON fallback');
-            } else {
-                error_log('Failed to parse locations JSON');
+        gn_import_default_locations();
+        gn_ensure_shortcodes_for_all_locations();
+
+        $query = new WP_Query([
+            'post_type' => 'map_location',
+            'posts_per_page' => -1,
+        ]);
+
+        while ($query->have_posts()) {
+            $query->the_post();
+            $lat = get_field('latitude');
+            $lng = get_field('longitude');
+
+            if ($lat && $lng) {
+                $gallery_ids = get_post_meta(get_the_ID(), '_gn_location_photos', true);
+                $gallery = [];
+                if ($gallery_ids) {
+                    foreach (explode(',', $gallery_ids) as $gid) {
+                        $url = wp_get_attachment_image_url($gid, 'medium');
+                        if ($url) $gallery[] = $url;
+                    }
+                }
+
+                $locations[] = [
+                    'id'          => get_the_ID(),
+                    'title'       => get_the_title(),
+                    'content'     => apply_filters('the_content', get_the_content()),
+                    'image'       => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
+                    'gallery'     => $gallery,
+                    'upload_form' => do_shortcode('[gn_photo_upload location="' . get_the_ID() . '"]'),
+                    'lat'         => floatval($lat),
+                    'lng'         => floatval($lng),
+                ];
             }
-        } else {
-            error_log('Fallback locations file not found');
+        }
+        wp_reset_postdata();
+
+        if (empty($locations)) {
+            $json_file = plugin_dir_path(__FILE__) . 'data/locations.json';
+            if (file_exists($json_file)) {
+                $json = file_get_contents($json_file);
+                $data = json_decode($json, true);
+                if (is_array($data)) {
+                    $locations = $data;
+                    error_log('Loaded ' . count($locations) . ' locations from JSON fallback');
+                } else {
+                    error_log('Failed to parse locations JSON');
+                }
+            } else {
+                error_log('Fallback locations file not found');
+            }
         }
     }
 
