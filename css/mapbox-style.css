@@ -146,3 +146,10 @@
   padding: 6px 8px;
   font-size: 14px;
 }
+
+.gn-upload-msg {
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #f0f5ff;
+  border: 1px solid #b6d0ff;
+}
