@@ -23,9 +23,13 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 A service worker caches Mapbox tiles for offline use once a page has been loaded online. The map will then continue working with the cached tiles when the network is unavailable.
 
 ## Default Locations
-If no `Map Location` posts are found, coordinates are loaded from `data/locations.json`. Update this file to change the built-in locations.
+If no `Map Location` posts exist, the plugin will import the coordinates from
+`data/locations.json` into the custom post type on activation. Update this file
+to change the built-in locations.
 
 ## Changelog
+### 2.8.0
+- Default locations are now imported as custom posts on activation if missing
 ### 2.7.1
 - Added fallback location dataset loaded from `data/locations.json`
 ### 2.7.0
