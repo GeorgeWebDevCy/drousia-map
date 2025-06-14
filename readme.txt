@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.12.0
+Stable tag: 2.13.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,7 +33,9 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose logs to the browser console.
 
 == Changelog ==
-= 2.12.0 
+= 2.13.0 =
+* Prevent default form submission to avoid redirect errors
+= 2.12.0
 * Expanded documentation with detailed feature descriptions
 
 = 2.11.0 =
