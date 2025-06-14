@@ -162,3 +162,17 @@
   flex-direction: column;
   gap: 6px;
 }
+.gn-photo-button {
+  background-color: #007cbf;
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+}
+.gn-photo-button:hover {
+  background-color: #005f91;
+}
+.gn-upload-status {
+  margin-top: 5px;
+  font-size: 0.9em;
+}

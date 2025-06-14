@@ -21,6 +21,9 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+## Approving Uploaded Photos
+After visitors submit photos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each image and click **Approve** to publish it to the corresponding location gallery.
+
 ## Offline Caching
 A service worker caches Mapbox tiles for offline use once a page has been loaded online. The map will then continue working with the cached tiles when the network is unavailable.
 
@@ -31,6 +34,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.10.0
+- Photo upload uses a single AJAX button and admin approval page
 ### 2.9.4
 - Fallback locations now create posts if none exist and duplicate locations are avoided
 ### 2.9.3
