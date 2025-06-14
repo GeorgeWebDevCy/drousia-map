@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.9.2
+Version: 2.9.3
 Author: George Nicolaou
 */
 
@@ -67,7 +67,48 @@ function gn_import_default_locations() {
         }
     }
 }
-register_activation_hook(__FILE__, 'gn_import_default_locations');
+function gn_add_upload_shortcode_if_missing($post_id) {
+    if (get_post_type($post_id) !== 'map_location') {
+        return;
+    }
+    $post = get_post($post_id);
+    if (!$post) return;
+    if (strpos($post->post_content, '[gn_photo_upload') === false) {
+        $shortcode = '[gn_photo_upload location="' . $post_id . '"]';
+        $content = trim($post->post_content);
+        if ($content !== '') {
+            $content .= "\n\n";
+        }
+        $content .= $shortcode;
+        remove_action('save_post_map_location', 'gn_add_upload_shortcode_on_save', 20);
+        wp_update_post([
+            'ID' => $post_id,
+            'post_content' => $content,
+        ]);
+        add_action('save_post_map_location', 'gn_add_upload_shortcode_on_save', 20, 3);
+    }
+}
+
+function gn_add_upload_shortcode_on_save($post_id, $post, $update) {
+    gn_add_upload_shortcode_if_missing($post_id);
+}
+add_action('save_post_map_location', 'gn_add_upload_shortcode_on_save', 20, 3);
+
+function gn_ensure_shortcodes_for_all_locations() {
+    $posts = get_posts([
+        'post_type' => 'map_location',
+        'posts_per_page' => -1,
+    ]);
+    foreach ($posts as $p) {
+        gn_add_upload_shortcode_if_missing($p->ID);
+    }
+}
+
+function gn_plugin_activate() {
+    gn_import_default_locations();
+    gn_ensure_shortcodes_for_all_locations();
+}
+register_activation_hook(__FILE__, 'gn_plugin_activate');
 
 // Add photo gallery meta box
 function gn_add_photos_meta_box() {
