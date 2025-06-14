@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.9.4
+Version: 2.10.0
 Author: George Nicolaou
 */
 
@@ -214,6 +214,7 @@ function gn_enqueue_mapbox_assets() {
     wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
     wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery'], null, true);
     wp_enqueue_script('gn-sw-register', plugin_dir_url(__FILE__) . 'js/sw-register.js', [], null, true);
+    wp_enqueue_script('gn-photo-upload', plugin_dir_url(__FILE__) . 'js/gn-photo-upload.js', ['jquery'], null, true);
 
     wp_localize_script('gn-mapbox-init', 'gnMapData', [
         'accessToken' => get_option('gn_mapbox_token'),
@@ -399,12 +400,13 @@ function gn_photo_upload_shortcode($atts) {
             $output .= '<div class="gn-upload-msg">Error uploading file.</div>';
         }
     }
-    $output .= '<form method="post" enctype="multipart/form-data" action="'.esc_url(admin_url('admin-post.php')).'">';
+    $output .= '<form class="gn-photo-upload-form" method="post" enctype="multipart/form-data" action="'.esc_url(admin_url('admin-post.php')).'">';
     $output .= wp_nonce_field('gn_photo_upload','gn_photo_nonce',true,false);
     $output .= '<input type="hidden" name="action" value="gn_photo_upload">';
     $output .= '<input type="hidden" name="location_id" value="'.$location_id.'">';
-    $output .= '<input type="file" name="gn_photo" accept="image/*" required>';
-    $output .= '<button type="submit">Upload Photo</button>';
+    $output .= '<input type="file" name="gn_photo" accept="image/*" class="gn-photo-file" style="display:none;" required>';
+    $output .= '<button type="button" class="gn-photo-button">Upload Photo</button>';
+    $output .= '<span class="gn-upload-status"></span>';
     $output .= '</form>';
     return $output;
 }
@@ -417,14 +419,21 @@ function gn_handle_photo_upload() {
     if (!isset($_POST['gn_photo_nonce']) || !wp_verify_nonce($_POST['gn_photo_nonce'],'gn_photo_upload')) {
         wp_die('Invalid nonce');
     }
+    $is_ajax = isset($_POST['ajax']);
     $location_id = intval($_POST['location_id'] ?? 0);
     if (!$location_id || empty($_FILES['gn_photo']['name'])) {
+        if ($is_ajax) {
+            wp_send_json_error();
+        }
         wp_redirect(add_query_arg('gn_upload','error',wp_get_referer()));
         exit;
     }
     $file = $_FILES['gn_photo'];
     $uploaded = wp_handle_upload($file, ['test_form'=>false]);
     if (isset($uploaded['error'])) {
+        if ($is_ajax) {
+            wp_send_json_error();
+        }
         wp_redirect(add_query_arg('gn_upload','error',wp_get_referer()));
         exit;
     }
@@ -440,12 +449,71 @@ function gn_handle_photo_upload() {
         $pending_ids = $pending ? explode(',', $pending) : [];
         $pending_ids[] = $attachment_id;
         update_post_meta($location_id, '_gn_pending_photos', implode(',', $pending_ids));
+        if ($is_ajax) {
+            wp_send_json_success();
+        }
         wp_redirect(add_query_arg('gn_upload','success',wp_get_referer()));
     } else {
+        if ($is_ajax) {
+            wp_send_json_error();
+        }
         wp_redirect(add_query_arg('gn_upload','error',wp_get_referer()));
     }
     exit;
 }
 add_action('admin_post_nopriv_gn_photo_upload','gn_handle_photo_upload');
 add_action('admin_post_gn_photo_upload','gn_handle_photo_upload');
+
+function gn_photo_approval_menu() {
+    add_submenu_page('upload.php', 'Photo Approvals', 'Photo Approvals', 'manage_options', 'gn-photo-approvals', 'gn_photo_approval_page');
+}
+add_action('admin_menu', 'gn_photo_approval_menu');
+
+function gn_photo_approval_page() {
+    if (!current_user_can('manage_options')) return;
+    $pending = get_posts([
+        'post_type'   => 'attachment',
+        'post_status' => 'pending',
+        'numberposts' => -1,
+    ]);
+    echo '<div class="wrap"><h1>Pending Photo Uploads</h1>';
+    if (!$pending) {
+        echo '<p>No pending photos.</p></div>';
+        return;
+    }
+    echo '<table class="widefat"><thead><tr><th>Preview</th><th>Location</th><th></th></tr></thead><tbody>';
+    foreach ($pending as $p) {
+        $loc = get_post($p->post_parent);
+        $url = wp_get_attachment_image_url($p->ID, 'thumbnail');
+        $approve_url = wp_nonce_url(admin_url('admin-post.php?action=gn_approve_photo&photo_id='.$p->ID), 'gn_approve_photo_'.$p->ID);
+        echo '<tr>'; 
+        echo '<td><img src="'.esc_url($url).'" style="max-width:80px"></td>';
+        echo '<td>'.($loc ? esc_html($loc->post_title) : '').'</td>';
+        echo '<td><a class="button" href="'.$approve_url.'">Approve</a></td>';
+        echo '</tr>';
+    }
+    echo '</tbody></table></div>';
+}
+
+function gn_process_photo_approval() {
+    if (!current_user_can('manage_options')) wp_die('Unauthorized');
+    $photo_id = intval($_GET['photo_id'] ?? 0);
+    if (!$photo_id || !wp_verify_nonce($_GET['_wpnonce'], 'gn_approve_photo_'.$photo_id)) wp_die('Invalid request');
+    $attachment = get_post($photo_id);
+    if (!$attachment) wp_die('Photo not found');
+    $location_id = $attachment->post_parent;
+    wp_update_post(['ID'=>$photo_id,'post_status'=>'publish']);
+    $gallery = get_post_meta($location_id, '_gn_location_photos', true);
+    $ids = $gallery ? explode(',', $gallery) : [];
+    $ids[] = $photo_id;
+    update_post_meta($location_id, '_gn_location_photos', implode(',', $ids));
+    $pending = get_post_meta($location_id, '_gn_pending_photos', true);
+    if ($pending) {
+        $pend_ids = array_filter(explode(',', $pending), function($id) use ($photo_id){ return intval($id) !== $photo_id; });
+        update_post_meta($location_id, '_gn_pending_photos', implode(',', $pend_ids));
+    }
+    wp_redirect(admin_url('upload.php?page=gn-photo-approvals'));
+    exit;
+}
+add_action('admin_post_gn_approve_photo', 'gn_process_photo_approval');
 
