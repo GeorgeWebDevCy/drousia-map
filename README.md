@@ -34,6 +34,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.10.1
+- Fix duplicate upload form in popups
 ### 2.10.0
 - Photo upload uses a single AJAX button and admin approval page
 ### 2.9.4
