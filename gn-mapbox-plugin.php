@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.10.0
+Version: 2.10.1
 Author: George Nicolaou
 */
 
@@ -253,10 +253,12 @@ function gn_get_map_locations() {
                 }
             }
 
+            $raw_content = get_the_content();
+            $raw_content = preg_replace('/\[gn_photo_upload[^\]]*\]/', '', $raw_content);
             $locations[] = [
                 'id'          => get_the_ID(),
                 'title'       => get_the_title(),
-                'content'     => apply_filters('the_content', get_the_content()),
+                'content'     => apply_filters('the_content', $raw_content),
                 'image'       => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
                 'gallery'     => $gallery,
                 'upload_form' => do_shortcode('[gn_photo_upload location="' . get_the_ID() . '"]'),
@@ -293,10 +295,12 @@ function gn_get_map_locations() {
                     }
                 }
 
+                $raw_content = get_the_content();
+                $raw_content = preg_replace('/\[gn_photo_upload[^\]]*\]/', '', $raw_content);
                 $locations[] = [
                     'id'          => get_the_ID(),
                     'title'       => get_the_title(),
-                    'content'     => apply_filters('the_content', get_the_content()),
+                    'content'     => apply_filters('the_content', $raw_content),
                     'image'       => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
                     'gallery'     => $gallery,
                     'upload_form' => do_shortcode('[gn_photo_upload location="' . get_the_ID() . '"]'),
