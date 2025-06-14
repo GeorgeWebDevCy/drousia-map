@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.13.1
+Stable tag: 2.14.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,8 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose logs to the browser console.
 
 == Changelog ==
+= 2.14.0 =
+* Added WPML compatibility and translations
 = 2.13.1 =
 * Fix upload URL when hidden `action` field overrides the form property
 = 2.13.0 =

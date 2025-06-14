@@ -1,0 +1,15 @@
+<wpml-config>
+    <custom-fields>
+        <custom-field action="copy">latitude</custom-field>
+        <custom-field action="copy">longitude</custom-field>
+        <custom-field action="copy">_gn_location_photos</custom-field>
+        <custom-field action="copy">_gn_pending_photos</custom-field>
+    </custom-fields>
+    <custom-types>
+        <custom-type translate="1">map_location</custom-type>
+    </custom-types>
+    <admin-texts>
+        <key name="gn_mapbox_token"/>
+        <key name="gn_mapbox_debug"/>
+    </admin-texts>
+</wpml-config>

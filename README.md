@@ -40,6 +40,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.14.0
+- Added WPML compatibility and translations
 ### 2.13.1
 - Fix upload URL when a hidden `action` field overrides the form property
 
