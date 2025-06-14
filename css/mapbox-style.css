@@ -153,3 +153,12 @@
   background: #f0f5ff;
   border: 1px solid #b6d0ff;
 }
+
+.gn-upload-form {
+  margin-top: 10px;
+}
+.gn-upload-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

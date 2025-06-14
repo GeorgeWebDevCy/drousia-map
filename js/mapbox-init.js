@@ -361,11 +361,13 @@ document.addEventListener("DOMContentLoaded", function () {
           loc.gallery.map(url => `<img src="${url}" alt="${loc.title}">`).join('') +
           '</div>'
         : '';
+      const uploadHTML = loc.upload_form ? `<div class="gn-upload-form">${loc.upload_form}</div>` : '';
       const popupHTML = `
         <div class="popup-content">
           ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
           <h3>${loc.title}</h3>
           <div>${loc.content}</div>
+          ${uploadHTML}
           ${galleryHTML}
         </div>
       `;
