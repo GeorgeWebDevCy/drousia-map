@@ -10,7 +10,8 @@ jQuery(function($){
         const data = new FormData(form);
         data.append('ajax','1');
         statusEl.text('Uploading...');
-        fetch(form.action,{method:'POST',body:data,credentials:'same-origin'})
+        const url = form.getAttribute('action');
+        fetch(url,{method:'POST',body:data,credentials:'same-origin'})
             .then(res=>res.json())
             .then(resp=>{
                 if(resp.success){
