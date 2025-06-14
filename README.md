@@ -26,6 +26,8 @@ A service worker caches Mapbox tiles for offline use once a page has been loaded
 If no `Map Location` posts are found, coordinates are loaded from `data/locations.json`. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.7.1
+- Added fallback location dataset loaded from `data/locations.json`
 ### 2.7.0
 - Added photo gallery support for locations
 
