@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.10.2
+Stable tag: 2.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,14 @@ This plugin lets you add Map Location posts containing coordinates and display t
 2. Activate the plugin through the Plugins menu.
 3. Enter your Mapbox access token under **Settings → GN Mapbox**.
 
+== Debugging ==
+Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose logs to the browser console.
+
 == Changelog ==
+= 2.11.0 =
+* Fixed pending uploads missing from Approvals screen
+* Upload success message shows location name
+* Added verbose console debugging option
 = 2.10.2 =
 * Fixed upload form submission URL handling
 = 2.10.1 =
