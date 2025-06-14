@@ -46,6 +46,7 @@
   border-radius: 6px !important;
   object-fit: contain !important;
   display: block !important;
+  cursor: pointer !important;
 }
 
 /* Embedded video support */
@@ -175,4 +176,35 @@
 .gn-upload-status {
   margin-top: 5px;
   font-size: 0.9em;
+}
+
+/* Popup image lightbox */
+#gn-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#gn-lightbox.visible {
+  display: flex;
+}
+
+#gn-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+#gn-lightbox .gn-lightbox-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
 }

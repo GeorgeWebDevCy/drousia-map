@@ -175,6 +175,26 @@ document.addEventListener("DOMContentLoaded", function () {
     panel.querySelector("div:last-child").appendChild(btn);
   }
 
+  function setupLightbox() {
+    const overlay = document.createElement('div');
+    overlay.id = 'gn-lightbox';
+    overlay.innerHTML = '<span class="gn-lightbox-close">&times;</span><img>';
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay || e.target.classList.contains('gn-lightbox-close')) {
+        overlay.classList.remove('visible');
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (e.target.matches('#gn-mapbox-map .popup-content img')) {
+        overlay.querySelector('img').src = e.target.src;
+        overlay.classList.add('visible');
+      }
+    });
+  }
+
   window.setMode = function (mode) {
     log("Navigation mode set to:", mode);
   };
@@ -256,6 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   setupDebugPanel();
   setupNavPanel();
+  setupLightbox();
 
   function animateAlongRoute(routeCoords) {
     if (!routeCoords || routeCoords.length < 2) return;
