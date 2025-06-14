@@ -8,6 +8,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 - Navigation panel with voice directions
 - Route animation and elevation chart
 - Optional debug panel
+- Verbose console debugging when enabled
 - **Offline map caching** (new in 2.6.0)
 - Upload a photo gallery for each location
 - Front-end photo uploads with admin approval
@@ -24,6 +25,9 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 ## Approving Uploaded Photos
 After visitors submit photos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each image and click **Approve** to publish it to the corresponding location gallery.
 
+## Debugging
+Enable the **Debug Panel** setting under **Settings → GN Mapbox** to output detailed logs to the browser console and on-screen panel.
+
 ## Offline Caching
 A service worker caches Mapbox tiles for offline use once a page has been loaded online. The map will then continue working with the cached tiles when the network is unavailable.
 
@@ -34,6 +38,11 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.11.0
+- Fix pending photo approval listing
+- Include location in upload success message
+- Verbose debugging available in browser console
+
 ### 2.10.2
 - Fixed upload form submission URL handling
 

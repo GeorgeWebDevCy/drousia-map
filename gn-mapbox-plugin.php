@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.10.2
+Version: 2.11.0
 Author: George Nicolaou
 */
 
@@ -222,6 +222,9 @@ function gn_enqueue_mapbox_assets() {
         'debug'       => get_option('gn_mapbox_debug') === '1',
         'swPath'      => home_url('/?gn_map_sw=1'),
     ]);
+    wp_localize_script('gn-photo-upload', 'gnPhotoData', [
+        'debug' => get_option('gn_mapbox_debug') === '1'
+    ]);
 }
 add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets');
 
@@ -399,7 +402,11 @@ function gn_photo_upload_shortcode($atts) {
     $output = '';
     if (!empty($_GET['gn_upload'])) {
         if ($_GET['gn_upload'] === 'success') {
-            $output .= '<div class="gn-upload-msg">Upload received and awaiting approval.</div>';
+            $loc_title = get_the_title(intval($_GET['loc'] ?? 0));
+            $msg = 'Upload received';
+            if ($loc_title) $msg .= ' for '.esc_html($loc_title);
+            $msg .= ' and awaiting approval.';
+            $output .= '<div class="gn-upload-msg">'.$msg.'</div>';
         } elseif ($_GET['gn_upload'] === 'error') {
             $output .= '<div class="gn-upload-msg">Error uploading file.</div>';
         }
@@ -454,9 +461,15 @@ function gn_handle_photo_upload() {
         $pending_ids[] = $attachment_id;
         update_post_meta($location_id, '_gn_pending_photos', implode(',', $pending_ids));
         if ($is_ajax) {
-            wp_send_json_success();
+            wp_send_json_success([
+                'location' => $location_id,
+                'title'    => get_the_title($location_id)
+            ]);
         }
-        wp_redirect(add_query_arg('gn_upload','success',wp_get_referer()));
+        wp_redirect(add_query_arg([
+            'gn_upload' => 'success',
+            'loc'       => $location_id
+        ], wp_get_referer()));
     } else {
         if ($is_ajax) {
             wp_send_json_error();
@@ -475,24 +488,46 @@ add_action('admin_menu', 'gn_photo_approval_menu');
 
 function gn_photo_approval_page() {
     if (!current_user_can('manage_options')) return;
-    $pending = get_posts([
-        'post_type'   => 'attachment',
-        'post_status' => 'pending',
-        'numberposts' => -1,
+
+    $location_posts = get_posts([
+        'post_type'      => 'map_location',
+        'posts_per_page' => -1,
+        'meta_query'     => [
+            [ 'key' => '_gn_pending_photos', 'compare' => 'EXISTS' ]
+        ]
     ]);
-    echo '<div class="wrap"><h1>Pending Photo Uploads</h1>';
-    if (!$pending) {
-        echo '<p>No pending photos.</p></div>';
+
+    $pending_map = [];
+    foreach ($location_posts as $loc) {
+        $ids = get_post_meta($loc->ID, '_gn_pending_photos', true);
+        if ($ids) {
+            foreach (array_filter(explode(',', $ids)) as $id) {
+                $pending_map[intval($id)] = $loc;
+            }
+        }
+    }
+
+    if (!$pending_map) {
+        echo '<div class="wrap"><h1>Pending Photo Uploads</h1><p>No pending photos.</p></div>';
         return;
     }
+
+    $pending = get_posts([
+        'post_type'   => 'attachment',
+        'post__in'    => array_keys($pending_map),
+        'post_status' => array('pending','inherit','draft','private'),
+        'numberposts' => -1,
+    ]);
+
+    echo '<div class="wrap"><h1>Pending Photo Uploads</h1>';
     echo '<table class="widefat"><thead><tr><th>Preview</th><th>Location</th><th></th></tr></thead><tbody>';
     foreach ($pending as $p) {
-        $loc = get_post($p->post_parent);
+        $loc = $pending_map[$p->ID];
         $url = wp_get_attachment_image_url($p->ID, 'thumbnail');
         $approve_url = wp_nonce_url(admin_url('admin-post.php?action=gn_approve_photo&photo_id='.$p->ID), 'gn_approve_photo_'.$p->ID);
-        echo '<tr>'; 
+        echo '<tr>';
         echo '<td><img src="'.esc_url($url).'" style="max-width:80px"></td>';
-        echo '<td>'.($loc ? esc_html($loc->post_title) : '').'</td>';
+        echo '<td>'.esc_html($loc->post_title).'</td>';
         echo '<td><a class="button" href="'.$approve_url.'">Approve</a></td>';
         echo '</tr>';
     }
