@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.7.1
+Version: 2.8.0
 Author: George Nicolaou
 */
 
@@ -27,6 +27,47 @@ function gn_register_map_location_cpt() {
     ]);
 }
 add_action('init', 'gn_register_map_location_cpt');
+
+function gn_import_default_locations() {
+    $json_file = plugin_dir_path(__FILE__) . 'data/locations.json';
+    if (!file_exists($json_file)) {
+        return;
+    }
+
+    $json = file_get_contents($json_file);
+    $locations = json_decode($json, true);
+    if (!is_array($locations)) {
+        return;
+    }
+
+    foreach ($locations as $location) {
+        if (empty($location['title'])) {
+            continue;
+        }
+
+        $existing = get_page_by_title($location['title'], OBJECT, 'map_location');
+        if ($existing) {
+            continue;
+        }
+
+        $post_id = wp_insert_post([
+            'post_title'   => wp_strip_all_tags($location['title']),
+            'post_content' => $location['content'] ?? '',
+            'post_status'  => 'publish',
+            'post_type'    => 'map_location',
+        ]);
+
+        if (!is_wp_error($post_id)) {
+            if (isset($location['lat'])) {
+                update_post_meta($post_id, 'latitude', $location['lat']);
+            }
+            if (isset($location['lng'])) {
+                update_post_meta($post_id, 'longitude', $location['lng']);
+            }
+        }
+    }
+}
+register_activation_hook(__FILE__, 'gn_import_default_locations');
 
 // Add photo gallery meta box
 function gn_add_photos_meta_box() {
