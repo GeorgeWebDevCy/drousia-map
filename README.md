@@ -3,18 +3,20 @@
 This WordPress plugin displays custom post type locations on a Mapbox map. It allows visitors to view markers, follow routes and even get spoken navigation.
 
 ## Features
-- "Map Location" custom post type stores coordinates, descriptions and optional photo galleries.
-- Embed a full Mapbox map anywhere with the `[gn_map]` shortcode.
-- Draggable navigation panel provides driving, walking and cycling directions with voice guidance.
-- Spoken instructions use the browser's speech synthesis API and can be muted or unmuted.
-- Animated route line tracks progress and may be paused or resumed at any time.
-- Optional elevation graph and route statistics.
+- "Map Location" custom post type stores coordinates, descriptions and unlimited gallery images.
+- `[gn_map]` shortcode embeds a fully interactive Mapbox map anywhere on your site.
+- Responsive popups display images, descriptions and photo upload forms.
+- Gallery and featured images open in a lightbox that scales beautifully on all devices.
+- Draggable navigation panel offers driving, walking and cycling directions with voice guidance.
+- Spoken instructions use the browser speech API and can be muted or unmuted at any time.
+- Animated route line with optional elevation graph and real-time statistics.
 - On-screen debug panel and console logs when debugging is enabled.
 - Service worker caches Mapbox tiles so viewed maps continue working offline.
-- Front-end photo uploads let visitors contribute images pending admin approval.
-- Upload forms appear automatically in each map popup and within the location post.
+- Visitors can upload photos from the front end; submissions require admin approval.
+- Upload forms automatically appear in map popups and inside each location post.
 - Example locations from `data/locations.json` are imported if none exist.
 - Built-in update checker fetches new versions directly from GitHub.
+- Ready for translation and WPML compatible.
 
 ## Installation
 1. Upload the plugin to your `/wp-content/plugins/` directory.
@@ -40,6 +42,9 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.15.0
+- Images in popups now open in a responsive lightbox
+- Documentation expanded with full feature list
 ### 2.14.0
 - Added WPML compatibility and translations
 ### 2.13.1
