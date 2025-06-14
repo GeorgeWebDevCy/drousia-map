@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.9.2
+Stable tag: 2.9.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,6 +18,8 @@ This plugin lets you add Map Location posts containing coordinates and display t
 3. Enter your Mapbox access token under **Settings → GN Mapbox**.
 
 == Changelog ==
+= 2.9.3 =
+* Ensure photo upload shortcode is appended to Map Location posts
 = 2.9.2 =
 * Upload form placed after gallery content in map popups
 = 2.9.1 =

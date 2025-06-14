@@ -30,6 +30,8 @@ If no `Map Location` posts exist, the plugin will import the coordinates from
 to change the built-in locations.
 
 ## Changelog
+### 2.9.3
+- Photo upload shortcode automatically appended to Map Location posts
 ### 2.9.2
 - Upload form placed after gallery content in map popups
 ### 2.9.1
