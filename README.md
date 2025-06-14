@@ -11,6 +11,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 - **Offline map caching** (new in 2.6.0)
 - Upload a photo gallery for each location
 - Front-end photo uploads with admin approval
+- Photo upload form available inside map popups
 
 ## Installation
 1. Upload the plugin to your `/wp-content/plugins/` directory.
@@ -29,6 +30,8 @@ If no `Map Location` posts exist, the plugin will import the coordinates from
 to change the built-in locations.
 
 ## Changelog
+### 2.9.1
+- Upload form shortcode now appears in map popups
 ### 2.9.0
 - Added front-end photo uploads pending approval
 ### 2.8.0
