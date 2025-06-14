@@ -34,6 +34,9 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.10.2
+- Fixed upload form submission URL handling
+
 ### 2.10.1
 - Fix duplicate upload form in popups
 ### 2.10.0
