@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: GN Mapbox Locations with ACF
-Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, and full debug panel.
-Version: 2.6.0
+Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
+Version: 2.7.0
 Author: George Nicolaou
 */
 
@@ -27,6 +27,72 @@ function gn_register_map_location_cpt() {
     ]);
 }
 add_action('init', 'gn_register_map_location_cpt');
+
+// Add photo gallery meta box
+function gn_add_photos_meta_box() {
+    add_meta_box('gn_location_photos', 'Location Photos', 'gn_photos_meta_box_html', 'map_location', 'normal', 'default');
+}
+add_action('add_meta_boxes', 'gn_add_photos_meta_box');
+
+function gn_photos_meta_box_html($post) {
+    wp_enqueue_media();
+    wp_nonce_field('gn_save_photos', 'gn_photos_nonce');
+    $image_ids = get_post_meta($post->ID, '_gn_location_photos', true);
+    echo '<div id="gn-location-photos" style="margin-bottom:10px;">';
+    if ($image_ids) {
+        foreach (explode(',', $image_ids) as $id) {
+            $url = wp_get_attachment_image_url($id, 'thumbnail');
+            if ($url) {
+                echo '<img src="' . esc_url($url) . '" style="max-width:100px;margin-right:10px;margin-bottom:10px;" />';
+            }
+        }
+    }
+    echo '</div>';
+    echo '<input type="hidden" id="gn_location_photos_input" name="gn_location_photos" value="' . esc_attr($image_ids) . '" />';
+    echo '<button type="button" class="button" id="gn_add_photos_button">Add Photos</button> ';
+    echo '<button type="button" class="button" id="gn_clear_photos_button">Clear</button>';
+    ?>
+    <script>
+    jQuery(function($){
+        $('#gn_add_photos_button').on('click', function(e){
+            e.preventDefault();
+            var frame = wp.media({
+                title: 'Select Photos',
+                button: { text: 'Use these photos' },
+                multiple: true
+            });
+            frame.on('select', function(){
+                var ids = [];
+                var container = $('#gn-location-photos').empty();
+                frame.state().get('selection').map(function(att){
+                    att = att.toJSON();
+                    ids.push(att.id);
+                    container.append('<img src="'+att.sizes.thumbnail.url+'" style="max-width:100px;margin-right:10px;margin-bottom:10px;" />');
+                });
+                $('#gn_location_photos_input').val(ids.join(','));
+            });
+            frame.open();
+        });
+        $('#gn_clear_photos_button').on('click', function(e){
+            e.preventDefault();
+            $('#gn_location_photos_input').val('');
+            $('#gn-location-photos').empty();
+        });
+    });
+    </script>
+    <?php
+}
+
+function gn_save_photos_meta_box($post_id) {
+    if (!isset($_POST['gn_photos_nonce']) || !wp_verify_nonce($_POST['gn_photos_nonce'], 'gn_save_photos')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (isset($_POST['gn_location_photos'])) {
+        update_post_meta($post_id, '_gn_location_photos', sanitize_text_field($_POST['gn_location_photos']));
+    }
+}
+add_action('save_post_map_location', 'gn_save_photos_meta_box');
 
 function gn_enqueue_mapbox_assets() {
     wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
@@ -64,10 +130,20 @@ function gn_get_map_locations() {
         error_log('Longitude: ' . print_r($lng, true));
 
         if ($lat && $lng) {
+            $gallery_ids = get_post_meta(get_the_ID(), '_gn_location_photos', true);
+            $gallery = [];
+            if ($gallery_ids) {
+                foreach (explode(',', $gallery_ids) as $gid) {
+                    $url = wp_get_attachment_image_url($gid, 'medium');
+                    if ($url) $gallery[] = $url;
+                }
+            }
+
             $locations[] = [
                 'title'   => get_the_title(),
                 'content' => apply_filters('the_content', get_the_content()),
                 'image'   => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
+                'gallery' => $gallery,
                 'lat'     => floatval($lat),
                 'lng'     => floatval($lng),
             ];
