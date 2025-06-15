@@ -148,6 +148,11 @@
   font-size: 13px;
 }
 
+#gn-distance-panel {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
 .gn-upload-msg {
   margin-bottom: 10px;
   padding: 8px;

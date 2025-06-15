@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
+  let navigationMode = "driving";
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
 
   function getSelectedLanguage() {
@@ -99,14 +100,17 @@ document.addEventListener("DOMContentLoaded", function () {
     navPanel.innerHTML = `
       <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
       <div style="padding: 6px; background: white;">
-        <button class="gn-nav-btn" onclick="setMode('driving')">Driving</button>
-        <button class="gn-nav-btn" onclick="setMode('walking')">Walking</button>
-        <button class="gn-nav-btn" onclick="setMode('cycling')">Cycling</button>
-        <select id="gn-language-select" class="gn-nav-select">
-          <option value="en-US">English</option>
-          <option value="el-GR">Ελληνικά</option>
-        </select>
-        <button class="gn-nav-btn" id="gn-start-nav">Start Navigation</button>
+          <select id="gn-mode-select" class="gn-nav-select">
+            <option value="driving">Driving</option>
+            <option value="walking">Walking</option>
+            <option value="cycling">Cycling</option>
+          </select>
+          <select id="gn-language-select" class="gn-nav-select">
+            <option value="en-US">English</option>
+            <option value="el-GR">Ελληνικά</option>
+          </select>
+          <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;"></div>
+          <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶</button>
       </div>
     `;
     navPanel.style.cssText = `
@@ -121,6 +125,11 @@ document.addEventListener("DOMContentLoaded", function () {
       font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
+    const modeSel = navPanel.querySelector("#gn-mode-select");
+    if (modeSel) {
+      modeSel.value = navigationMode;
+      modeSel.onchange = () => setMode(modeSel.value);
+    }
 
     const langSel = navPanel.querySelector("#gn-language-select");
     if (langSel) {
@@ -161,14 +170,15 @@ document.addEventListener("DOMContentLoaded", function () {
   function addVoiceToggleButton() {
     const btn = document.createElement("button");
     btn.id = "gn-voice-toggle";
-    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "Unmute Voice" : "Mute Voice";
+    btn.title = "Toggle Voice";
+    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔇" : "🔊";
     btn.className = "gn-nav-btn";
     btn.style.marginTop = "10px";
 
     btn.onclick = () => {
       const isMuted = localStorage.getItem("gn_voice_muted") === "true";
       localStorage.setItem("gn_voice_muted", !isMuted);
-      btn.textContent = !isMuted ? "Unmute Voice" : "Mute Voice";
+      btn.textContent = !isMuted ? "🔇" : "🔊";
     };
 
     const panel = document.getElementById("gn-nav-panel");
@@ -196,6 +206,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   window.setMode = function (mode) {
+    navigationMode = mode;
+    const sel = document.getElementById("gn-mode-select");
+    if (sel) sel.value = mode;
     log("Navigation mode set to:", mode);
   };
 
@@ -220,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
       const allPoints = [userLngLat, ...coords];
       const coordPairs = allPoints.map(p => p.join(',')).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&language=${lang}&access_token=${mapboxgl.accessToken}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/${navigationMode}/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&language=${lang}&access_token=${mapboxgl.accessToken}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -255,17 +268,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
       let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
       const steps = data.routes[0].legs[0].steps;
-      const totalDistance = data.routes[0].distance / 1000;
-      const totalDuration = data.routes[0].duration / 60;
-      log(`Total route distance: ${totalDistance.toFixed(2)} km`);
-      log(`Total route duration: ${totalDuration.toFixed(1)} minutes`);
+      let remainingDistance = data.routes[0].distance;
+      let remainingDuration = data.routes[0].duration;
+      const panel = document.getElementById("gn-distance-panel");
+      const updatePanel = () => {
+        if (panel) {
+          const km = (remainingDistance / 1000).toFixed(2);
+          const mins = Math.ceil(remainingDuration / 60);
+          panel.textContent = `${km} km - ${mins} min`;
+        }
+      };
+      updatePanel();
       for (const step of steps) {
-        const msg = new SpeechSynthesisUtterance(step.maneuver.instruction);
+        let instr = step.maneuver.instruction.replace(/^Drive/i,
+          navigationMode === 'walking' ? 'Walk' : navigationMode === 'cycling' ? 'Cycle' : 'Drive');
+        const msg = new SpeechSynthesisUtterance(instr);
         msg.lang = lang;
         msg.rate = 0.95;
         msg.pitch = 1;
         msg.volume = 1.0;
         if (!voiceMuted) window.speechSynthesis.speak(msg);
+        remainingDistance -= step.distance;
+        remainingDuration -= step.duration;
+        updatePanel();
         await new Promise(res => setTimeout(res, step.duration * 1000));
         animateAlongRoute(data.routes[0].geometry.coordinates);
       }
@@ -365,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const map = new mapboxgl.Map({
     container: "gn-mapbox-map",
-    style: "mapbox://styles/mapbox/streets-v11",
+    style: "mapbox://styles/mapbox/satellite-streets-v11",
     center: [32.3923713, 34.96211],
     zoom: 16,
   });
@@ -399,32 +424,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (coords.length > 1) {
-      map.addSource("route", {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: coords,
-          },
-        },
-      });
-
-      map.addLayer({
-        id: "route",
-        type: "line",
-        source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round"
-        },
-        paint: {
-          "line-color": "#ff0000",
-          "line-width": 4
-        }
-      });
-
-      log("Route LineString drawn with", coords.length, "points");
+      const pairs = coords.map(c => c.join(',')).join(';');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${pairs}?geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
+      fetch(url)
+        .then(r => r.json())
+        .then(data => {
+          if (data.routes && data.routes[0]) {
+            map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: data.routes[0].geometry } });
+            map.addLayer({
+              id: 'route',
+              type: 'line',
+              source: 'route',
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: { 'line-color': '#ff0000', 'line-width': 4 }
+            });
+            log('Route loaded from Directions API');
+          }
+        });
     }
   });
   });
