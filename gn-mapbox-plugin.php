@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.17.0
+Version: 2.18.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -221,7 +221,8 @@ function gn_enqueue_mapbox_assets() {
     wp_enqueue_style('gn-mapbox-style', plugin_dir_url(__FILE__) . 'css/mapbox-style.css');
     wp_enqueue_script('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js', [], null, true);
     wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
-    wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery'], null, true);
+    wp_enqueue_script('mapbox-gl-language', plugin_dir_url(__FILE__) . 'js/mapbox-gl-language.js', ['mapbox-gl'], null, true);
+    wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery', 'mapbox-gl-language'], null, true);
     wp_enqueue_script('gn-sw-register', plugin_dir_url(__FILE__) . 'js/sw-register.js', [], null, true);
     wp_enqueue_script('gn-photo-upload', plugin_dir_url(__FILE__) . 'js/gn-photo-upload.js', ['jquery'], null, true);
 

@@ -5,7 +5,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
   let navigationMode = "driving";
+  let map;
+  let languageControl;
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
+
+  function mapLangPart(code) {
+    return code.split("-")[0];
+  }
 
   function getSelectedLanguage() {
     const sel = document.getElementById("gn-language-select");
@@ -137,6 +143,10 @@ document.addEventListener("DOMContentLoaded", function () {
       langSel.onchange = () => {
         localStorage.setItem("gn_voice_lang", langSel.value);
         checkVoiceAvailability(langSel.value);
+        if (languageControl && map) {
+          const code = mapLangPart(langSel.value);
+          map.setStyle(languageControl.setLanguage(map.getStyle(), code));
+        }
       };
     }
 
@@ -388,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
     move();
   }
 
-  const map = new mapboxgl.Map({
+  map = new mapboxgl.Map({
     container: "gn-mapbox-map",
     style: "mapbox://styles/mapbox/satellite-streets-v11",
     center: [32.3923713, 34.96211],
@@ -396,6 +406,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   map.addControl(new mapboxgl.NavigationControl(), "top-left");
+  languageControl = new MapboxLanguage({
+    supportedLanguages: ["en", "el"],
+    defaultLanguage: mapLangPart(defaultLang)
+  });
+  map.addControl(languageControl);
 
   map.on("load", () => {
     log("Map loaded");

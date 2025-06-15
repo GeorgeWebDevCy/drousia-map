@@ -8,6 +8,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 - Responsive popups display images, descriptions and photo upload forms.
 - Gallery and featured images open in a lightbox that scales beautifully on all devices.
 - Draggable navigation panel offers driving, walking and cycling directions with voice guidance.
+- Map labels and voice guidance follow the selected language.
 - Spoken instructions use the browser speech API and can be muted or unmuted at any time.
 - Animated route line with optional elevation graph and real-time statistics.
 - On-screen debug panel and console logs when debugging is enabled.
@@ -42,6 +43,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.18.0
+- Map labels switch languages along with voice instructions
 ### 2.17.0
 - Satellite view by default
 - Navigation mode dropdown and icon buttons
