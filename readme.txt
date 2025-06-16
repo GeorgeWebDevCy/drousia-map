@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.18.2
+Stable tag: 2.18.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,8 +34,11 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 
 == Debugging ==
 Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose logs to the browser console.
+Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.18.3 =
+- No code changes; version bump and documentation on debug log order of points of interest
 = 2.18.2 =
 * Default route now returns to the starting point
 = 2.18.1 =

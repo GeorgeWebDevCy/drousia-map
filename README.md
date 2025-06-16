@@ -32,6 +32,7 @@ After visitors submit photos, they appear under **Media → Photo Approvals** in
 
 ## Debugging
 Enable the **Debug Panel** setting under **Settings → GN Mapbox** to output detailed logs to the browser console and on-screen panel.
+Markers are logged in the order they appear in `data/locations.json`.
 
 ## Offline Caching
 A service worker caches Mapbox tiles for offline use once a page has been loaded online. The map will then continue working with the cached tiles when the network is unavailable.
@@ -43,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.18.3
+- Document debug log order for points of interest
 ### 2.18.2
 - Default route now returns to the starting point
 ### 2.18.1
