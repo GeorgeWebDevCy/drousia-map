@@ -43,6 +43,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.18.2
+- Default route now returns to the starting point
 ### 2.18.1
 - Removed Στρουμπί from the default locations dataset
 ### 2.18.0
