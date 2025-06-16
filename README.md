@@ -3,17 +3,17 @@
 This WordPress plugin displays custom post type locations on a Mapbox map. It allows visitors to view markers, follow routes and even get spoken navigation.
 
 ## Features
-- "Map Location" custom post type stores coordinates, descriptions and unlimited gallery images.
+ - "Map Location" custom post type stores coordinates, descriptions and unlimited gallery media.
 - `[gn_map]` shortcode embeds a fully interactive Mapbox map anywhere on your site.
-- Responsive popups display images, descriptions and photo upload forms.
-- Gallery and featured images open in a lightbox that scales beautifully on all devices.
+ - Responsive popups display images, descriptions and media upload forms.
+ - Gallery items open in a lightbox that scales beautifully on all devices.
 - Draggable navigation panel offers driving, walking and cycling directions with voice guidance.
 - Map labels and voice guidance follow the selected language.
 - Spoken instructions use the browser speech API and can be muted or unmuted at any time.
 - Animated route line with optional elevation graph and real-time statistics.
 - On-screen debug panel and console logs when debugging is enabled.
 - Service worker caches Mapbox tiles so viewed maps continue working offline.
-- Visitors can upload photos from the front end; admins can approve or delete submissions before publishing.
+- Visitors can upload photos or videos from the front end; admins can approve or delete submissions before publishing.
 - Upload forms automatically appear in map popups and inside each location post.
 - Example locations from `data/locations.json` are imported if none exist.
 - Built-in update checker fetches new versions directly from GitHub.
@@ -27,8 +27,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-## Approving Uploaded Photos
-After visitors submit photos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each image and either **Approve** it to publish in the location gallery or **Delete** it permanently.
+## Approving Uploaded Media
+After visitors submit photos or videos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each item and either **Approve** it to publish in the location gallery or **Delete** it permanently.
 
 ## Debugging
 Enable the **Debug Panel** setting under **Settings → GN Mapbox** to output detailed logs to the browser console and on-screen panel.
@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.19.0
+- Video uploads now supported with approval and deletion
 ### 2.18.5
 - Pending photo approval screen now includes a Delete option
 ### 2.18.4

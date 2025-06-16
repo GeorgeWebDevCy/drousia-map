@@ -58,7 +58,7 @@
   border-radius: 6px !important;
 }
 
-/* Optional image gallery */
+/* Optional media gallery */
 #gn-mapbox-map .popup-content .gallery {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -66,7 +66,8 @@
   margin-top: 15px !important;
 }
 
-#gn-mapbox-map .popup-content .gallery img {
+#gn-mapbox-map .popup-content .gallery img,
+#gn-mapbox-map .popup-content .gallery video {
   width: 48% !important;
   height: auto !important;
   border-radius: 4px !important;

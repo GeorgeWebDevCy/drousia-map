@@ -419,7 +419,13 @@ document.addEventListener("DOMContentLoaded", function () {
     gnMapData.locations.forEach((loc) => {
       const galleryHTML = loc.gallery && loc.gallery.length
         ? '<div class="gallery">' +
-          loc.gallery.map(url => `<img src="${url}" alt="${loc.title}">`).join('') +
+          loc.gallery
+            .map(item =>
+              item.type === 'video'
+                ? `<video src="${item.url}" controls></video>`
+                : `<img src="${item.url}" alt="${loc.title}">`
+            )
+            .join('') +
           '</div>'
         : '';
       const uploadHTML = loc.upload_form ? `<div class="gn-upload-form">${loc.upload_form}</div>` : '';
