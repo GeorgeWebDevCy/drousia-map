@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.18.4
+Version: 2.18.5
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -534,15 +534,17 @@ function gn_photo_approval_page() {
     ]);
 
     echo '<div class="wrap"><h1>' . esc_html__('Pending Photo Uploads', 'gn-mapbox') . '</h1>';
-    echo '<table class="widefat"><thead><tr><th>' . esc_html__('Preview', 'gn-mapbox') . '</th><th>' . esc_html__('Location', 'gn-mapbox') . '</th><th></th></tr></thead><tbody>';
+    echo '<table class="widefat"><thead><tr><th>' . esc_html__('Preview', 'gn-mapbox') . '</th><th>' . esc_html__('Location', 'gn-mapbox') . '</th><th>' . esc_html__('Approve', 'gn-mapbox') . '</th><th>' . esc_html__('Delete', 'gn-mapbox') . '</th></tr></thead><tbody>';
     foreach ($pending as $p) {
         $loc = $pending_map[$p->ID];
         $url = wp_get_attachment_image_url($p->ID, 'thumbnail');
         $approve_url = wp_nonce_url(admin_url('admin-post.php?action=gn_approve_photo&photo_id='.$p->ID), 'gn_approve_photo_'.$p->ID);
+        $delete_url  = wp_nonce_url(admin_url('admin-post.php?action=gn_delete_photo&photo_id='.$p->ID), 'gn_delete_photo_'.$p->ID);
         echo '<tr>';
         echo '<td><img src="'.esc_url($url).'" style="max-width:80px"></td>';
         echo '<td>'.esc_html($loc->post_title).'</td>';
         echo '<td><a class="button" href="'.$approve_url.'">'.esc_html__('Approve', 'gn-mapbox').'</a></td>';
+        echo '<td><a class="button" href="'.$delete_url.'">'.esc_html__('Delete', 'gn-mapbox').'</a></td>';
         echo '</tr>';
     }
     echo '</tbody></table></div>';
@@ -569,4 +571,22 @@ function gn_process_photo_approval() {
     exit;
 }
 add_action('admin_post_gn_approve_photo', 'gn_process_photo_approval');
+
+function gn_process_photo_deletion() {
+    if (!current_user_can('manage_options')) wp_die(__('Unauthorized', 'gn-mapbox'));
+    $photo_id = intval($_GET['photo_id'] ?? 0);
+    if (!$photo_id || !wp_verify_nonce($_GET['_wpnonce'], 'gn_delete_photo_'.$photo_id)) wp_die(__('Invalid request', 'gn-mapbox'));
+    $attachment = get_post($photo_id);
+    if (!$attachment) wp_die(__('Photo not found', 'gn-mapbox'));
+    $location_id = $attachment->post_parent;
+    $pending = get_post_meta($location_id, '_gn_pending_photos', true);
+    if ($pending) {
+        $pend_ids = array_filter(explode(',', $pending), function($id) use ($photo_id){ return intval($id) !== $photo_id; });
+        update_post_meta($location_id, '_gn_pending_photos', implode(',', $pend_ids));
+    }
+    wp_delete_attachment($photo_id, true);
+    wp_redirect(admin_url('upload.php?page=gn-photo-approvals'));
+    exit;
+}
+add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
 
