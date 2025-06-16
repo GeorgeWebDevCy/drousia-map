@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.18.0
+Stable tag: 2.18.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,8 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose logs to the browser console.
 
 == Changelog ==
+= 2.18.1 =
+* Removed Στρουμπί from the default locations dataset
 = 2.18.0 =
 * Map labels now switch language with the voice guidance
 = 2.17.0 =

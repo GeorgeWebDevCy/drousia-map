@@ -43,6 +43,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.18.1
+- Removed Στρουμπί from the default locations dataset
 ### 2.18.0
 - Map labels switch languages along with voice instructions
 ### 2.17.0
