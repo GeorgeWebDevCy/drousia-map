@@ -3,25 +3,25 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.18.5
+Stable tag: 2.19.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Display custom map locations on a Mapbox-powered map complete with voice guided navigation, animated routes, offline caching and photo galleries.
+Display custom map locations on a Mapbox-powered map complete with voice guided navigation, animated routes, offline caching and media galleries.
 
 == Description ==
-GN Mapbox Locations with ACF creates a **Map Location** post type for storing coordinates, descriptions and images. Place the `[gn_map]` shortcode anywhere to display an interactive map. A draggable navigation panel gives visitors driving, walking or cycling directions with spoken instructions that can be muted. Routes can be animated and paused or resumed, while a service worker caches tiles for offline use. A debug panel outputs verbose logs when enabled. Visitors can submit photos from the front end which administrators approve before publishing. Example locations are automatically imported if none exist.
+GN Mapbox Locations with ACF creates a **Map Location** post type for storing coordinates, descriptions and images. Place the `[gn_map]` shortcode anywhere to display an interactive map. A draggable navigation panel gives visitors driving, walking or cycling directions with spoken instructions that can be muted. Routes can be animated and paused or resumed, while a service worker caches tiles for offline use. A debug panel outputs verbose logs when enabled. Visitors can submit photos or videos from the front end which administrators approve before publishing. Example locations are automatically imported if none exist.
 == Features ==
 * "Map Location" custom post type storing coordinates, descriptions and galleries.
 * `[gn_map]` shortcode embeds an interactive Mapbox map anywhere.
-* Responsive popups show images, descriptions and an upload form.
-* Gallery and featured images open in a lightbox and scale to any screen.
+* Responsive popups show images, descriptions and a media upload form.
+* Gallery items open in a lightbox and scale to any screen.
 * Draggable navigation panel for driving, walking or cycling directions with voice guidance.
 * Voice instructions can be muted or unmuted and support multiple languages.
 * Animated route line with optional elevation graph and statistics.
 * Debug panel outputs verbose logs on screen and to the browser console.
 * Offline map tile caching via service worker.
-* Visitors may upload photos on the front end; admins can approve or delete each submission before publishing.
+* Visitors may upload photos or videos on the front end; admins can approve or delete each submission before publishing.
 * Upload forms automatically appear in map popups and inside each location post.
 * Example locations from `data/locations.json` are imported when none exist.
 * Automatic update checks from GitHub.
@@ -37,6 +37,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.19.0 =
+* Video uploads supported with approval and deletion
 = 2.18.5 =
 * Pending photo approval screen now allows deletion of images
 = 2.18.4 =

@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.18.5
+Version: 2.19.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -265,8 +265,15 @@ function gn_get_map_locations() {
             $gallery = [];
             if ($gallery_ids) {
                 foreach (explode(',', $gallery_ids) as $gid) {
-                    $url = wp_get_attachment_image_url($gid, 'medium');
-                    if ($url) $gallery[] = $url;
+                    $attachment = get_post($gid);
+                    if (!$attachment) continue;
+                    if (strpos($attachment->post_mime_type, 'video') === 0) {
+                        $url = wp_get_attachment_url($gid);
+                        if ($url) $gallery[] = ['url' => $url, 'type' => 'video'];
+                    } else {
+                        $url = wp_get_attachment_image_url($gid, 'medium');
+                        if ($url) $gallery[] = ['url' => $url, 'type' => 'image'];
+                    }
                 }
             }
 
@@ -307,8 +314,15 @@ function gn_get_map_locations() {
                 $gallery = [];
                 if ($gallery_ids) {
                     foreach (explode(',', $gallery_ids) as $gid) {
-                        $url = wp_get_attachment_image_url($gid, 'medium');
-                        if ($url) $gallery[] = $url;
+                        $attachment = get_post($gid);
+                        if (!$attachment) continue;
+                        if (strpos($attachment->post_mime_type, 'video') === 0) {
+                            $url = wp_get_attachment_url($gid);
+                            if ($url) $gallery[] = ['url' => $url, 'type' => 'video'];
+                        } else {
+                            $url = wp_get_attachment_image_url($gid, 'medium');
+                            if ($url) $gallery[] = ['url' => $url, 'type' => 'image'];
+                        }
                     }
                 }
 
@@ -429,8 +443,8 @@ function gn_photo_upload_shortcode($atts) {
     $output .= wp_nonce_field('gn_photo_upload','gn_photo_nonce',true,false);
     $output .= '<input type="hidden" name="action" value="gn_photo_upload">';
     $output .= '<input type="hidden" name="location_id" value="'.$location_id.'">';
-    $output .= '<input type="file" name="gn_photo" accept="image/*" class="gn-photo-file" style="display:none;" required>';
-    $output .= '<button type="button" class="gn-photo-button">' . esc_html__('Upload Photo', 'gn-mapbox') . '</button>';
+    $output .= '<input type="file" name="gn_photo" accept="image/*,video/*" class="gn-photo-file" style="display:none;" required>';
+    $output .= '<button type="button" class="gn-photo-button">' . esc_html__('Upload Media', 'gn-mapbox') . '</button>';
     $output .= '<span class="gn-upload-status"></span>';
     $output .= '</form>';
     return $output;
@@ -537,11 +551,20 @@ function gn_photo_approval_page() {
     echo '<table class="widefat"><thead><tr><th>' . esc_html__('Preview', 'gn-mapbox') . '</th><th>' . esc_html__('Location', 'gn-mapbox') . '</th><th>' . esc_html__('Approve', 'gn-mapbox') . '</th><th>' . esc_html__('Delete', 'gn-mapbox') . '</th></tr></thead><tbody>';
     foreach ($pending as $p) {
         $loc = $pending_map[$p->ID];
-        $url = wp_get_attachment_image_url($p->ID, 'thumbnail');
+        if (strpos($p->post_mime_type, 'video') === 0) {
+            $url = wp_get_attachment_url($p->ID);
+        } else {
+            $url = wp_get_attachment_image_url($p->ID, 'thumbnail');
+        }
         $approve_url = wp_nonce_url(admin_url('admin-post.php?action=gn_approve_photo&photo_id='.$p->ID), 'gn_approve_photo_'.$p->ID);
         $delete_url  = wp_nonce_url(admin_url('admin-post.php?action=gn_delete_photo&photo_id='.$p->ID), 'gn_delete_photo_'.$p->ID);
         echo '<tr>';
-        echo '<td><img src="'.esc_url($url).'" style="max-width:80px"></td>';
+        if (strpos($p->post_mime_type, 'video') === 0) {
+            $preview = '<video src="'.esc_url($url).'" style="max-width:80px" controls></video>';
+        } else {
+            $preview = '<img src="'.esc_url($url).'" style="max-width:80px">';
+        }
+        echo '<td>'.$preview.'</td>';
         echo '<td>'.esc_html($loc->post_title).'</td>';
         echo '<td><a class="button" href="'.$approve_url.'">'.esc_html__('Approve', 'gn-mapbox').'</a></td>';
         echo '<td><a class="button" href="'.$delete_url.'">'.esc_html__('Delete', 'gn-mapbox').'</a></td>';
