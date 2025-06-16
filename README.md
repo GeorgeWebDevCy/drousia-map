@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.18.4
+- Points dataset now closes the loop at the starting location
 ### 2.18.3
 - Document debug log order for points of interest
 ### 2.18.2
