@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.18.4
+Stable tag: 2.18.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 * Animated route line with optional elevation graph and statistics.
 * Debug panel outputs verbose logs on screen and to the browser console.
 * Offline map tile caching via service worker.
-* Visitors may upload photos on the front end; submissions require admin approval.
+* Visitors may upload photos on the front end; admins can approve or delete each submission before publishing.
 * Upload forms automatically appear in map popups and inside each location post.
 * Example locations from `data/locations.json` are imported when none exist.
 * Automatic update checks from GitHub.
@@ -37,6 +37,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.18.5 =
+* Pending photo approval screen now allows deletion of images
 = 2.18.4 =
 * Points dataset now returns to the starting location
 = 2.18.3 =

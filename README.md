@@ -13,7 +13,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 - Animated route line with optional elevation graph and real-time statistics.
 - On-screen debug panel and console logs when debugging is enabled.
 - Service worker caches Mapbox tiles so viewed maps continue working offline.
-- Visitors can upload photos from the front end; submissions require admin approval.
+- Visitors can upload photos from the front end; admins can approve or delete submissions before publishing.
 - Upload forms automatically appear in map popups and inside each location post.
 - Example locations from `data/locations.json` are imported if none exist.
 - Built-in update checker fetches new versions directly from GitHub.
@@ -28,7 +28,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
 ## Approving Uploaded Photos
-After visitors submit photos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each image and click **Approve** to publish it to the corresponding location gallery.
+After visitors submit photos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each image and either **Approve** it to publish in the location gallery or **Delete** it permanently.
 
 ## Debugging
 Enable the **Debug Panel** setting under **Settings → GN Mapbox** to output detailed logs to the browser console and on-screen panel.
@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.18.5
+- Pending photo approval screen now includes a Delete option
 ### 2.18.4
 - Points dataset now closes the loop at the starting location
 ### 2.18.3
