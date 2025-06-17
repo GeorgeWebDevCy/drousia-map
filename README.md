@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.22.1
+- Fix route guidance for nature walks and rides
 ### 2.22.0
 - Invisible waypoints supported for road-following routes
 ### 2.21.0
