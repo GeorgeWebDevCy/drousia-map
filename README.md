@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.24.1
+- Updated default location dataset with invisible waypoints
 ### 2.24.0
 - Position can now be edited from Quick Edit
 ### 2.23.0
