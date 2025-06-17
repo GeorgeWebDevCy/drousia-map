@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.20.0
+- Route drawn directly from provided coordinates
 ### 2.19.0
 - Video uploads now supported with approval and deletion
 ### 2.18.5

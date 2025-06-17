@@ -445,23 +445,29 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (coords.length > 1) {
-      const pairs = coords.map(c => c.join(',')).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${pairs}?geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
-      fetch(url)
-        .then(r => r.json())
-        .then(data => {
-          if (data.routes && data.routes[0]) {
-            map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: data.routes[0].geometry } });
-            map.addLayer({
-              id: 'route',
-              type: 'line',
-              source: 'route',
-              layout: { 'line-join': 'round', 'line-cap': 'round' },
-              paint: { 'line-color': '#ff0000', 'line-width': 4 }
-            });
-            log('Route loaded from Directions API');
-          }
-        });
+      coords.forEach((point, idx) => {
+        if (idx > 0) {
+          log('Route segment', coords[idx - 1], '->', point);
+        }
+      });
+
+      const routeGeoJson = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coords
+        }
+      };
+
+      map.addSource('route', { type: 'geojson', data: routeGeoJson });
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#ff0000', 'line-width': 4 }
+      });
+      log('Route drawn using provided coordinates:', coords);
     }
   });
   });
