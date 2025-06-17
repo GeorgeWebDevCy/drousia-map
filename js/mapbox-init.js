@@ -222,6 +222,29 @@ document.addEventListener("DOMContentLoaded", function () {
     log("Navigation mode set to:", mode);
   };
 
+  async function getElevationGain(points) {
+    try {
+      const step = Math.max(1, Math.floor(points.length / 50));
+      const sampled = points.filter((_, i) => i % step === 0);
+      const locs = sampled.map(p => `${p[1]},${p[0]}`).join("|");
+      const res = await fetch(
+        `https://api.open-elevation.com/api/v1/lookup?locations=${locs}`
+      );
+      const json = await res.json();
+      if (!json.results) return 0;
+      const elevs = json.results.map(r => r.elevation);
+      let gain = 0;
+      for (let i = 1; i < elevs.length; i++) {
+        const diff = elevs[i] - elevs[i - 1];
+        if (diff > 0) gain += diff;
+      }
+      return gain;
+    } catch (e) {
+      console.warn("Elevation fetch failed", e);
+      return 0;
+    }
+  }
+
   async function startNavigation() {
     if (!navigator.geolocation) {
       log("Geolocation not supported.");
@@ -241,8 +264,10 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
-      const allPoints = [userLngLat, ...coords];
-      const coordPairs = allPoints.map(p => p.join(',')).join(';');
+      const waypoints = coords.slice(0, -1);
+      const destination = coords[coords.length - 1];
+      const ordered = [userLngLat, ...waypoints, destination];
+      const coordPairs = ordered.map(p => p.join(',')).join(';');
       const url = `https://api.mapbox.com/directions/v5/mapbox/${navigationMode}/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&language=${lang}&access_token=${mapboxgl.accessToken}`;
 
       const res = await fetch(url);
@@ -251,6 +276,10 @@ document.addEventListener("DOMContentLoaded", function () {
         log("No route found.");
         return;
       }
+
+      const elevationGain = await getElevationGain(
+        data.routes[0].geometry.coordinates
+      );
 
       const routeGeoJSON = {
         type: "Feature",
@@ -285,7 +314,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (panel) {
           const km = (remainingDistance / 1000).toFixed(2);
           const mins = Math.ceil(remainingDuration / 60);
-          panel.textContent = `${km} km - ${mins} min`;
+          panel.textContent = `${km} km - ${mins} min - ${Math.round(
+            elevationGain
+          )} m`;
         }
       };
       updatePanel();

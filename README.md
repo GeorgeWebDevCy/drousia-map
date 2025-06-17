@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.21.0
+- Directions API uses ordered coordinates and displays elevation gain
 ### 2.20.0
 - Route drawn directly from provided coordinates
 ### 2.19.0
