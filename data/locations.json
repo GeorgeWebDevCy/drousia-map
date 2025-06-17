@@ -1,122 +1,348 @@
 [
   {
-    "title": "Μουσείο Αγροτικής Ζώης Ακάμα - Κοινοτικό Συμβούλιο Δρούσειας",
+    "title": "1. Κοινοτικό Κτήριο Δρούσειας και Μουσείο Αγροτικής Ζωής Ακάμα",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.959863,
-    "lng": 32.397797
+    "lat": 34.9597753,
+    "lng": 32.3976912
   },
   {
-    "title": "Εκκλησία Αγίου Επιφανίου",
+    "title": "WP1.1",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.962663,
-    "lng": 32.397547
+    "lat": 34.96038889,
+    "lng": 32.39830556,
+    "waypoint": true
   },
   {
-    "title": "Κέντρο Νεότητας / Πολιτιστικό Κέντρο",
+    "title": "WP1.2",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.962806,
-    "lng": 32.397444
+    "lat": 34.96169444,
+    "lng": 32.39827778,
+    "waypoint": true
   },
   {
-    "title": "Θεατράκι και Παραδοσιακή Βρύση",
+    "title": "2. Εκκλησία Αγίου Επιφανίου και Πλατεία",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.959863,
-    "lng": 32.397797
+    "lat": 34.96266667,
+    "lng": 32.39755556
   },
   {
-    "title": "Πέτρα του Νικολά",
+    "title": "3. Κέντρο Νεότητας και Πολιτιστικό Κέντρο",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.967306,
-    "lng": 32.394056
+    "lat": 34.96280556,
+    "lng": 32.39744444
   },
   {
-    "title": "Θέα προς Κόλπο Πόλης Χρυσοχούς",
+    "title": "4. Θεατράκι και Παραδοσιακή Βρύση",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.972944,
-    "lng": 32.390694
+    "lat": 34.96313889,
+    "lng": 32.39705556
   },
   {
-    "title": "Πέτρα",
+    "title": "5. Πέτρα του Νικόλα",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.973444,
-    "lng": 32.389667
+    "lat": 34.96730556,
+    "lng": 32.39405556
   },
   {
-    "title": "Θεα προς αγροτικο τοπιο και γεωμορφωματα",
+    "title": "WP5.1",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.973278,
-    "lng": 32.389194
+    "lat": 34.96883333,
+    "lng": 32.39213889,
+    "waypoint": true
   },
   {
-    "title": "Αργάκι (Αργάκι επι της διαδρομής)",
+    "title": "6. Θέα προς Κόλπο Πόλης Χρυσοχούς",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.974194,
-    "lng": 32.382861
+    "lat": 34.97294444,
+    "lng": 32.39069444
   },
   {
-    "title": "Βρύση - Καραμόνα",
+    "title": "7. Πέτρα",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.984056,
-    "lng": 32.376028
+    "lat": 34.97344444,
+    "lng": 32.38966667
   },
   {
-    "title": "Οικισμός Πιττόκοπος",
+    "title": "8. Θέα προς Αγροτικό Τοπίο και Γεωμορφώματα",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.976417,
-    "lng": 32.376917
+    "lat": 34.97327778,
+    "lng": 32.38919444
   },
   {
-    "title": "Θέα προς Κόλπους Λάρας",
+    "title": "9. Αργάκι επί της Διαδρομής",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.971988,
-    "lng": 32.374484
+    "lat": 34.97419444,
+    "lng": 32.38286111
   },
   {
-    "title": "Σημείο θέας για Κ.Α.Ρ.Η",
+    "title": "WP9.1",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.966528,
-    "lng": 32.385556
+    "lat": 34.98583333,
+    "lng": 32.38116667,
+    "waypoint": true
   },
   {
-    "title": "Εξωκλήσι Αγίου Λουκά",
+    "title": "WP9.2",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.966513,
-    "lng": 32.385766
+    "lat": 34.98558333,
+    "lng": 32.37966667,
+    "waypoint": true
   },
   {
-    "title": "Μουσείο Αγροτικής Ζώης Ακάμα - Κοινοτικό Συμβούλιο Δρούσειας",
+    "title": "WP9.3",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.959863,
-    "lng": 32.397797
+    "lat": 34.98469444,
+    "lng": 32.3775,
+    "waypoint": true
+  },
+  {
+    "title": "10. Βρύση - Καραμόνα",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.98405556,
+    "lng": 32.37602778
+  },
+  {
+    "title": "WP10.1",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.98258333,
+    "lng": 32.37438889,
+    "waypoint": true
+  },
+  {
+    "title": "WP10.2",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97938889,
+    "lng": 32.37430556,
+    "waypoint": true
+  },
+  {
+    "title": "WP10.3",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97911111,
+    "lng": 32.37555556,
+    "waypoint": true
+  },
+  {
+    "title": "WP10.4",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.978,
+    "lng": 32.37633333,
+    "waypoint": true
+  },
+  {
+    "title": "11. Οικισμός Πιττοκόπος",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97641667,
+    "lng": 32.37691667
+  },
+  {
+    "title": "WP11.1",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97680556,
+    "lng": 32.37627778,
+    "waypoint": true
+  },
+  {
+    "title": "WP11.2",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97722222,
+    "lng": 32.37522222,
+    "waypoint": true
+  },
+  {
+    "title": "WP11.3",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97597222,
+    "lng": 32.37477778,
+    "waypoint": true
+  },
+  {
+    "title": "WP11.4",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.97447222,
+    "lng": 32.37391667,
+    "waypoint": true
+  },
+  {
+    "title": "12. Θέα προς Κόλπους Λάρας (Κιόσκι Πιττοκόπου)",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.9719366,
+    "lng": 32.3744811
+  },
+  {
+    "title": "WP12.1",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96863889,
+    "lng": 32.37608333,
+    "waypoint": true
+  },
+  {
+    "title": "WP12.2",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96738889,
+    "lng": 32.38241667,
+    "waypoint": true
+  },
+  {
+    "title": "WP12.3",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96683333,
+    "lng": 32.38447222,
+    "waypoint": true
+  },
+  {
+    "title": "13. Θέα προς Κ.Α.Ρ.Η",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96652778,
+    "lng": 32.38555556
+  },
+  {
+    "title": "14. Ιερό Εξωκλήσι Αποστόλου Λουκά",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.9664249,
+    "lng": 32.3857802
+  },
+  {
+    "title": "WP14.1",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96463889,
+    "lng": 32.38911111,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.2",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96283333,
+    "lng": 32.39111111,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.3",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96266667,
+    "lng": 32.39247222,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.4",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96194444,
+    "lng": 32.39466667,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.5",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96194444,
+    "lng": 32.39577778,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.6",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96233333,
+    "lng": 32.39675,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.7",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96163889,
+    "lng": 32.397,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.8",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96088889,
+    "lng": 32.39766667,
+    "waypoint": true
+  },
+  {
+    "title": "WP14.9",
+    "content": "",
+    "image": null,
+    "gallery": [],
+    "lat": 34.96072222,
+    "lng": 32.39822222,
+    "waypoint": true
   }
 ]
