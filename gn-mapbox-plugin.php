@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.23.0
+Version: 2.24.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -276,6 +276,53 @@ function gn_location_column_content($column, $post_id) {
     }
 }
 add_action('manage_map_location_posts_custom_column', 'gn_location_column_content', 10, 2);
+
+function gn_quick_edit_custom_box($column, $post_type) {
+    if ($post_type !== 'map_location' || $column !== 'gn_order') return;
+    ?>
+    <fieldset class="inline-edit-col-right">
+        <div class="inline-edit-col">
+            <label>
+                <span class="title"><?php echo esc_html__('Position', 'gn-mapbox'); ?></span>
+                <span class="input-text-wrap"><input type="number" name="gn_location_order" class="gn-location-order" value=""></span>
+            </label>
+        </div>
+    </fieldset>
+    <?php
+}
+add_action('quick_edit_custom_box', 'gn_quick_edit_custom_box', 10, 2);
+
+function gn_quick_edit_scripts() {
+    global $current_screen;
+    if ($current_screen->post_type !== 'map_location') return;
+    ?>
+    <script>
+    jQuery(function($){
+        var $edit = inlineEditPost.edit;
+        inlineEditPost.edit = function(id) {
+            var r = $edit.apply(this, arguments);
+            if (typeof(id) === 'object') id = this.getId(id);
+            var $postRow = $('#post-' + id);
+            var val = $('.column-gn_order', $postRow).text();
+            $('input.gn-location-order', '#edit-' + id).val(val.trim());
+            return r;
+        };
+    });
+    </script>
+    <?php
+}
+add_action('admin_footer-edit.php', 'gn_quick_edit_scripts');
+
+function gn_save_quick_edit_order($post_id) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!isset($_POST['_inline_edit']) || !wp_verify_nonce($_POST['_inline_edit'], 'inlineeditnonce')) {
+        return;
+    }
+    if (isset($_POST['gn_location_order'])) {
+        update_post_meta($post_id, '_gn_location_order', intval($_POST['gn_location_order']));
+    }
+}
+add_action('save_post_map_location', 'gn_save_quick_edit_order');
 
 function gn_enqueue_mapbox_assets() {
     wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
