@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.22.1
+Version: 2.23.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -77,7 +77,7 @@ function gn_import_default_locations() {
         return;
     }
 
-    foreach ($locations as $location) {
+    foreach ($locations as $index => $location) {
         if (empty($location['title'])) {
             continue;
         }
@@ -105,6 +105,7 @@ function gn_import_default_locations() {
             if (isset($location['waypoint'])) {
                 update_post_meta($post_id, '_gn_waypoint', $location['waypoint'] ? '1' : '');
             }
+            update_post_meta($post_id, '_gn_location_order', $index);
         }
     }
 }
@@ -161,6 +162,11 @@ function gn_add_waypoint_meta_box() {
     add_meta_box('gn_waypoint', __('Invisible Waypoint', 'gn-mapbox'), 'gn_waypoint_meta_box_html', 'map_location', 'side', 'default');
 }
 add_action('add_meta_boxes', 'gn_add_waypoint_meta_box');
+
+function gn_add_order_meta_box() {
+    add_meta_box('gn_location_order', __('Position', 'gn-mapbox'), 'gn_order_meta_box_html', 'map_location', 'side', 'default');
+}
+add_action('add_meta_boxes', 'gn_add_order_meta_box');
 
 function gn_photos_meta_box_html($post) {
     wp_enqueue_media();
@@ -231,6 +237,12 @@ function gn_waypoint_meta_box_html($post) {
     echo '<label><input type="checkbox" name="gn_waypoint" value="1" ' . $checked . '> ' . esc_html__('Invisible waypoint (no marker)', 'gn-mapbox') . '</label>';
 }
 
+function gn_order_meta_box_html($post) {
+    wp_nonce_field('gn_save_order', 'gn_order_nonce');
+    $order = get_post_meta($post->ID, '_gn_location_order', true);
+    echo '<input type="number" name="gn_location_order" value="' . esc_attr($order) . '" style="width:100%;">';
+}
+
 function gn_save_waypoint_meta_box($post_id) {
     if (!isset($_POST['gn_waypoint_nonce']) || !wp_verify_nonce($_POST['gn_waypoint_nonce'], 'gn_save_waypoint')) {
         return;
@@ -240,6 +252,30 @@ function gn_save_waypoint_meta_box($post_id) {
     update_post_meta($post_id, '_gn_waypoint', $value);
 }
 add_action('save_post_map_location', 'gn_save_waypoint_meta_box');
+
+function gn_save_order_meta_box($post_id) {
+    if (!isset($_POST['gn_order_nonce']) || !wp_verify_nonce($_POST['gn_order_nonce'], 'gn_save_order')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (isset($_POST['gn_location_order'])) {
+        update_post_meta($post_id, '_gn_location_order', intval($_POST['gn_location_order']));
+    }
+}
+add_action('save_post_map_location', 'gn_save_order_meta_box');
+
+function gn_location_columns($columns) {
+    $columns['gn_order'] = __('Position', 'gn-mapbox');
+    return $columns;
+}
+add_filter('manage_map_location_posts_columns', 'gn_location_columns');
+
+function gn_location_column_content($column, $post_id) {
+    if ($column === 'gn_order') {
+        echo esc_html(get_post_meta($post_id, '_gn_location_order', true));
+    }
+}
+add_action('manage_map_location_posts_custom_column', 'gn_location_column_content', 10, 2);
 
 function gn_enqueue_mapbox_assets() {
     wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
@@ -269,8 +305,11 @@ add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets');
 
 function gn_get_map_locations() {
     $query = new WP_Query([
-        'post_type' => 'map_location',
+        'post_type'      => 'map_location',
         'posts_per_page' => -1,
+        'meta_key'       => '_gn_location_order',
+        'orderby'        => 'meta_value_num',
+        'order'          => 'ASC',
     ]);
 
     $locations = [];
@@ -326,8 +365,11 @@ function gn_get_map_locations() {
         gn_ensure_shortcodes_for_all_locations();
 
         $query = new WP_Query([
-            'post_type' => 'map_location',
+            'post_type'      => 'map_location',
             'posts_per_page' => -1,
+            'meta_key'       => '_gn_location_order',
+            'orderby'        => 'meta_value_num',
+            'order'          => 'ASC',
         ]);
 
         while ($query->have_posts()) {
