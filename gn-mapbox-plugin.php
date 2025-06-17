@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.21.0
+Version: 2.22.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -102,6 +102,9 @@ function gn_import_default_locations() {
             if (isset($location['lng'])) {
                 update_post_meta($post_id, 'longitude', $location['lng']);
             }
+            if (isset($location['waypoint'])) {
+                update_post_meta($post_id, '_gn_waypoint', $location['waypoint'] ? '1' : '');
+            }
         }
     }
 }
@@ -153,6 +156,11 @@ function gn_add_photos_meta_box() {
     add_meta_box('gn_location_photos', 'Location Photos', 'gn_photos_meta_box_html', 'map_location', 'normal', 'default');
 }
 add_action('add_meta_boxes', 'gn_add_photos_meta_box');
+
+function gn_add_waypoint_meta_box() {
+    add_meta_box('gn_waypoint', __('Invisible Waypoint', 'gn-mapbox'), 'gn_waypoint_meta_box_html', 'map_location', 'side', 'default');
+}
+add_action('add_meta_boxes', 'gn_add_waypoint_meta_box');
 
 function gn_photos_meta_box_html($post) {
     wp_enqueue_media();
@@ -215,6 +223,23 @@ function gn_save_photos_meta_box($post_id) {
     }
 }
 add_action('save_post_map_location', 'gn_save_photos_meta_box');
+
+function gn_waypoint_meta_box_html($post) {
+    wp_nonce_field('gn_save_waypoint', 'gn_waypoint_nonce');
+    $is_waypoint = get_post_meta($post->ID, '_gn_waypoint', true);
+    $checked = $is_waypoint === '1' ? 'checked' : '';
+    echo '<label><input type="checkbox" name="gn_waypoint" value="1" ' . $checked . '> ' . esc_html__('Invisible waypoint (no marker)', 'gn-mapbox') . '</label>';
+}
+
+function gn_save_waypoint_meta_box($post_id) {
+    if (!isset($_POST['gn_waypoint_nonce']) || !wp_verify_nonce($_POST['gn_waypoint_nonce'], 'gn_save_waypoint')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    $value = isset($_POST['gn_waypoint']) ? '1' : '';
+    update_post_meta($post_id, '_gn_waypoint', $value);
+}
+add_action('save_post_map_location', 'gn_save_waypoint_meta_box');
 
 function gn_enqueue_mapbox_assets() {
     wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
@@ -288,6 +313,7 @@ function gn_get_map_locations() {
                 'upload_form' => do_shortcode('[gn_photo_upload location="' . get_the_ID() . '"]'),
                 'lat'         => floatval($lat),
                 'lng'         => floatval($lng),
+                'waypoint'    => get_post_meta(get_the_ID(), '_gn_waypoint', true) === '1',
             ];
         }
     }
@@ -337,6 +363,7 @@ function gn_get_map_locations() {
                     'upload_form' => do_shortcode('[gn_photo_upload location="' . get_the_ID() . '"]'),
                     'lat'         => floatval($lat),
                     'lng'         => floatval($lng),
+                    'waypoint'    => get_post_meta(get_the_ID(), '_gn_waypoint', true) === '1',
                 ];
             }
         }
@@ -348,6 +375,9 @@ function gn_get_map_locations() {
                 $json = file_get_contents($json_file);
                 $data = json_decode($json, true);
                 if (is_array($data)) {
+                    foreach ($data as &$loc) {
+                        $loc['waypoint'] = !empty($loc['waypoint']);
+                    }
                     $locations = $data;
                     error_log('Loaded ' . count($locations) . ' locations from JSON fallback');
                 } else {

@@ -469,10 +469,14 @@ document.addEventListener("DOMContentLoaded", function () {
           ${uploadHTML}
         </div>
       `;
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-      new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
       coords.push([loc.lng, loc.lat]);
-      log("Marker added:", loc.title, [loc.lng, loc.lat]);
+      if (!loc.waypoint) {
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
+        new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
+        log("Marker added:", loc.title, [loc.lng, loc.lat]);
+      } else {
+        log("Waypoint added:", loc.title, [loc.lng, loc.lat]);
+      }
     });
 
     if (coords.length > 1) {
