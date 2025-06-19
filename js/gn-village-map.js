@@ -34,13 +34,5 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    gnVillageData.places.forEach(place => {
-      const el = document.createElement('img');
-      el.src = gnVillageData.icons[place.type];
-      el.className = 'drouseia-marker';
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`<strong>${place.title_el}</strong><br>${place.title_en}`);
-      new mapboxgl.Marker(el).setLngLat([place.lng, place.lat]).setPopup(popup).addTo(map);
-    });
   });
 });
