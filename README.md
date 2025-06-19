@@ -16,7 +16,6 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 - Visitors can upload photos or videos from the front end; admins can approve or delete submissions before publishing.
 - Upload forms automatically appear in map popups and inside each location post.
 - Example locations from `data/locations.json` are imported if none exist.
-- `[gn_village_map]` shortcode shows only the Drouseia village boundary.
 - Built-in update checker fetches new versions directly from GitHub.
 - Ready for translation and WPML compatible.
 
@@ -26,7 +25,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 3. Enter your Mapbox access token in **Settings → GN Mapbox**.
 
 ## Usage
-Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page. Use `[gn_village_map]` to show just the Drouseia village boundary.
+Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
 ## Approving Uploaded Media
 After visitors submit photos or videos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each item and either **Approve** it to publish in the location gallery or **Delete** it permanently.
@@ -45,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.27.0
+- Removed `[gn_village_map]` shortcode and related assets
 ### 2.26.0
 - `[gn_village_map]` shortcode now displays only the village boundary
 

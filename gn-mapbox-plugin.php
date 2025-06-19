@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.26.0
+Version: 2.27.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -333,8 +333,6 @@ function gn_enqueue_mapbox_assets() {
     wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery', 'mapbox-gl-language'], null, true);
     wp_enqueue_script('gn-sw-register', plugin_dir_url(__FILE__) . 'js/sw-register.js', [], null, true);
     wp_enqueue_script('gn-photo-upload', plugin_dir_url(__FILE__) . 'js/gn-photo-upload.js', ['jquery'], null, true);
-    wp_enqueue_script('gn-village-map', plugin_dir_url(__FILE__) . 'js/gn-village-map.js', ['mapbox-gl'], null, true);
-
     wp_localize_script('gn-mapbox-init', 'gnMapData', [
         'accessToken' => get_option('gn_mapbox_token'),
         'locations'   => gn_get_map_locations(),
@@ -347,17 +345,6 @@ function gn_enqueue_mapbox_assets() {
     wp_localize_script('gn-mapbox-init', 'gnPhotoStrings', [
         'select_photos' => __('Select Photos', 'gn-mapbox'),
         'use_photos'    => __('Use these photos', 'gn-mapbox')
-    ]);
-    $village = gn_get_village_data();
-    wp_localize_script('gn-village-map', 'gnVillageData', [
-        'accessToken' => get_option('gn_mapbox_token'),
-        'boundary'    => $village['boundary'],
-        'places'      => $village['places'],
-        'icons'       => [
-            'hotel'  => plugin_dir_url(__FILE__) . 'icons/hotel.svg',
-            'tavern' => plugin_dir_url(__FILE__) . 'icons/tavern.svg',
-            'villa'  => plugin_dir_url(__FILE__) . 'icons/villa.svg',
-        ],
     ]);
 }
 add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets');
@@ -744,20 +731,5 @@ function gn_process_photo_deletion() {
 }
 add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
 
-function gn_get_village_data() {
-    $json_file = plugin_dir_path(__FILE__) . 'data/village.json';
-    if (file_exists($json_file)) {
-        $json = file_get_contents($json_file);
-        $data = json_decode($json, true);
-        if (is_array($data)) {
-            return $data;
-        }
-    }
-    return ['boundary' => [], 'places' => []];
-}
 
-function gn_village_map_shortcode() {
-    return '<div id="gn-village-map" style="width:100%;height:600px;"></div>';
-}
-add_shortcode('gn_village_map', 'gn_village_map_shortcode');
 
