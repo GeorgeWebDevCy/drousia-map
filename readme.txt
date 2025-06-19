@@ -14,6 +14,7 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 == Features ==
 * "Map Location" custom post type storing coordinates, descriptions and galleries.
 * `[gn_map]` shortcode embeds an interactive Mapbox map anywhere.
+* `[gn_village_map]` shortcode displays a village boundary with custom markers.
 * Responsive popups show images, descriptions and a media upload form.
 * Gallery items open in a lightbox and scale to any screen.
 * Draggable navigation panel for driving, walking or cycling directions with voice guidance.

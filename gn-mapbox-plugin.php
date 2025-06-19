@@ -331,6 +331,7 @@ function gn_enqueue_mapbox_assets() {
     wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
     wp_enqueue_script('mapbox-gl-language', plugin_dir_url(__FILE__) . 'js/mapbox-gl-language.js', ['mapbox-gl'], null, true);
     wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery', 'mapbox-gl-language'], null, true);
+    wp_enqueue_script('gn-village-map', plugin_dir_url(__FILE__) . 'js/village-map.js', ['mapbox-gl-language'], null, true);
     wp_enqueue_script('gn-sw-register', plugin_dir_url(__FILE__) . 'js/sw-register.js', [], null, true);
     wp_enqueue_script('gn-photo-upload', plugin_dir_url(__FILE__) . 'js/gn-photo-upload.js', ['jquery'], null, true);
 
@@ -340,6 +341,10 @@ function gn_enqueue_mapbox_assets() {
         'debug'       => get_option('gn_mapbox_debug') === '1',
         'swPath'      => home_url('/?gn_map_sw=1'),
     ]);
+    $villageData = gn_get_village_data();
+    $villageData['accessToken'] = get_option('gn_mapbox_token');
+    $villageData['iconPath'] = plugin_dir_url(__FILE__) . 'icons/';
+    wp_localize_script('gn-village-map', 'gnVillageData', $villageData);
     wp_localize_script('gn-photo-upload', 'gnPhotoData', [
         'debug' => get_option('gn_mapbox_debug') === '1'
     ]);
@@ -485,6 +490,24 @@ function gn_map_shortcode() {
     return '<div id="gn-mapbox-map" style="width: 100%; height: 1080px;"></div>';
 }
 add_shortcode('gn_map', 'gn_map_shortcode');
+
+function gn_get_village_data() {
+    $json_file = plugin_dir_path(__FILE__) . 'data/village.json';
+    if (!file_exists($json_file)) {
+        return ['boundary' => [], 'points' => []];
+    }
+    $json = file_get_contents($json_file);
+    $data = json_decode($json, true);
+    if (!is_array($data)) {
+        return ['boundary' => [], 'points' => []];
+    }
+    return $data;
+}
+
+function gn_village_map_shortcode() {
+    return '<div id="gn-village-map" style="width: 100%; height: 600px;"></div>';
+}
+add_shortcode('gn_village_map', 'gn_village_map_shortcode');
 
 function gn_mapbox_add_admin_menu() {
     add_options_page(__('GN Mapbox Settings', 'gn-mapbox'), 'GN Mapbox', 'manage_options', 'gn-mapbox', 'gn_mapbox_settings_page');

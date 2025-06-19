@@ -1,0 +1,14 @@
+{
+  "boundary": [
+    [32.390, 34.964],
+    [32.398, 34.964],
+    [32.398, 34.972],
+    [32.390, 34.972],
+    [32.390, 34.964]
+  ],
+  "points": [
+    {"lat": 34.965, "lng": 32.392, "name_en": "Village Hotel", "name_el": "\u039e\u03b5\u03bd\u03bf\u03b4\u03bf\u03c7\u03b5\u03af\u03bf", "icon": "lodging"},
+    {"lat": 34.966, "lng": 32.394, "name_en": "Traditional Tavern", "name_el": "\u03a4\u03b1\u03b2\u03ad\u03c1\u03bd\u03b1", "icon": "restaurant"},
+    {"lat": 34.967, "lng": 32.396, "name_en": "Beer Garden", "name_el": "\u039c\u03c0\u03c5\u03c1\u03b1\u03c1\u03af\u03b1", "icon": "beer"}
+  ]
+}

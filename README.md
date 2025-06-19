@@ -5,6 +5,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Features
  - "Map Location" custom post type stores coordinates, descriptions and unlimited gallery media.
 - `[gn_map]` shortcode embeds a fully interactive Mapbox map anywhere on your site.
+- `[gn_village_map]` shortcode shows a village boundary with custom points of interest.
  - Responsive popups display images, descriptions and media upload forms.
  - Gallery items open in a lightbox that scales beautifully on all devices.
 - Draggable navigation panel offers driving, walking and cycling directions with voice guidance.
@@ -25,7 +26,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 3. Enter your Mapbox access token in **Settings → GN Mapbox**.
 
 ## Usage
-Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
+Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page. Use `[gn_village_map]` to display the village boundary and points of interest from `data/village.json`.
 
 ## Approving Uploaded Media
 After visitors submit photos or videos, they appear under **Media → Photo Approvals** in the WordPress admin. Review each item and either **Approve** it to publish in the location gallery or **Delete** it permanently.
