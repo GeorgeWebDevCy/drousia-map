@@ -1,0 +1,33 @@
+{
+  "boundary": [
+    [32.392, 34.969],
+    [32.399, 34.976],
+    [32.406, 34.969],
+    [32.406, 34.959],
+    [32.392, 34.959],
+    [32.392, 34.969]
+  ],
+  "places": [
+    {
+      "type": "hotel",
+      "title_el": "\u039E\u03b5\u03bd\u03bf\u03b4\u03bf\u03c7\u03b5\u03af\u03bf \u0391\u03ba\u03ac\u03bc\u03b1\u03c2",
+      "title_en": "Akamas Hotel",
+      "lat": 34.962,
+      "lng": 32.398
+    },
+    {
+      "type": "tavern",
+      "title_el": "\u03a4\u03b1\u03b2\u03ad\u03c1\u03bd\u03b1 \u03a7\u03c9\u03c1\u03b9\u03bf\u03cd",
+      "title_en": "Village Tavern",
+      "lat": 34.961,
+      "lng": 32.397
+    },
+    {
+      "type": "villa",
+      "title_el": "\u0392\u03af\u03bb\u03b1 \u0394\u03c1\u03bf\u03cd\u03c3\u03b5\u03b9\u03b1",
+      "title_en": "Drouseia Villa",
+      "lat": 34.964,
+      "lng": 32.401
+    }
+  ]
+}

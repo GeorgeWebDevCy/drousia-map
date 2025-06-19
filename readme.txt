@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.24.3
+Stable tag: 2.25.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -11,6 +11,8 @@ Display custom map locations on a Mapbox-powered map complete with voice guided 
 
 == Description ==
 GN Mapbox Locations with ACF creates a **Map Location** post type for storing coordinates, descriptions and images. Place the `[gn_map]` shortcode anywhere to display an interactive map. A draggable navigation panel gives visitors driving, walking or cycling directions with spoken instructions that can be muted. Routes can be animated and paused or resumed, while a service worker caches tiles for offline use. A debug panel outputs verbose logs when enabled. Visitors can submit photos or videos from the front end which administrators approve before publishing. Example locations are automatically imported if none exist.
+
+Use the `[gn_village_map]` shortcode to display the boundary of Drouseia village with labeled markers for hotels, taverns and villas.
 == Features ==
 * "Map Location" custom post type storing coordinates, descriptions and galleries.
 * `[gn_map]` shortcode embeds an interactive Mapbox map anywhere.
@@ -26,6 +28,7 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 * Example locations from `data/locations.json` are imported when none exist.
 * Automatic update checks from GitHub.
 * Ready for translation and WPML compatible.
+* `[gn_village_map]` shortcode displays the village boundary with labeled points of interest.
 
 == Installation ==
 1. Upload the plugin folder to `/wp-content/plugins/`.
@@ -37,6 +40,10 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.25.0 =
+* Added `[gn_village_map]` shortcode displaying Drouseia boundary and labelled markers
+* Custom icons or Maki symbols show hotels, taverns and villas in Greek and English
+* Zoom controls allow full interactivity
 = 2.24.3 =
 * No code changes; version bump
 = 2.24.2 =
