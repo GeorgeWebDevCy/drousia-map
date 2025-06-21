@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.28.0
+- Default route now follows the road using Mapbox Directions API
 ### 2.27.0
 - Removed `[gn_village_map]` shortcode and related assets
 ### 2.26.0
