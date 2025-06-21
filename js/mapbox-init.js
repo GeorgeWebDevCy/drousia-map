@@ -245,6 +245,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  async function fetchDirections(allCoords, mode = 'driving', includeSteps = false, lang = 'en') {
+    const MAX = 25;
+    let routeCoords = [];
+    let steps = [];
+    let distance = 0;
+    let duration = 0;
+
+    for (let i = 0; i < allCoords.length; i += MAX - 1) {
+      let segment = allCoords.slice(i, i + MAX);
+      if (i !== 0) segment.unshift(allCoords[i - 1]);
+      const pairs = segment.map(p => p.join(',')).join(';');
+      let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full`;
+      if (includeSteps) {
+        url += `&steps=true&annotations=duration,distance&language=${lang}`;
+      }
+      url += `&access_token=${mapboxgl.accessToken}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.routes || !data.routes[0]) continue;
+      const segCoords = data.routes[0].geometry.coordinates;
+      if (routeCoords.length) {
+        routeCoords = routeCoords.concat(segCoords.slice(1));
+      } else {
+        routeCoords = segCoords;
+      }
+      distance += data.routes[0].distance;
+      duration += data.routes[0].duration;
+      if (includeSteps) steps = steps.concat(data.routes[0].legs[0].steps);
+    }
+
+    return { coordinates: routeCoords, steps, distance, duration };
+  }
+
   async function startNavigation() {
     if (!navigator.geolocation) {
       log("Geolocation not supported.");
@@ -267,23 +301,22 @@ document.addEventListener("DOMContentLoaded", function () {
       const waypoints = coords.slice(0, -1);
       const destination = coords[coords.length - 1];
       const ordered = [userLngLat, ...waypoints, destination];
-      const coordPairs = ordered.map(p => p.join(',')).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/${navigationMode}/${coordPairs}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&language=${lang}&access_token=${mapboxgl.accessToken}`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data.routes || !data.routes[0]) {
+      const {
+        coordinates: routeCoords,
+        steps,
+        distance,
+        duration,
+      } = await fetchDirections(ordered, navigationMode, true, lang);
+      if (!routeCoords.length) {
         log("No route found.");
         return;
       }
 
-      const elevationGain = await getElevationGain(
-        data.routes[0].geometry.coordinates
-      );
+      const elevationGain = await getElevationGain(routeCoords);
 
       const routeGeoJSON = {
         type: "Feature",
-        geometry: data.routes[0].geometry,
+        geometry: { type: "LineString", coordinates: routeCoords },
       };
 
       if (map.getSource("nav-route")) {
@@ -306,9 +339,8 @@ document.addEventListener("DOMContentLoaded", function () {
       log("Navigation route displayed.");
 
       let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
-      const steps = data.routes[0].legs[0].steps;
-      let remainingDistance = data.routes[0].distance;
-      let remainingDuration = data.routes[0].duration;
+      let remainingDistance = distance;
+      let remainingDuration = duration;
       const panel = document.getElementById("gn-distance-panel");
       const updatePanel = () => {
         if (panel) {
@@ -333,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
         remainingDuration -= step.duration;
         updatePanel();
         await new Promise(res => setTimeout(res, step.duration * 1000));
-        animateAlongRoute(data.routes[0].geometry.coordinates);
+        animateAlongRoute(routeCoords);
       }
     }, err => {
       log("Geolocation error:", err.message);
@@ -486,30 +518,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      const coordPairs = coords.map(p => p.join(',')).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordPairs}?geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.routes || !data.routes[0]) {
-            log('No route found for provided coordinates');
-            return;
-          }
-          const routeGeoJson = {
-            type: 'Feature',
-            geometry: data.routes[0].geometry
-          };
-          map.addSource('route', { type: 'geojson', data: routeGeoJson });
-          map.addLayer({
-            id: 'route',
-            type: 'line',
-            source: 'route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#ff0000', 'line-width': 4 }
-          });
-          log('Route drawn using Mapbox Directions API');
-        })
-        .catch(err => log('Route fetch error:', err));
+      fetchDirections(coords).then(res => {
+        if (!res.coordinates.length) {
+          log('No route found for provided coordinates');
+          return;
+        }
+        const routeGeoJson = {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: res.coordinates }
+        };
+        map.addSource('route', { type: 'geojson', data: routeGeoJson });
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: 'route',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#ff0000', 'line-width': 4 }
+        });
+        log('Route drawn using Mapbox Directions API');
+      }).catch(err => log('Route fetch error:', err));
     }
   });
   });
