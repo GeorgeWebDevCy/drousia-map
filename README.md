@@ -44,6 +44,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.29.0
+- Support more than 25 coordinates by chunking Directions API requests
 ### 2.28.0
 - Default route now follows the road using Mapbox Directions API
 ### 2.27.0
