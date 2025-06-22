@@ -29,6 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.42.0
+- Graceful message shown when the Mapbox access token is missing
 ### 2.41.0
 - Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]`
 ### 2.40.0
@@ -64,6 +66,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.42.0
+- Graceful message shown when the Mapbox access token is missing
 ### 2.41.0
 - Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]`
 ### 2.40.0

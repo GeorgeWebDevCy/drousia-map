@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.41.0
+Stable tag: 2.42.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.42.0 =
+* Graceful message displayed when the Mapbox access token is missing
 = 2.41.0 =
 * Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]`
 = 2.40.0 =

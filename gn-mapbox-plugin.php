@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.41.0
+Version: 2.42.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -738,6 +738,9 @@ add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
 */
 function gn_mapbox_drouseia_shortcode() {
     $token = get_option('gn_mapbox_token');
+    if (!$token) {
+        return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
+    }
     ob_start();
     ?>
     <div id="gn-mapbox-drouseia" style="width: 100%; height: 400px;"></div>
@@ -807,6 +810,9 @@ add_shortcode('gn_mapbox_drouseia', 'gn_mapbox_drouseia_shortcode');
 
 // Drouseia to Paphos
 function gn_mapbox_drousia_to_paphos_shortcode() {
+    if (!get_option('gn_mapbox_token')) {
+        return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
+    }
     ob_start();
     ?>
     <div id="gn-mapbox-drousia-paphos" style="width:100%;height:600px;"></div>
@@ -840,6 +846,9 @@ add_shortcode('gn_mapbox_drousia_paphos', 'gn_mapbox_drousia_to_paphos_shortcode
 
 // Drouseia to Polis
 function gn_mapbox_drousia_to_polis_shortcode() {
+    if (!get_option('gn_mapbox_token')) {
+        return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
+    }
     ob_start();
     ?>
     <div id="gn-mapbox-drousia-polis" style="width:100%;height:600px;"></div>
@@ -873,6 +882,9 @@ add_shortcode('gn_mapbox_drousia_polis', 'gn_mapbox_drousia_to_polis_shortcode')
 
 // Paphos to Paphos Airport
 function gn_mapbox_paphos_to_airport_shortcode() {
+    if (!get_option('gn_mapbox_token')) {
+        return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
+    }
     ob_start();
     ?>
     <div id="gn-mapbox-paphos-airport" style="width:100%;height:600px;"></div>
