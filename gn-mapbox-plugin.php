@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.29.0
+Version: 2.30.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -730,6 +730,36 @@ function gn_process_photo_deletion() {
     exit;
 }
 add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
+
+/**
+ * Simple shortcode displaying a single marker on Drouseia using Mapbox GL JS.
+ * Usage: [gn_mapbox_drouseia]
+ */
+function gn_mapbox_drouseia_shortcode() {
+    $token = get_option('gn_mapbox_token');
+    ob_start();
+    ?>
+    <div id="gn-mapbox-drouseia" style="width: 100%; height: 400px;"></div>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <script>
+      mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
+      const map = new mapboxgl.Map({
+        container: 'gn-mapbox-drouseia',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [32.3975751, 34.9627965],
+        zoom: 14
+      });
+
+      new mapboxgl.Marker()
+        .setLngLat([32.3975751, 34.9627965])
+        .setPopup(new mapboxgl.Popup().setText('Drouseia, Cyprus'))
+        .addTo(map);
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('gn_mapbox_drouseia', 'gn_mapbox_drouseia_shortcode');
 
 
 
