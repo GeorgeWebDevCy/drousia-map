@@ -6,6 +6,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
  - "Map Location" custom post type stores coordinates, descriptions and unlimited gallery media.
 - `[gn_map]` shortcode embeds a fully interactive Mapbox map anywhere on your site.
 - `[gn_mapbox_drouseia]` shortcode shows Drouseia with a marker and red boundary line around the village.
+- `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]` provide driving directions between popular destinations.
  - Responsive popups display images, descriptions and media upload forms.
  - Gallery items open in a lightbox that scales beautifully on all devices.
 - Draggable navigation panel offers driving, walking and cycling directions with voice guidance.
@@ -28,6 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.41.0
+- Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]`
 ### 2.40.0
 - `[gn_mapbox_drouseia]` zooms in two levels and centers on Drouseia
 ### 2.38.0
@@ -61,6 +64,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.41.0
+- Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]`
 ### 2.40.0
 - Map zooms in two levels and centers on Drouseia for `[gn_mapbox_drouseia]`
 ### 2.39.0
