@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.36.0
+Version: 2.37.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -733,7 +733,7 @@ add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
 
 /**
  * Simple shortcode displaying a single marker on Drouseia using Mapbox GL JS.
- * The map also outlines the village with a wider circular red boundary line.
+ * The map also outlines the village with a polygonal red boundary line.
  * Usage: [gn_mapbox_drouseia]
 */
 function gn_mapbox_drouseia_shortcode() {
@@ -748,8 +748,8 @@ function gn_mapbox_drouseia_shortcode() {
         const map = new mapboxgl.Map({
           container: 'gn-mapbox-drouseia',
           style: 'mapbox://styles/mapbox/streets-v11',
-          center: [32.397521, 34.962136],
-          zoom: 14
+          center: [32.3975751, 34.9627965],
+          zoom: 15
         });
 
       new mapboxgl.Marker()
@@ -758,23 +758,21 @@ function gn_mapbox_drouseia_shortcode() {
         .addTo(map);
 
       map.on('load', () => {
-        const markerCoords = [32.3975751, 34.9627965];
-        const radius = 0.005;
-        const steps = 360;
-        const circle = [];
-        for (let i = 0; i <= steps; i++) {
-          const angle = (i / steps) * Math.PI * 2;
-          const lng = markerCoords[0] + radius * Math.cos(angle);
-          const lat = markerCoords[1] + radius * Math.sin(angle);
-          circle.push([lng, lat]);
-        }
         map.addSource('drouseia-area', {
           type: 'geojson',
           data: {
             type: 'Feature',
             geometry: {
               type: 'Polygon',
-              coordinates: [circle]
+              coordinates: [[
+                [32.3930, 34.9650],
+                [32.3990, 34.9700],
+                [32.4050, 34.9650],
+                [32.4050, 34.9600],
+                [32.3990, 34.9550],
+                [32.3930, 34.9600],
+                [32.3930, 34.9650]
+              ]]
             }
           }
         });
