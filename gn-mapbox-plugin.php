@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.35.0
+Version: 2.36.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -745,12 +745,12 @@ function gn_mapbox_drouseia_shortcode() {
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <script>
       mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
-      const map = new mapboxgl.Map({
-        container: 'gn-mapbox-drouseia',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [32.3975751, 34.9627965],
-        zoom: 13
-      });
+        const map = new mapboxgl.Map({
+          container: 'gn-mapbox-drouseia',
+          style: 'mapbox://styles/mapbox/streets-v11',
+          center: [32.397521, 34.962136],
+          zoom: 14
+        });
 
       new mapboxgl.Marker()
         .setLngLat([32.3975751, 34.9627965])
@@ -758,14 +758,14 @@ function gn_mapbox_drouseia_shortcode() {
         .addTo(map);
 
       map.on('load', () => {
-        const center = [32.3975751, 34.9627965];
+        const markerCoords = [32.3975751, 34.9627965];
         const radius = 0.005;
-        const steps = 64;
+        const steps = 360;
         const circle = [];
         for (let i = 0; i <= steps; i++) {
           const angle = (i / steps) * Math.PI * 2;
-          const lng = center[0] + radius * Math.cos(angle);
-          const lat = center[1] + radius * Math.sin(angle);
+          const lng = markerCoords[0] + radius * Math.cos(angle);
+          const lat = markerCoords[1] + radius * Math.sin(angle);
           circle.push([lng, lat]);
         }
         map.addSource('drouseia-area', {
