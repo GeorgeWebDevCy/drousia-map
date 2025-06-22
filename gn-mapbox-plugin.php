@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.33.0
+Version: 2.34.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -733,7 +733,7 @@ add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
 
 /**
  * Simple shortcode displaying a single marker on Drouseia using Mapbox GL JS.
- * The map also outlines the village with a polygon similar to Google Maps.
+ * The map also outlines the village with a circular red boundary line.
  * Usage: [gn_mapbox_drouseia]
 */
 function gn_mapbox_drouseia_shortcode() {
@@ -758,21 +758,23 @@ function gn_mapbox_drouseia_shortcode() {
         .addTo(map);
 
       map.on('load', () => {
+        const center = [32.3975751, 34.9627965];
+        const radius = 0.003;
+        const steps = 64;
+        const circle = [];
+        for (let i = 0; i <= steps; i++) {
+          const angle = (i / steps) * Math.PI * 2;
+          const lng = center[0] + radius * Math.cos(angle);
+          const lat = center[1] + radius * Math.sin(angle);
+          circle.push([lng, lat]);
+        }
         map.addSource('drouseia-area', {
           type: 'geojson',
           data: {
             type: 'Feature',
             geometry: {
               type: 'Polygon',
-              coordinates: [[
-                [32.3930, 34.9650],
-                [32.3990, 34.9700],
-                [32.4050, 34.9650],
-                [32.4050, 34.9600],
-                [32.3990, 34.9550],
-                [32.3930, 34.9600],
-                [32.3930, 34.9650]
-              ]]
+              coordinates: [circle]
             }
           }
         });

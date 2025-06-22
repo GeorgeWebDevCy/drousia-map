@@ -5,7 +5,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Features
  - "Map Location" custom post type stores coordinates, descriptions and unlimited gallery media.
 - `[gn_map]` shortcode embeds a fully interactive Mapbox map anywhere on your site.
-- `[gn_mapbox_drouseia]` shortcode shows Drouseia with a marker and red boundary line.
+- `[gn_mapbox_drouseia]` shortcode shows Drouseia with a marker and smooth red boundary line.
  - Responsive popups display images, descriptions and media upload forms.
  - Gallery items open in a lightbox that scales beautifully on all devices.
 - Draggable navigation panel offers driving, walking and cycling directions with voice guidance.
@@ -28,6 +28,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.34.0
+- `[gn_mapbox_drouseia]` boundary line is now drawn as a smooth circle
 ### 2.33.0
 - Version bump for release consistency
 Use the `[gn_mapbox_drouseia]` shortcode to show a standalone map with Drouseia's marker and red boundary line.
@@ -49,6 +51,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.34.0
+- More circular boundary line on `[gn_mapbox_drouseia]` map
 ### 2.32.0
 - Drouseia map boundary styled like Google Maps
 ### 2.31.0
