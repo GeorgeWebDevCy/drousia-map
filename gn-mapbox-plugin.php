@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.30.0
+Version: 2.33.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -733,8 +733,9 @@ add_action('admin_post_gn_delete_photo', 'gn_process_photo_deletion');
 
 /**
  * Simple shortcode displaying a single marker on Drouseia using Mapbox GL JS.
+ * The map also outlines the village with a polygon similar to Google Maps.
  * Usage: [gn_mapbox_drouseia]
- */
+*/
 function gn_mapbox_drouseia_shortcode() {
     $token = get_option('gn_mapbox_token');
     ob_start();
@@ -755,6 +756,46 @@ function gn_mapbox_drouseia_shortcode() {
         .setLngLat([32.3975751, 34.9627965])
         .setPopup(new mapboxgl.Popup().setText('Drouseia, Cyprus'))
         .addTo(map);
+
+      map.on('load', () => {
+        map.addSource('drouseia-area', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [32.3930, 34.9650],
+                [32.3990, 34.9700],
+                [32.4050, 34.9650],
+                [32.4050, 34.9600],
+                [32.3990, 34.9550],
+                [32.3930, 34.9600],
+                [32.3930, 34.9650]
+              ]]
+            }
+          }
+        });
+        map.addLayer({
+          id: 'drouseia-fill',
+          type: 'fill',
+          source: 'drouseia-area',
+          paint: {
+            'fill-color': '#ff0000',
+            'fill-opacity': 0.1
+          }
+        });
+        map.addLayer({
+          id: 'drouseia-outline',
+          type: 'line',
+          source: 'drouseia-area',
+          paint: {
+            'line-color': '#ff0000',
+            'line-width': 3
+          }
+        });
+      });
+
     </script>
     <?php
     return ob_get_clean();
