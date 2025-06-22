@@ -218,3 +218,11 @@
   width: 32px;
   height: 32px;
 }
+
+.gn-mapbox-error {
+  padding: 10px;
+  background: #ffecec;
+  color: #cc0000;
+  border: 1px solid #cc0000;
+  font-family: sans-serif;
+}

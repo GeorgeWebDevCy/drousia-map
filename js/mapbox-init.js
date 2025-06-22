@@ -1,5 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
-  if (!document.getElementById("gn-mapbox-map")) return;
+  const container = document.getElementById("gn-mapbox-map");
+  if (!container) return;
+
+  if (!gnMapData.accessToken) {
+    container.innerHTML =
+      '<p class="gn-mapbox-error">Mapbox access token missing. Set one under Settings → GN Mapbox.</p>';
+    console.error("Mapbox access token missing.");
+    return;
+  }
 
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
