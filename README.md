@@ -28,6 +28,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.38.0
+- `[gn_mapbox_drouseia]` uses a Google-like map style, refined polygon boundary and a closer zoom
 ### 2.37.0
 - `[gn_mapbox_drouseia]` now draws a polygon boundary around the village and zooms in closer
 ### 2.36.0
@@ -57,6 +59,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.38.0
+- Navigation-day map style and improved polygon on `[gn_mapbox_drouseia]`
 ### 2.37.0
 - Polygon boundary around Drouseia with closer zoom on `[gn_mapbox_drouseia]`
 ### 2.36.0
