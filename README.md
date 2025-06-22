@@ -27,6 +27,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
+
 Use the `[gn_mapbox_drouseia]` shortcode to show a standalone map with Drouseia's marker and red boundary line.
 
 ## Approving Uploaded Media

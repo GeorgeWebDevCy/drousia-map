@@ -748,7 +748,7 @@ function gn_mapbox_drouseia_shortcode() {
       const map = new mapboxgl.Map({
         container: 'gn-mapbox-drouseia',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: [32.3976, 34.9628],
+        center: [32.3975751, 34.9627965],
         zoom: 14
       });
 
@@ -795,6 +795,7 @@ function gn_mapbox_drouseia_shortcode() {
           }
         });
       });
+
     </script>
     <?php
     return ob_get_clean();
