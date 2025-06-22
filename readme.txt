@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.33.0
+Stable tag: 2.34.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 == Features ==
 * "Map Location" custom post type storing coordinates, descriptions and galleries.
 * `[gn_map]` shortcode embeds an interactive Mapbox map anywhere.
-* `[gn_mapbox_drouseia]` shortcode displays a map of Drouseia with a marker and red boundary line.
+* `[gn_mapbox_drouseia]` shortcode displays a map of Drouseia with a marker and smooth red boundary line.
 * Responsive popups show images, descriptions and a media upload form.
 * Gallery items open in a lightbox and scale to any screen.
 * Draggable navigation panel for driving, walking or cycling directions with voice guidance.
@@ -39,6 +39,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.34.0 =
+* Boundary line on `[gn_mapbox_drouseia]` is now circular
 = 2.33.0 =
 * Version bump for release consistency
 = 2.32.0 =
