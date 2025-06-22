@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.38.0
+Version: 2.39.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -748,8 +748,8 @@ function gn_mapbox_drouseia_shortcode() {
         const map = new mapboxgl.Map({
           container: 'gn-mapbox-drouseia',
           style: 'mapbox://styles/mapbox/navigation-day-v1',
-          center: [32.3976, 34.9628],
-          zoom: 16
+          center: [32.3975751, 34.9627965],
+          zoom: 12
         });
 
       new mapboxgl.Marker()
