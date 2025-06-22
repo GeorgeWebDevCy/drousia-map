@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.35.0
+Stable tag: 2.36.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.36.0 =
+* Smoother boundary circle with updated coordinates and zoom on `[gn_mapbox_drouseia]`
 = 2.35.0 =
 * Wider circular boundary on `[gn_mapbox_drouseia]` map and adjusted zoom
 = 2.34.0 =
