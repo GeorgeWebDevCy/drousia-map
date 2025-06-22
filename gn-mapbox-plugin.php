@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.40.0
+Version: 2.41.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -804,6 +804,105 @@ function gn_mapbox_drouseia_shortcode() {
     return ob_get_clean();
 }
 add_shortcode('gn_mapbox_drouseia', 'gn_mapbox_drouseia_shortcode');
+
+// Drouseia to Paphos
+function gn_mapbox_drousia_to_paphos_shortcode() {
+    ob_start();
+    ?>
+    <div id="gn-mapbox-drousia-paphos" style="width:100%;height:600px;"></div>
+    <script>
+    jQuery(function(){
+        const mapDP = new mapboxgl.Map({
+            container: 'gn-mapbox-drousia-paphos',
+            style: 'mapbox://styles/mapbox/satellite-streets-v11',
+            center: [32.3975751, 34.9627965],
+            zoom: 10
+        });
+
+        const directionsDP = new MapboxDirections({
+            accessToken: gnMapData.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            alternatives: false
+        });
+
+        mapDP.addControl(directionsDP, 'top-left');
+        mapDP.on('load', function() {
+            directionsDP.setOrigin([32.3975751, 34.9627965]);
+            directionsDP.setDestination([32.4297, 34.7753]);
+        });
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('gn_mapbox_drousia_paphos', 'gn_mapbox_drousia_to_paphos_shortcode');
+
+// Drouseia to Polis
+function gn_mapbox_drousia_to_polis_shortcode() {
+    ob_start();
+    ?>
+    <div id="gn-mapbox-drousia-polis" style="width:100%;height:600px;"></div>
+    <script>
+    jQuery(function(){
+        const mapDPo = new mapboxgl.Map({
+            container: 'gn-mapbox-drousia-polis',
+            style: 'mapbox://styles/mapbox/satellite-streets-v11',
+            center: [32.3975751, 34.9627965],
+            zoom: 11
+        });
+
+        const directionsDPo = new MapboxDirections({
+            accessToken: gnMapData.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            alternatives: false
+        });
+
+        mapDPo.addControl(directionsDPo, 'top-left');
+        mapDPo.on('load', function() {
+            directionsDPo.setOrigin([32.3975751, 34.9627965]);
+            directionsDPo.setDestination([32.4147, 35.0360]);
+        });
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('gn_mapbox_drousia_polis', 'gn_mapbox_drousia_to_polis_shortcode');
+
+// Paphos to Paphos Airport
+function gn_mapbox_paphos_to_airport_shortcode() {
+    ob_start();
+    ?>
+    <div id="gn-mapbox-paphos-airport" style="width:100%;height:600px;"></div>
+    <script>
+    jQuery(function(){
+        const mapPA = new mapboxgl.Map({
+            container: 'gn-mapbox-paphos-airport',
+            style: 'mapbox://styles/mapbox/satellite-streets-v11',
+            center: [32.4297, 34.7753],
+            zoom: 12
+        });
+
+        const directionsPA = new MapboxDirections({
+            accessToken: gnMapData.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            alternatives: false
+        });
+
+        mapPA.addControl(directionsPA, 'top-left');
+        mapPA.on('load', function() {
+            directionsPA.setOrigin([32.4297, 34.7753]);
+            directionsPA.setDestination([32.4858, 34.7174]);
+        });
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('gn_mapbox_paphos_airport', 'gn_mapbox_paphos_to_airport_shortcode');
 
 
 
