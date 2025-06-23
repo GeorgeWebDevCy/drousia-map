@@ -287,13 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (coords.length > 1) {
-      const stopIdx = [];
-      gnMapData.locations.forEach((loc, i) => {
-        if (!loc.waypoint) stopIdx.push(i);
-      });
-      if (!stopIdx.includes(0)) stopIdx.unshift(0);
-      if (!stopIdx.includes(coords.length - 1)) stopIdx.push(coords.length - 1);
-      fetchDirections(coords, 'walking', false, mapLangPart(getSelectedLanguage()), stopIdx).then(res => {
+      fetchDirections(coords).then(res => {
         if (!res.coordinates.length) {
           log('No coordinates returned for route');
           return;
@@ -324,7 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
     directionsControl.setDestination(dest);
     log('Directions control added, waiting for route to render');
     // Trigger a fetch so the URL is logged in debug mode
-    fetchDirections(coords, 'driving', false, mapLangPart(getSelectedLanguage()), [0, 1]).then(() => {});
+    fetchDirections(coords).then(() => {});
   }
 
   function applyRouteSettings(key) {
@@ -382,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  async function fetchDirections(allCoords, mode = 'driving', includeSteps = false, lang = 'en', stopIndices = []) {
+  async function fetchDirections(allCoords, mode = 'driving', includeSteps = false, lang = 'en') {
     const MAX = 25;
     let routeCoords = [];
     let steps = [];
@@ -392,23 +386,9 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       for (let i = 0; i < allCoords.length; i += MAX - 1) {
         let segment = allCoords.slice(i, i + MAX);
-        let segStart = i;
-        if (i !== 0) {
-          segment.unshift(allCoords[i - 1]);
-          segStart = i - 1;
-        }
-        let localStops = stopIndices
-          .filter(idx => idx >= segStart && idx < segStart + segment.length)
-          .map(idx => idx - segStart);
+        if (i !== 0) segment.unshift(allCoords[i - 1]);
         const pairs = segment.map(p => p.join(',')).join(';');
         let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
-        if (localStops.length) {
-          if (!localStops.includes(0)) localStops.unshift(0);
-          const lastIdx = segment.length - 1;
-          if (!localStops.includes(lastIdx)) localStops.push(lastIdx);
-          localStops = Array.from(new Set(localStops)).sort((a, b) => a - b);
-          url += `&waypoint_indices=${localStops.join(';')}`;
-        }
         if (includeSteps) {
           url += `&steps=true&annotations=duration,distance&language=${lang}`;
         }
@@ -462,17 +442,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const waypoints = coords.slice(0, -1);
       const destination = coords[coords.length - 1];
       const ordered = [userLngLat, ...waypoints, destination];
-      const stopIdx = [0];
-      gnMapData.locations.forEach((loc, i) => {
-        if (!loc.waypoint) stopIdx.push(i + 1);
-      });
-      if (!stopIdx.includes(ordered.length - 1)) stopIdx.push(ordered.length - 1);
       const {
         coordinates: routeCoords,
         steps,
         distance,
         duration,
-      } = await fetchDirections(ordered, navigationMode, true, lang, stopIdx);
+      } = await fetchDirections(ordered, navigationMode, true, lang);
       if (!routeCoords.length) {
         log("No route found.");
         return;
