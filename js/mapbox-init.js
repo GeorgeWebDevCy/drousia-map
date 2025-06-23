@@ -307,6 +307,8 @@ document.addEventListener("DOMContentLoaded", function () {
     map.addControl(directionsControl, 'top-left');
     directionsControl.setOrigin(origin);
     directionsControl.setDestination(dest);
+    // Trigger a fetch so the URL is logged in debug mode
+    fetchDirections(coords).then(() => {});
   }
 
   function applyRouteSettings(key) {
