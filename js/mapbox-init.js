@@ -397,12 +397,16 @@ document.addEventListener("DOMContentLoaded", function () {
           segment.unshift(allCoords[i - 1]);
           segStart = i - 1;
         }
-        const localStops = stopIndices
+        let localStops = stopIndices
           .filter(idx => idx >= segStart && idx < segStart + segment.length)
           .map(idx => idx - segStart);
         const pairs = segment.map(p => p.join(',')).join(';');
         let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
         if (localStops.length) {
+          if (!localStops.includes(0)) localStops.unshift(0);
+          const lastIdx = segment.length - 1;
+          if (!localStops.includes(lastIdx)) localStops.push(lastIdx);
+          localStops = Array.from(new Set(localStops)).sort((a, b) => a - b);
           url += `&waypoint_indices=${localStops.join(';')}`;
         }
         if (includeSteps) {
