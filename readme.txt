@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.60.0
+Stable tag: 2.61.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.61.0 =
+* Reverse driving directions for Paphos Airport, Drousia to Paphos and Drousia to Polis
 = 2.60.0 =
 * Fix error when Mapbox Directions geometry is missing
 = 2.59.0 =
