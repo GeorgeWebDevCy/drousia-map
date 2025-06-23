@@ -18,6 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let markers = [];
   let directionsControl;
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
+  const routeSettings = {
+    default: { center: [32.3923713, 34.96211], zoom: 16 },
+    paphos: { center: [32.3975751, 34.9627965], zoom: 10 },
+    polis: { center: [32.3975751, 34.9627965], zoom: 11 },
+    airport: { center: [32.4297, 34.7753], zoom: 12 },
+  };
 
   function mapLangPart(code) {
     return code.split("-")[0];
@@ -302,8 +308,18 @@ document.addEventListener("DOMContentLoaded", function () {
     directionsControl.setDestination(dest);
   }
 
+  function applyRouteSettings(key) {
+    const opts = routeSettings[key];
+    if (!opts || !map) return;
+    map.flyTo({ center: opts.center, zoom: opts.zoom });
+  }
+
   function selectRoute(val) {
-    if (!val) { clearMap(); return; }
+    if (!val) {
+      clearMap();
+      return;
+    }
+    applyRouteSettings(val);
     if (val === 'default') {
       showDefaultRoute();
     } else if (val === 'paphos') {
@@ -564,8 +580,8 @@ document.addEventListener("DOMContentLoaded", function () {
   map = new mapboxgl.Map({
     container: "gn-mapbox-map",
     style: "mapbox://styles/mapbox/satellite-streets-v11",
-    center: [32.3923713, 34.96211],
-    zoom: 16,
+    center: routeSettings.default.center,
+    zoom: routeSettings.default.zoom,
   });
 
   map.addControl(new mapboxgl.NavigationControl(), "top-left");
