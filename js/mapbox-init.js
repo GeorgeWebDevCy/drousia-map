@@ -264,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let segment = allCoords.slice(i, i + MAX);
       if (i !== 0) segment.unshift(allCoords[i - 1]);
       const pairs = segment.map(p => p.join(',')).join(';');
-      let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full`;
+      let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
       if (includeSteps) {
         url += `&steps=true&annotations=duration,distance&language=${lang}`;
       }
