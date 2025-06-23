@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <div style="padding: 6px; background: white;">
           <select id="gn-route-select" class="gn-nav-select">
             <option value="">Select Route</option>
-            <option value="default">Map Locations</option>
+            <option value="default">Nature Path</option>
             <option value="paphos">Drousia → Paphos</option>
             <option value="polis">Drousia → Polis</option>
             <option value="airport">Paphos → Airport</option>
@@ -297,6 +297,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function showDrivingRoute(origin, dest) {
     clearMap();
     coords = [origin, dest];
+    log('Driving route from', origin, 'to', dest);
     directionsControl = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       unit: 'metric',
@@ -315,6 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selectRoute(val) {
+    log('Route selected:', val);
     if (!val) {
       clearMap();
       return;
@@ -377,6 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url += `&steps=true&annotations=duration,distance&language=${lang}`;
       }
       url += `&access_token=${mapboxgl.accessToken}`;
+      log('Fetching directions:', url);
 
       const res = await fetch(url);
       const data = await res.json();
