@@ -29,8 +29,9 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.52.0
-- Route line and zoom reset when selecting a new route
+### 2.53.0
+- Added console log when the route line is drawn
+- Map recenters when changing routes
 ### 2.51.0
 - Fetch driving route when changing dropdown options
 ### 2.50.0
@@ -88,8 +89,9 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.52.0
-- Route line and zoom reset when selecting a new route
+### 2.53.0
+- Added console log when the route line is drawn
+- Map recenters when changing routes
 ### 2.51.0
 - Fetch driving route when changing dropdown options
 ### 2.50.0
