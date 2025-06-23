@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.53.0
+Version: 2.54.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -809,6 +809,82 @@ function gn_mapbox_drouseia_shortcode() {
     return ob_get_clean();
 }
 add_shortcode('gn_mapbox_drouseia', 'gn_mapbox_drouseia_shortcode');
+
+/**
+ * Same as gn_mapbox_drouseia_shortcode but the container spans the full viewport width.
+ * Usage: [gn_mapbox_drouseia_100]
+ */
+function gn_mapbox_drouseia_100_shortcode() {
+    $token = get_option('gn_mapbox_token');
+    if (!$token) {
+        return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
+    }
+    ob_start();
+    ?>
+    <div id="gn-mapbox-drouseia-100" style="width:100vw;height:400px;"></div>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <script>
+      mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
+        const map = new mapboxgl.Map({
+          container: 'gn-mapbox-drouseia-100',
+          style: 'mapbox://styles/mapbox/navigation-day-v1',
+          center: [32.3975751, 34.9627965],
+          zoom: 14
+        });
+
+      new mapboxgl.Marker()
+        .setLngLat([32.3975751, 34.9627965])
+        .setPopup(new mapboxgl.Popup().setText('Drouseia, Cyprus'))
+        .addTo(map);
+
+      map.on('load', () => {
+        map.addSource('drouseia-area', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [32.3920, 34.9642],
+                [32.3945, 34.9670],
+                [32.3985, 34.9685],
+                [32.4025, 34.9675],
+                [32.4045, 34.9650],
+                [32.4040, 34.9605],
+                [32.4010, 34.9580],
+                [32.3960, 34.9575],
+                [32.3925, 34.9600],
+                [32.3920, 34.9642]
+              ]]
+            }
+          }
+        });
+        map.addLayer({
+          id: 'drouseia-fill',
+          type: 'fill',
+          source: 'drouseia-area',
+          paint: {
+            'fill-color': '#ff0000',
+            'fill-opacity': 0.1
+          }
+        });
+        map.addLayer({
+          id: 'drouseia-outline',
+          type: 'line',
+          source: 'drouseia-area',
+          paint: {
+            'line-color': '#ff0000',
+            'line-width': 3
+          }
+        });
+      });
+
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('gn_mapbox_drouseia_100', 'gn_mapbox_drouseia_100_shortcode');
 
 // Drouseia to Paphos
 function gn_mapbox_drousia_to_paphos_shortcode() {
