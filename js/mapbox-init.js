@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function showDrivingRoute(origin, dest) {
+  async function showDrivingRoute(origin, dest) {
     clearMap();
     log('Showing driving route');
     coords = [origin, dest];
@@ -317,8 +317,22 @@ document.addEventListener("DOMContentLoaded", function () {
     directionsControl.setOrigin(origin);
     directionsControl.setDestination(dest);
     log('Directions control added, waiting for route to render');
-    // Trigger a fetch so the URL is logged in debug mode
-    fetchDirections(coords).then(() => {});
+
+    const res = await fetchDirections(coords);
+    if (res.coordinates.length) {
+      const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
+      map.addSource('route', { type: 'geojson', data: routeGeoJson });
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#ff0000', 'line-width': 4 }
+      });
+      log('Route line drawn with', res.coordinates.length, 'points');
+    } else {
+      log('No coordinates returned for route');
+    }
   }
 
   function applyRouteSettings(key) {
