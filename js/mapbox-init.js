@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       if (!stopIdx.includes(0)) stopIdx.unshift(0);
       if (!stopIdx.includes(coords.length - 1)) stopIdx.push(coords.length - 1);
-      fetchDirections(coords, 'driving', false, mapLangPart(getSelectedLanguage()), stopIdx).then(res => {
+      fetchDirections(coords, 'walking', false, mapLangPart(getSelectedLanguage()), stopIdx).then(res => {
         if (!res.coordinates.length) {
           log('No coordinates returned for route');
           return;
