@@ -31,6 +31,8 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 
 ### 2.55.0
 - Allow multiple file uploads when submitting media to locations
+
+- `[gn_mapbox_drouseia_100]` map fills the entire viewport
 ### 2.54.0
 - Terrain map style for `[gn_mapbox_drouseia]` and new `[gn_mapbox_drouseia_100]`
 - Added `[gn_mapbox_drouseia_100]` shortcode for a full-width map
@@ -97,6 +99,7 @@ working. Update this file to change the built-in locations.
 ### 2.55.0
 
 - Allow multiple file uploads when submitting media to locations
+- `[gn_mapbox_drouseia_100]` map fills the entire viewport
 ### 2.54.0
 
 - Terrain map style for `[gn_mapbox_drouseia]` and new `[gn_mapbox_drouseia_100]`

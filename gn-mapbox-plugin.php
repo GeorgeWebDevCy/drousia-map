@@ -836,8 +836,7 @@ function gn_mapbox_drouseia_100_shortcode() {
     }
     ob_start();
     ?>
-    <div id="gn-mapbox-drouseia-100" style="width: 100%; height: 400px;"></div>
-    <div id="gn-mapbox-drouseia-100" style="width:100vw;height:400px;"></div>
+    <div id="gn-mapbox-drouseia-100" style="width:100vw;height:100vh;"></div>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <script>
