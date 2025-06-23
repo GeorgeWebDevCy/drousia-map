@@ -41,6 +41,7 @@ Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
 = 2.55.0 =
+* Allow multiple file uploads when submitting media to locations
 * `[gn_mapbox_drouseia_100]` map now fills the entire viewport
 = 2.54.0 =
 * Terrain map style for `[gn_mapbox_drouseia]` and new `[gn_mapbox_drouseia_100]`

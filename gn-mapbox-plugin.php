@@ -563,7 +563,7 @@ function gn_photo_upload_shortcode($atts) {
     $output .= wp_nonce_field('gn_photo_upload','gn_photo_nonce',true,false);
     $output .= '<input type="hidden" name="action" value="gn_photo_upload">';
     $output .= '<input type="hidden" name="location_id" value="'.$location_id.'">';
-    $output .= '<input type="file" name="gn_photo" accept="image/*,video/*" class="gn-photo-file" style="display:none;" required>';
+    $output .= '<input type="file" name="gn_photo[]" accept="image/*,video/*" class="gn-photo-file" style="display:none;" multiple required>';
     $output .= '<button type="button" class="gn-photo-button">' . esc_html__('Upload Media', 'gn-mapbox') . '</button>';
     $output .= '<span class="gn-upload-status"></span>';
     $output .= '</form>';
@@ -580,33 +580,48 @@ function gn_handle_photo_upload() {
     }
     $is_ajax = isset($_POST['ajax']);
     $location_id = intval($_POST['location_id'] ?? 0);
-    if (!$location_id || empty($_FILES['gn_photo']['name'])) {
+    $names = $_FILES['gn_photo']['name'] ?? '';
+    $has_file = is_array($names) ? count(array_filter($names)) > 0 : !empty($names);
+    if (!$location_id || !$has_file) {
         if ($is_ajax) {
             wp_send_json_error();
         }
         wp_redirect(add_query_arg('gn_upload','error',wp_get_referer()));
         exit;
     }
-    $file = $_FILES['gn_photo'];
-    $uploaded = wp_handle_upload($file, ['test_form'=>false]);
-    if (isset($uploaded['error'])) {
-        if ($is_ajax) {
-            wp_send_json_error();
+    $files = $_FILES['gn_photo'];
+    $file_count = is_array($files['name']) ? count($files['name']) : 1;
+    $success = false;
+    $pending = get_post_meta($location_id, '_gn_pending_photos', true);
+    $pending_ids = $pending ? explode(',', $pending) : [];
+
+    for ($i = 0; $i < $file_count; $i++) {
+        $file = [
+            'name'     => is_array($files['name']) ? $files['name'][$i] : $files['name'],
+            'type'     => is_array($files['type']) ? $files['type'][$i] : $files['type'],
+            'tmp_name' => is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'],
+            'error'    => is_array($files['error']) ? $files['error'][$i] : $files['error'],
+            'size'     => is_array($files['size']) ? $files['size'][$i] : $files['size'],
+        ];
+        if (empty($file['name'])) continue;
+        $uploaded = wp_handle_upload($file, ['test_form'=>false]);
+        if (isset($uploaded['error'])) {
+            continue;
         }
-        wp_redirect(add_query_arg('gn_upload','error',wp_get_referer()));
-        exit;
+        $attachment_id = wp_insert_attachment([
+            'post_mime_type' => $uploaded['type'],
+            'post_title'     => sanitize_file_name($file['name']),
+            'post_content'   => '',
+            'post_status'    => 'pending',
+            'post_parent'    => $location_id,
+        ], $uploaded['file']);
+        if (!is_wp_error($attachment_id)) {
+            $pending_ids[] = $attachment_id;
+            $success = true;
+        }
     }
-    $attachment_id = wp_insert_attachment([
-        'post_mime_type' => $uploaded['type'],
-        'post_title'     => sanitize_file_name($file['name']),
-        'post_content'   => '',
-        'post_status'    => 'pending',
-        'post_parent'    => $location_id,
-    ], $uploaded['file']);
-    if (!is_wp_error($attachment_id)) {
-        $pending = get_post_meta($location_id, '_gn_pending_photos', true);
-        $pending_ids = $pending ? explode(',', $pending) : [];
-        $pending_ids[] = $attachment_id;
+
+    if ($success) {
         update_post_meta($location_id, '_gn_pending_photos', implode(',', $pending_ids));
         if ($is_ajax) {
             wp_send_json_success([
