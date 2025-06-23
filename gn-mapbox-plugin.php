@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.59.0
+Version: 2.60.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -901,7 +901,7 @@ function gn_mapbox_drouseia_100_shortcode() {
 }
 add_shortcode('gn_mapbox_drouseia_100', 'gn_mapbox_drouseia_100_shortcode');
 
-// Drouseia to Paphos
+// Drouseia to Paphos (reversed to show directions from Paphos to Drouseia)
 function gn_mapbox_drousia_to_paphos_shortcode() {
     if (!get_option('gn_mapbox_token')) {
         return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
@@ -915,7 +915,7 @@ function gn_mapbox_drousia_to_paphos_shortcode() {
         const mapDP = new mapboxgl.Map({
             container: 'gn-mapbox-drousia-paphos',
             style: 'mapbox://styles/mapbox/satellite-streets-v11',
-            center: [32.3975751, 34.9627965],
+            center: [32.4297, 34.7753],
             zoom: 10
         });
 
@@ -928,8 +928,8 @@ function gn_mapbox_drousia_to_paphos_shortcode() {
 
         mapDP.addControl(directionsDP, 'top-left');
         mapDP.on('load', function() {
-            directionsDP.setOrigin([32.3975751, 34.9627965]);
-            directionsDP.setDestination([32.4297, 34.7753]);
+            directionsDP.setOrigin([32.4297, 34.7753]);
+            directionsDP.setDestination([32.3975751, 34.9627965]);
         });
     });
     </script>
@@ -938,7 +938,7 @@ function gn_mapbox_drousia_to_paphos_shortcode() {
 }
 add_shortcode('gn_mapbox_drousia_paphos', 'gn_mapbox_drousia_to_paphos_shortcode');
 
-// Drouseia to Polis
+// Drouseia to Polis (reversed to show directions from Polis to Drouseia)
 function gn_mapbox_drousia_to_polis_shortcode() {
     if (!get_option('gn_mapbox_token')) {
         return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
@@ -952,7 +952,7 @@ function gn_mapbox_drousia_to_polis_shortcode() {
         const mapDPo = new mapboxgl.Map({
             container: 'gn-mapbox-drousia-polis',
             style: 'mapbox://styles/mapbox/satellite-streets-v11',
-            center: [32.3975751, 34.9627965],
+            center: [32.4147, 35.0360],
             zoom: 11
         });
 
@@ -965,8 +965,8 @@ function gn_mapbox_drousia_to_polis_shortcode() {
 
         mapDPo.addControl(directionsDPo, 'top-left');
         mapDPo.on('load', function() {
-            directionsDPo.setOrigin([32.3975751, 34.9627965]);
-            directionsDPo.setDestination([32.4147, 35.0360]);
+            directionsDPo.setOrigin([32.4147, 35.0360]);
+            directionsDPo.setDestination([32.3975751, 34.9627965]);
         });
     });
     </script>
@@ -975,7 +975,7 @@ function gn_mapbox_drousia_to_polis_shortcode() {
 }
 add_shortcode('gn_mapbox_drousia_polis', 'gn_mapbox_drousia_to_polis_shortcode');
 
-// Paphos to Paphos Airport
+// Paphos to Paphos Airport (reversed to show directions from the airport to Paphos)
 function gn_mapbox_paphos_to_airport_shortcode() {
     if (!get_option('gn_mapbox_token')) {
         return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
@@ -989,7 +989,7 @@ function gn_mapbox_paphos_to_airport_shortcode() {
         const mapPA = new mapboxgl.Map({
             container: 'gn-mapbox-paphos-airport',
             style: 'mapbox://styles/mapbox/satellite-streets-v11',
-            center: [32.4297, 34.7753],
+            center: [32.4858, 34.7174],
             zoom: 12
         });
 
@@ -1002,8 +1002,8 @@ function gn_mapbox_paphos_to_airport_shortcode() {
 
         mapPA.addControl(directionsPA, 'top-left');
         mapPA.on('load', function() {
-            directionsPA.setOrigin([32.4297, 34.7753]);
-            directionsPA.setDestination([32.4858, 34.7174]);
+            directionsPA.setOrigin([32.4858, 34.7174]);
+            directionsPA.setDestination([32.4297, 34.7753]);
         });
     });
     </script>
