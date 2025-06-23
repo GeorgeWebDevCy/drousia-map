@@ -243,6 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function clearMap() {
+    log('Clearing map');
     markers.forEach(m => m.remove());
     markers = [];
     const sources = ['route', 'route-tracker', 'trail-line', 'nav-route'];
@@ -259,6 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function showDefaultRoute() {
     clearMap();
+    log('Showing default route');
     coords = [];
     gnMapData.locations.forEach((loc) => {
       const galleryHTML = loc.gallery && loc.gallery.length
@@ -296,6 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function showDrivingRoute(origin, dest) {
     clearMap();
+    log('Showing driving route');
     coords = [origin, dest];
     log('Driving route from', origin, 'to', dest);
     directionsControl = new MapboxDirections({
@@ -314,15 +317,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function applyRouteSettings(key) {
     const opts = routeSettings[key];
     if (!opts || !map) return;
+    log('Applying route settings:', key, opts);
     map.flyTo({ center: opts.center, zoom: opts.zoom });
   }
 
   function selectRoute(val) {
     log('Route selected:', val);
-    if (!val) {
-      clearMap();
-      return;
-    }
+    clearMap();
+    if (!val) return;
     applyRouteSettings(val);
     if (val === 'default') {
       showDefaultRoute();
