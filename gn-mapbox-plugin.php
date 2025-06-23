@@ -752,7 +752,7 @@ function gn_mapbox_drouseia_shortcode() {
       mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
         const map = new mapboxgl.Map({
           container: 'gn-mapbox-drouseia',
-          style: 'mapbox://styles/mapbox/navigation-day-v1',
+          style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [32.3975751, 34.9627965],
           zoom: 14
         });
@@ -821,6 +821,7 @@ function gn_mapbox_drouseia_100_shortcode() {
     }
     ob_start();
     ?>
+    <div id="gn-mapbox-drouseia-100" style="width: 100%; height: 400px;"></div>
     <div id="gn-mapbox-drouseia-100" style="width:100vw;height:400px;"></div>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
