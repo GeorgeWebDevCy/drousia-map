@@ -604,7 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   map = new mapboxgl.Map({
     container: "gn-mapbox-map",
-    style: "mapbox://styles/mapbox/satellite-streets-v11",
+    style: "mapbox://styles/mapbox/outdoors-v12",
     center: routeSettings.default.center,
     zoom: routeSettings.default.zoom,
   });
