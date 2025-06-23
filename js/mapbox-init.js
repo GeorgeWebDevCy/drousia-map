@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let navigationMode = "driving";
   let map;
   let languageControl;
+  let markers = [];
+  let directionsControl;
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
 
   function mapLangPart(code) {
@@ -114,6 +116,13 @@ document.addEventListener("DOMContentLoaded", function () {
     navPanel.innerHTML = `
       <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
       <div style="padding: 6px; background: white;">
+          <select id="gn-route-select" class="gn-nav-select">
+            <option value="">Select Route</option>
+            <option value="default">Map Locations</option>
+            <option value="paphos">Drousia → Paphos</option>
+            <option value="polis">Drousia → Polis</option>
+            <option value="airport">Paphos → Airport</option>
+          </select>
           <select id="gn-mode-select" class="gn-nav-select">
             <option value="driving">Driving</option>
             <option value="walking">Walking</option>
@@ -139,6 +148,10 @@ document.addEventListener("DOMContentLoaded", function () {
       font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
+    const routeSel = navPanel.querySelector("#gn-route-select");
+    if (routeSel) {
+      routeSel.onchange = () => selectRoute(routeSel.value);
+    }
     const modeSel = navPanel.querySelector("#gn-mode-select");
     if (modeSel) {
       modeSel.value = navigationMode;
@@ -220,7 +233,86 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.querySelector('img').src = e.target.src;
         overlay.classList.add('visible');
       }
+  });
+  }
+
+  function clearMap() {
+    markers.forEach(m => m.remove());
+    markers = [];
+    const sources = ['route', 'route-tracker', 'trail-line', 'nav-route'];
+    const layers = ['route', 'route-tracker', 'trail-line', 'nav-route'];
+    layers.forEach(l => { if (map.getLayer(l)) map.removeLayer(l); });
+    sources.forEach(s => { if (map.getSource(s)) map.removeSource(s); });
+    if (directionsControl) {
+      map.removeControl(directionsControl);
+      directionsControl = null;
+    }
+    const panel = document.getElementById('gn-distance-panel');
+    if (panel) panel.textContent = '';
+  }
+
+  function showDefaultRoute() {
+    clearMap();
+    coords = [];
+    gnMapData.locations.forEach((loc) => {
+      const galleryHTML = loc.gallery && loc.gallery.length
+        ? '<div class="gallery">' +
+          loc.gallery.map(item => item.type === 'video'
+            ? `<video src="${item.url}" controls></video>`
+            : `<img src="${item.url}" alt="${loc.title}">`).join('') +
+          '</div>'
+        : '';
+      const uploadHTML = loc.upload_form ? `<div class="gn-upload-form">${loc.upload_form}</div>` : '';
+      const popupHTML = `
+        <div class="popup-content">
+          ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
+          <h3>${loc.title}</h3>
+          <div>${loc.content}</div>
+          ${galleryHTML}
+          ${uploadHTML}
+        </div>`;
+      coords.push([loc.lng, loc.lat]);
+      if (!loc.waypoint) {
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
+        const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
+        markers.push(marker);
+      }
     });
+    if (coords.length > 1) {
+      fetchDirections(coords).then(res => {
+        if (!res.coordinates.length) return;
+        const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
+        map.addSource('route', { type: 'geojson', data: routeGeoJson });
+        map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ff0000', 'line-width': 4 } });
+      });
+    }
+  }
+
+  function showDrivingRoute(origin, dest) {
+    clearMap();
+    coords = [origin, dest];
+    directionsControl = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+      unit: 'metric',
+      profile: 'mapbox/driving',
+      alternatives: false
+    });
+    map.addControl(directionsControl, 'top-left');
+    directionsControl.setOrigin(origin);
+    directionsControl.setDestination(dest);
+  }
+
+  function selectRoute(val) {
+    if (!val) { clearMap(); return; }
+    if (val === 'default') {
+      showDefaultRoute();
+    } else if (val === 'paphos') {
+      showDrivingRoute([32.3975751, 34.9627965], [32.4297, 34.7753]);
+    } else if (val === 'polis') {
+      showDrivingRoute([32.3975751, 34.9627965], [32.4147, 35.0360]);
+    } else if (val === 'airport') {
+      showDrivingRoute([32.4297, 34.7753], [32.4858, 34.7174]);
+    }
   }
 
   window.setMode = function (mode) {
@@ -485,66 +577,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
   map.on("load", () => {
     log("Map loaded");
-
-    coords = [];
-    gnMapData.locations.forEach((loc) => {
-      const galleryHTML = loc.gallery && loc.gallery.length
-        ? '<div class="gallery">' +
-          loc.gallery
-            .map(item =>
-              item.type === 'video'
-                ? `<video src="${item.url}" controls></video>`
-                : `<img src="${item.url}" alt="${loc.title}">`
-            )
-            .join('') +
-          '</div>'
-        : '';
-      const uploadHTML = loc.upload_form ? `<div class="gn-upload-form">${loc.upload_form}</div>` : '';
-      const popupHTML = `
-        <div class="popup-content">
-          ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
-          <h3>${loc.title}</h3>
-          <div>${loc.content}</div>
-          ${galleryHTML}
-          ${uploadHTML}
-        </div>
-      `;
-      coords.push([loc.lng, loc.lat]);
-      if (!loc.waypoint) {
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-        new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
-        log("Marker added:", loc.title, [loc.lng, loc.lat]);
-      } else {
-        log("Waypoint added:", loc.title, [loc.lng, loc.lat]);
-      }
-    });
-
-    if (coords.length > 1) {
-      coords.forEach((point, idx) => {
-        if (idx > 0) {
-          log('Route segment', coords[idx - 1], '->', point);
-        }
-      });
-
-      fetchDirections(coords).then(res => {
-        if (!res.coordinates.length) {
-          log('No route found for provided coordinates');
-          return;
-        }
-        const routeGeoJson = {
-          type: 'Feature',
-          geometry: { type: 'LineString', coordinates: res.coordinates }
-        };
-        map.addSource('route', { type: 'geojson', data: routeGeoJson });
-        map.addLayer({
-          id: 'route',
-          type: 'line',
-          source: 'route',
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#ff0000', 'line-width': 4 }
-        });
-        log('Route drawn using Mapbox Directions API');
-      }).catch(err => log('Route fetch error:', err));
-    }
   });
   });
