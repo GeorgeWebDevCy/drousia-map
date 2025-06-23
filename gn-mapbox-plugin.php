@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.62.0
+Version: 2.58.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -325,11 +325,11 @@ function gn_save_quick_edit_order($post_id) {
 add_action('save_post_map_location', 'gn_save_quick_edit_order');
 
 function gn_enqueue_mapbox_assets() {
-    wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.1/mapbox-gl.css');
-    wp_enqueue_style('mapbox-gl-directions', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.2.0/mapbox-gl-directions.css');
+    wp_enqueue_style('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
+    wp_enqueue_style('mapbox-gl-directions', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css');
     wp_enqueue_style('gn-mapbox-style', plugin_dir_url(__FILE__) . 'css/mapbox-style.css');
-    wp_enqueue_script('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.1/mapbox-gl.js', [], null, true);
-    wp_enqueue_script('mapbox-gl-directions', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.2.0/mapbox-gl-directions.js', ['mapbox-gl'], null, true);
+    wp_enqueue_script('mapbox-gl', 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js', [], null, true);
+    wp_enqueue_script('mapbox-gl-directions', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js', ['mapbox-gl'], null, true);
     wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
     wp_enqueue_script('mapbox-gl-language', plugin_dir_url(__FILE__) . 'js/mapbox-gl-language.js', ['mapbox-gl'], null, true);
     wp_enqueue_script('gn-mapbox-init', plugin_dir_url(__FILE__) . 'js/mapbox-init.js', ['jquery', 'mapbox-gl-language', 'mapbox-gl-directions'], null, true);
@@ -761,8 +761,8 @@ function gn_mapbox_drouseia_shortcode() {
     ob_start();
     ?>
     <div id="gn-mapbox-drouseia" style="width: 100%; height: 400px;"></div>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.1/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <script>
       mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
         const map = new mapboxgl.Map({
@@ -837,8 +837,8 @@ function gn_mapbox_drouseia_100_shortcode() {
     ob_start();
     ?>
     <div id="gn-mapbox-drouseia-100" style="width:100vw;height:480px;"></div>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.1/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <script>
       mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
         const map = new mapboxgl.Map({
@@ -928,8 +928,8 @@ function gn_mapbox_drousia_to_paphos_shortcode() {
 
         mapDP.addControl(directionsDP, 'top-left');
         mapDP.on('load', function() {
-            directionsDP.setOrigin([32.4297, 34.7753]);
-            directionsDP.setDestination([32.3975751, 34.9627965]);
+            directionsDP.setOrigin([32.3975751, 34.9627965]);
+            directionsDP.setDestination([32.4297, 34.7753]);
         });
     });
     </script>
@@ -965,8 +965,8 @@ function gn_mapbox_drousia_to_polis_shortcode() {
 
         mapDPo.addControl(directionsDPo, 'top-left');
         mapDPo.on('load', function() {
-            directionsDPo.setOrigin([32.4147, 35.0360]);
-            directionsDPo.setDestination([32.3975751, 34.9627965]);
+            directionsDPo.setOrigin([32.3975751, 34.9627965]);
+            directionsDPo.setDestination([32.4147, 35.0360]);
         });
     });
     </script>
@@ -1002,8 +1002,8 @@ function gn_mapbox_paphos_to_airport_shortcode() {
 
         mapPA.addControl(directionsPA, 'top-left');
         mapPA.on('load', function() {
-            directionsPA.setOrigin([32.4858, 34.7174]);
-            directionsPA.setDestination([32.4297, 34.7753]);
+            directionsPA.setOrigin([32.4297, 34.7753]);
+            directionsPA.setDestination([32.4858, 34.7174]);
         });
     });
     </script>
