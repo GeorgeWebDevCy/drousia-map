@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     if (coords.length > 1) {
       fetchDirections(coords).then(res => {
-        if (!res.coordinates.length) {
+        if (!res.coordinates || !res.coordinates.length) {
           log('No coordinates returned for route');
           return;
         }
@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alternatives: false
     });
     directionsControl.on('route', (e) => {
-      const pts = e.route && e.route[0] && e.route[0].geometry
+      const pts = e.route && e.route[0] && e.route[0].geometry && e.route[0].geometry.coordinates
         ? e.route[0].geometry.coordinates.length
         : 0;
       log('Driving route drawn with', pts, 'points');
