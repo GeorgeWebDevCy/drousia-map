@@ -313,12 +313,33 @@ document.addEventListener("DOMContentLoaded", function () {
       profile: 'mapbox/driving',
       alternatives: false
     });
-    directionsControl.on('route', (e) => {
+  directionsControl.on('route', (e) => {
       const pts = e.route && e.route[0] && e.route[0].geometry && e.route[0].geometry.coordinates
         ? e.route[0].geometry.coordinates.length
         : 0;
       log('Driving route drawn with', pts, 'points');
-    });
+      if (pts === 0) {
+        fetchDirections([origin, dest]).then(res => {
+          if (!res.coordinates || !res.coordinates.length) {
+            log('No route coordinates returned');
+            return;
+          }
+          const geo = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
+          if (map.getSource('driving-route')) {
+            map.getSource('driving-route').setData(geo);
+          } else {
+            map.addSource('driving-route', { type: 'geojson', data: geo });
+            map.addLayer({
+              id: 'driving-route',
+              type: 'line',
+              source: 'driving-route',
+              paint: { 'line-color': '#007cbf', 'line-width': 6 }
+            });
+          }
+          log('Route line drawn manually with', res.coordinates.length, 'points');
+        });
+      }
+  });
     map.addControl(directionsControl, 'top-left');
     directionsControl.setOrigin(origin);
     directionsControl.setDestination(dest);
