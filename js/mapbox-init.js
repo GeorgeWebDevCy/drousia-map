@@ -370,29 +370,38 @@ document.addEventListener("DOMContentLoaded", function () {
     let distance = 0;
     let duration = 0;
 
-    for (let i = 0; i < allCoords.length; i += MAX - 1) {
-      let segment = allCoords.slice(i, i + MAX);
-      if (i !== 0) segment.unshift(allCoords[i - 1]);
-      const pairs = segment.map(p => p.join(',')).join(';');
-      let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
-      if (includeSteps) {
-        url += `&steps=true&annotations=duration,distance&language=${lang}`;
-      }
-      url += `&access_token=${mapboxgl.accessToken}`;
-      log('Fetching directions:', url);
+    try {
+      for (let i = 0; i < allCoords.length; i += MAX - 1) {
+        let segment = allCoords.slice(i, i + MAX);
+        if (i !== 0) segment.unshift(allCoords[i - 1]);
+        const pairs = segment.map(p => p.join(',')).join(';');
+        let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
+        if (includeSteps) {
+          url += `&steps=true&annotations=duration,distance&language=${lang}`;
+        }
+        url += `&access_token=${mapboxgl.accessToken}`;
+        log('Fetching directions:', url);
 
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data.routes || !data.routes[0]) continue;
-      const segCoords = data.routes[0].geometry.coordinates;
-      if (routeCoords.length) {
-        routeCoords = routeCoords.concat(segCoords.slice(1));
-      } else {
-        routeCoords = segCoords;
+        const res = await fetch(url);
+        if (!res.ok) {
+          log('Directions request failed:', res.status, res.statusText);
+          continue;
+        }
+        const data = await res.json();
+        if (!data.routes || !data.routes[0]) continue;
+        const segCoords = data.routes[0].geometry.coordinates;
+        if (routeCoords.length) {
+          routeCoords = routeCoords.concat(segCoords.slice(1));
+        } else {
+          routeCoords = segCoords;
+        }
+        distance += data.routes[0].distance;
+        duration += data.routes[0].duration;
+        if (includeSteps) steps = steps.concat(data.routes[0].legs[0].steps);
       }
-      distance += data.routes[0].distance;
-      duration += data.routes[0].duration;
-      if (includeSteps) steps = steps.concat(data.routes[0].legs[0].steps);
+    } catch (e) {
+      console.error('Failed to fetch directions', e);
+      return { coordinates: [], steps: [], distance: 0, duration: 0 };
     }
 
     return { coordinates: routeCoords, steps, distance, duration };
