@@ -288,11 +288,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     if (coords.length > 1) {
       fetchDirections(coords).then(res => {
-        if (!res.coordinates.length) return;
+        if (!res.coordinates.length) {
+          log('No coordinates returned for route');
+          return;
+        }
         const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
         map.addSource('route', { type: 'geojson', data: routeGeoJson });
         map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ff0000', 'line-width': 4 } });
+        log('Route line drawn with', res.coordinates.length, 'points');
       });
+    } else {
+      log('Not enough coordinates for route line');
     }
   }
 
@@ -310,6 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
     map.addControl(directionsControl, 'top-left');
     directionsControl.setOrigin(origin);
     directionsControl.setDestination(dest);
+    log('Directions control added, waiting for route to render');
     // Trigger a fetch so the URL is logged in debug mode
     fetchDirections(coords).then(() => {});
   }
@@ -335,6 +342,8 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (val === 'airport') {
       showDrivingRoute([32.4297, 34.7753], [32.4858, 34.7174]);
     }
+    // Re-apply the center after controls adjust the map
+    setTimeout(() => applyRouteSettings(val), 1000);
   }
 
   window.setMode = function (mode) {
