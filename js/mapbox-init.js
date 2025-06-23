@@ -458,7 +458,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const waypoints = coords.slice(0, -1);
       const destination = coords[coords.length - 1];
       const ordered = [userLngLat, ...waypoints, destination];
-      const stopIdx = [0, ordered.length - 1];
+      const stopIdx = [0];
+      gnMapData.locations.forEach((loc, i) => {
+        if (!loc.waypoint) stopIdx.push(i + 1);
+      });
+      if (!stopIdx.includes(ordered.length - 1)) stopIdx.push(ordered.length - 1);
       const {
         coordinates: routeCoords,
         steps,
