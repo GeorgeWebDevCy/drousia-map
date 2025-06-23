@@ -29,15 +29,6 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.62.0
-- Update Mapbox GL JS and directions plugin versions
-
-### 2.61.0
-- Reverse driving directions for Paphos Airport, Drousia to Paphos and Drousia to Polis
-### 2.60.0
-- Fix error when Mapbox Directions geometry is missing
-### 2.59.0
-- Verify route line draws when selecting a new option
 ### 2.58.0
 - Satellite streets style for all maps
 ### 2.57.0
@@ -111,15 +102,6 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.62.0
-- Update Mapbox GL JS and directions plugin versions
-
-### 2.61.0
-- Reverse driving directions for Paphos Airport, Drousia to Paphos and Drousia to Polis
-### 2.60.0
-- Fix error when Mapbox Directions geometry is missing
-### 2.59.0
-- Verify route line draws when selecting a new option
 ### 2.58.0
 
 - Satellite streets style for all maps
