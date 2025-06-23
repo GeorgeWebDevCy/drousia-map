@@ -29,17 +29,6 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.63.0
-- Nature Path route uses walking directions
-### 2.62.0
-- Bump plugin version
-### 2.61.0
-- Fix Mapbox "Invalid query param" error during navigation
-
-### 2.60.0
-- Hidden coordinates now sent as via waypoints for navigation
-### 2.59.0
-- Use Mapbox via_waypoints for navigation
 ### 2.58.0
 - Satellite streets style for all maps
 ### 2.57.0
@@ -113,16 +102,6 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.63.0
-- Nature Path route uses walking directions
-### 2.62.0
-- Bump plugin version
-### 2.61.0
-- Fix Mapbox "Invalid query param" error during navigation
-### 2.60.0
-- Hidden coordinates now sent as via waypoints for navigation
-### 2.59.0
-- Use Mapbox via_waypoints for navigation
 ### 2.58.0
 
 - Satellite streets style for all maps

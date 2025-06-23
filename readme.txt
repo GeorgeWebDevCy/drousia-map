@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.63.0
+Stable tag: 2.58.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,17 +40,6 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
-= 2.63.0 =
-* Nature Path route uses walking directions
-= 2.62.0 =
-* Bump plugin version
-= 2.61.0 =
-* Fix "Invalid query param" error from Mapbox Directions
-= 2.60.0 =
-* Hidden coordinates sent as via waypoints for navigation
-= 2.59.0 =
-* Use Mapbox via_waypoints correctly for navigation
-
 = 2.58.0 =
 * Satellite streets style for all maps
 = 2.57.0 =
