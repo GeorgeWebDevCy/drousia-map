@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.47.0
+Version: 2.48.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -920,6 +920,43 @@ function gn_mapbox_paphos_to_airport_shortcode() {
     return ob_get_clean();
 }
 add_shortcode('gn_mapbox_paphos_airport', 'gn_mapbox_paphos_to_airport_shortcode');
+
+// Drouseia to Paphos Airport
+function gn_mapbox_drousia_to_airport_shortcode() {
+    if (!get_option('gn_mapbox_token')) {
+        return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
+    }
+    ob_start();
+    ?>
+    <div id="gn-mapbox-drousia-airport" style="width:100%;height:600px;"></div>
+    <script>
+    jQuery(function(){
+        mapboxgl.accessToken = gnMapData.accessToken;
+        const mapDA = new mapboxgl.Map({
+            container: 'gn-mapbox-drousia-airport',
+            style: 'mapbox://styles/mapbox/satellite-streets-v11',
+            center: [32.3975751, 34.9627965],
+            zoom: 11
+        });
+
+        const directionsDA = new MapboxDirections({
+            accessToken: gnMapData.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/driving',
+            alternatives: false
+        });
+
+        mapDA.addControl(directionsDA, 'top-left');
+        mapDA.on('load', function() {
+            directionsDA.setOrigin([32.3975751, 34.9627965]);
+            directionsDA.setDestination([32.4858, 34.7174]);
+        });
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('gn_mapbox_drousia_airport', 'gn_mapbox_drousia_to_airport_shortcode');
 
 
 

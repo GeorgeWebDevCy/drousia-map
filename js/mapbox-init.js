@@ -122,6 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <option value="paphos">Drousia → Paphos</option>
             <option value="polis">Drousia → Polis</option>
             <option value="airport">Paphos → Airport</option>
+            <option value="drousia-airport">Drousia → Airport</option>
           </select>
           <select id="gn-mode-select" class="gn-nav-select">
             <option value="driving">Driving</option>
@@ -312,6 +313,8 @@ document.addEventListener("DOMContentLoaded", function () {
       showDrivingRoute([32.3975751, 34.9627965], [32.4147, 35.0360]);
     } else if (val === 'airport') {
       showDrivingRoute([32.4297, 34.7753], [32.4858, 34.7174]);
+    } else if (val === 'drousia-airport') {
+      showDrivingRoute([32.3975751, 34.9627965], [32.4858, 34.7174]);
     }
   }
 

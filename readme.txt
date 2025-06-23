@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.47.0
+Stable tag: 2.48.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ GN Mapbox Locations with ACF creates a **Map Location** post type for storing co
 * "Map Location" custom post type storing coordinates, descriptions and galleries.
 * `[gn_map]` shortcode embeds an interactive Mapbox map anywhere.
 * `[gn_mapbox_drouseia]` shortcode displays a map of Drouseia with a marker and red boundary line around the village.
-* `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]` show driving directions between key locations.
+* `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]`, `[gn_mapbox_paphos_airport]` and `[gn_mapbox_drousia_airport]` show driving directions between key locations.
 * Responsive popups show images, descriptions and a media upload form.
 * Gallery items open in a lightbox and scale to any screen.
 * Draggable navigation panel for driving, walking or cycling directions with voice guidance.
@@ -40,6 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.48.0 =
+* Added Drouseia → Airport route option and shortcode
 = 2.47.0 =
 * Map loads empty and routes can be selected
 = 2.46.1 =
@@ -56,7 +58,7 @@ Markers are logged in the order they appear in `data/locations.json`.
 = 2.42.0 =
 * Graceful message displayed when the Mapbox access token is missing
 = 2.41.0 =
-* Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]` and `[gn_mapbox_paphos_airport]`
+* Driving direction shortcodes `[gn_mapbox_drousia_paphos]`, `[gn_mapbox_drousia_polis]`, `[gn_mapbox_paphos_airport]` and `[gn_mapbox_drousia_airport]`
 = 2.40.0 =
 * Map zooms in two levels and centers on Drouseia in `[gn_mapbox_drouseia]`
 = 2.39.0 =
