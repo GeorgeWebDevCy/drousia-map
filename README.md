@@ -31,6 +31,7 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 
 ### 2.54.0
 - Terrain map style for `[gn_mapbox_drouseia]` and new `[gn_mapbox_drouseia_100]`
+- Added `[gn_mapbox_drouseia_100]` shortcode for a full-width map
 ### 2.53.0
 - Added console log when the route line is drawn
 - Map recenters when changing routes
@@ -92,7 +93,9 @@ working. Update this file to change the built-in locations.
 
 ## Changelog
 ### 2.54.0
+
 - Terrain map style for `[gn_mapbox_drouseia]` and new `[gn_mapbox_drouseia_100]`
+- Added `[gn_mapbox_drouseia_100]` shortcode for a full-width map
 ### 2.53.0
 - Added console log when the route line is drawn
 - Map recenters when changing routes

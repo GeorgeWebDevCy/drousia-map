@@ -810,6 +810,10 @@ function gn_mapbox_drouseia_shortcode() {
 }
 add_shortcode('gn_mapbox_drouseia', 'gn_mapbox_drouseia_shortcode');
 
+/**
+ * Same as gn_mapbox_drouseia_shortcode but the container spans the full viewport width.
+ * Usage: [gn_mapbox_drouseia_100]
+ */
 function gn_mapbox_drouseia_100_shortcode() {
     $token = get_option('gn_mapbox_token');
     if (!$token) {
@@ -818,13 +822,14 @@ function gn_mapbox_drouseia_100_shortcode() {
     ob_start();
     ?>
     <div id="gn-mapbox-drouseia-100" style="width: 100%; height: 400px;"></div>
+    <div id="gn-mapbox-drouseia-100" style="width:100vw;height:400px;"></div>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <script>
       mapboxgl.accessToken = '<?php echo esc_js($token); ?>';
         const map = new mapboxgl.Map({
           container: 'gn-mapbox-drouseia-100',
-          style: 'mapbox://styles/mapbox/outdoors-v12',
+          style: 'mapbox://styles/mapbox/navigation-day-v1',
           center: [32.3975751, 34.9627965],
           zoom: 14
         });
