@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let languageControl;
   let markers = [];
   let directionsControl;
+  let watchId;
+  let trail = [];
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
   const routeSettings = {
     default: { center: [32.3923713, 34.96211], zoom: 16 },
@@ -120,7 +122,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const navPanel = document.createElement("div");
     navPanel.id = "gn-nav-panel";
     navPanel.innerHTML = `
-      <div style="cursor: move; background: #333; color: #fff; padding: 6px;">☰ Navigation Panel</div>
+      <div style="cursor: move; background: #333; color: #fff; padding: 4px; font-size:13px;">
+        ☰ Navigation
+        <button id="gn-close-nav" style="float:right;background:none;border:none;color:#fff;font-size:16px;cursor:pointer">×</button>
+      </div>
       <div style="padding: 6px; background: white;">
           <select id="gn-route-select" class="gn-nav-select">
             <option value="">Select Route</option>
@@ -146,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
       position: fixed;
       top: 100px;
       left: 10px;
-      width: 160px;
+      width: 140px;
       z-index: 9998;
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
@@ -154,6 +159,17 @@ document.addEventListener("DOMContentLoaded", function () {
       font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
+
+    const openBtn = document.createElement('button');
+    openBtn.id = 'gn-open-nav';
+    openBtn.textContent = '☰';
+    openBtn.className = 'gn-nav-btn';
+    openBtn.style.cssText = 'position:fixed;top:100px;left:10px;z-index:9998;width:40px;display:none;padding:4px;';
+    document.body.appendChild(openBtn);
+    openBtn.onclick = () => {
+      navPanel.style.display = 'block';
+      openBtn.style.display = 'none';
+    };
     const routeSel = navPanel.querySelector("#gn-route-select");
     if (routeSel) {
       routeSel.onchange = () => selectRoute(routeSel.value);
@@ -199,6 +215,11 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     };
     header.ondragstart = () => false;
+
+    document.getElementById('gn-close-nav').onclick = () => {
+      navPanel.style.display = 'none';
+      openBtn.style.display = 'block';
+    };
 
     document.getElementById("gn-start-nav").onclick = startNavigation;
     addVoiceToggleButton();
@@ -256,6 +277,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const panel = document.getElementById('gn-distance-panel');
     if (panel) panel.textContent = '';
+    if (watchId) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    trail = [];
   }
 
   function showDefaultRoute() {
@@ -311,7 +337,8 @@ document.addEventListener("DOMContentLoaded", function () {
       accessToken: mapboxgl.accessToken,
       unit: 'metric',
       profile: 'mapbox/driving',
-      alternatives: false
+      alternatives: false,
+      controls: { instructions: false }
     });
     map.addControl(directionsControl, 'top-left');
     directionsControl.setOrigin(origin);
@@ -388,6 +415,17 @@ document.addEventListener("DOMContentLoaded", function () {
       console.warn("Elevation fetch failed", e);
       return 0;
     }
+  }
+
+  function haversineDistance(a, b) {
+    const toRad = d => (d * Math.PI) / 180;
+    const R = 6371000;
+    const dLat = toRad(b[1] - a[1]);
+    const dLon = toRad(b[0] - a[0]);
+    const lat1 = toRad(a[1]);
+    const lat2 = toRad(b[1]);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
   }
 
   async function fetchDirections(allCoords, mode = 'driving', includeSteps = false, lang = 'en') {
@@ -491,6 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       map.flyTo({ center: userLngLat, zoom: 15 });
+      updateTracker(userLngLat);
       log("Navigation route displayed.");
 
       let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
@@ -501,13 +540,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (panel) {
           const km = (remainingDistance / 1000).toFixed(2);
           const mins = Math.ceil(remainingDuration / 60);
-          panel.textContent = `${km} km - ${mins} min - ${Math.round(
+          panel.innerHTML = `Distance: ${km} km<br>Time: ${mins} min<br>Elevation: ${Math.round(
             elevationGain
           )} m`;
         }
       };
       updatePanel();
-      for (const step of steps) {
+
+      let stepIndex = 0;
+      const speakInstruction = step => {
         let instr = step.maneuver.instruction.replace(/^Drive/i,
           navigationMode === 'walking' ? 'Walk' : navigationMode === 'cycling' ? 'Cycle' : 'Drive');
         const msg = new SpeechSynthesisUtterance(instr);
@@ -516,12 +557,25 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.pitch = 1;
         msg.volume = 1.0;
         if (!voiceMuted) window.speechSynthesis.speak(msg);
-        remainingDistance -= step.distance;
-        remainingDuration -= step.duration;
-        updatePanel();
-        await new Promise(res => setTimeout(res, step.duration * 1000));
-        animateAlongRoute(routeCoords);
-      }
+      };
+      if (steps.length) speakInstruction(steps[0]);
+
+      watchId = navigator.geolocation.watchPosition(pos => {
+        const cur = [pos.coords.longitude, pos.coords.latitude];
+        updateTracker(cur);
+        if (stepIndex < steps.length) {
+          const target = steps[stepIndex].maneuver.location;
+          if (haversineDistance(cur, target) < 20) {
+            remainingDistance -= steps[stepIndex].distance;
+            remainingDuration -= steps[stepIndex].duration;
+            stepIndex++;
+            if (stepIndex < steps.length) speakInstruction(steps[stepIndex]);
+            updatePanel();
+          }
+        }
+      }, err => log('Geolocation watch error', err.message), { enableHighAccuracy: true });
+
+      // store watchId globally if needed to stop later
     }, err => {
       log("Geolocation error:", err.message);
     });
@@ -530,90 +584,40 @@ document.addEventListener("DOMContentLoaded", function () {
   setupDebugPanel();
   setupNavPanel();
   setupLightbox();
-
-  function animateAlongRoute(routeCoords) {
-    if (!routeCoords || routeCoords.length < 2) return;
-
+  function updateTracker(coord) {
     if (!map.getSource('route-tracker')) {
       map.addSource('route-tracker', {
         type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: routeCoords[0]
-          }
-        }
+        data: { type: 'Feature', geometry: { type: 'Point', coordinates: coord } }
       });
-
       map.loadImage('https://cdn-icons-png.flaticon.com/512/535/535239.png', (error, image) => {
         if (error) throw error;
         if (!map.hasImage('hiker-icon')) map.addImage('hiker-icon', image);
-
         map.addLayer({
           id: 'route-tracker',
           type: 'symbol',
           source: 'route-tracker',
-          layout: {
-            'icon-image': 'hiker-icon',
-            'icon-size': 0.1,
-            'icon-rotate': 0
-          }
+          layout: { 'icon-image': 'hiker-icon', 'icon-size': 0.1, 'icon-rotate': 0 }
         });
       });
+    } else {
+      map.getSource('route-tracker').setData({ type: 'Feature', geometry: { type: 'Point', coordinates: coord } });
     }
 
     if (!map.getSource('trail-line')) {
       map.addSource('trail-line', {
         type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: []
-          }
-        }
+        data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } }
       });
       map.addLayer({
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: {
-          'line-color': '#00f',
-          'line-width': 3,
-          'line-opacity': 0.5
-        }
+        paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-opacity': 0.7 }
       });
     }
-
-    let i = 0;
-    let trail = [];
-    let paused = false;
-
-    window.pauseTracker = () => { paused = true; log("Tracking paused"); };
-    window.resumeTracker = () => { paused = false; move(); log("Tracking resumed"); };
-    function move() {
-      if (i < routeCoords.length) {
-        const point = routeCoords[i];
-        map.getSource('route-tracker').setData({
-          type: 'Feature',
-          geometry: { type: 'Point', coordinates: point }
-        });
-        i++;
-        trail.push(point);
-        map.getSource('trail-line').setData({
-          type: 'Feature',
-          geometry: { type: 'LineString', coordinates: trail }
-        });
-        setTimeout(() => {
-          if (!paused) requestAnimationFrame(move);
-        }, 100);
-      } else {
-        log("Animated marker reached end of route");
-        log("Use pauseTracker() and resumeTracker() to control animation.");
-      }
-    }
-    move();
+    trail.push(coord);
+    map.getSource('trail-line').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: trail } });
   }
 
   map = new mapboxgl.Map({
