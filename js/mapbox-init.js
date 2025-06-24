@@ -135,13 +135,13 @@ document.addEventListener("DOMContentLoaded", function () {
             <option value="airport">Paphos → Airport</option>
           </select>
           <select id="gn-mode-select" class="gn-nav-select">
-            <option value="driving">Driving</option>
-            <option value="walking">Walking</option>
-            <option value="cycling">Cycling</option>
+            <option value="driving" title="Driving">🚗</option>
+            <option value="walking" title="Walking">🚶</option>
+            <option value="cycling" title="Cycling">🚲</option>
           </select>
           <select id="gn-language-select" class="gn-nav-select">
-            <option value="en-US">English</option>
-            <option value="el-GR">Ελληνικά</option>
+            <option value="en-US" title="English">🇬🇧</option>
+            <option value="el-GR" title="Ελληνικά">🇬🇷</option>
           </select>
           <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;"></div>
           <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶</button>
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
       position: fixed;
       top: 100px;
       left: 10px;
-      width: 120px;
+      width: 110px;
       z-index: 9998;
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);

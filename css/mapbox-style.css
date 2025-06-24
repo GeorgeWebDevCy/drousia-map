@@ -149,6 +149,10 @@
   font-size: 13px;
 }
 
+#gn-route-select {
+  width: 90px;
+}
+
 #gn-distance-panel {
   font-size: 12px;
   margin-bottom: 4px;
