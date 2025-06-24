@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
       position: fixed;
       top: 100px;
       left: 10px;
-      width: 140px;
+      width: 120px;
       z-index: 9998;
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
     openBtn.id = 'gn-open-nav';
     openBtn.textContent = '☰';
     openBtn.className = 'gn-nav-btn';
-    openBtn.style.cssText = 'position:fixed;top:100px;left:10px;z-index:9998;width:40px;display:none;padding:4px;';
+    openBtn.style.cssText = 'position:fixed;top:100px;left:10px;z-index:9998;width:30px;display:none;padding:4px;';
     document.body.appendChild(openBtn);
     openBtn.onclick = () => {
       navPanel.style.display = 'block';
