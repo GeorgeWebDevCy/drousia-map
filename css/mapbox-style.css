@@ -130,7 +130,7 @@
   display: block;
   margin-bottom: 4px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 4px 6px;
   background-color: #007cbf;
   color: #fff;
   border: none;
@@ -225,4 +225,15 @@
   color: #cc0000;
   border: 1px solid #cc0000;
   font-family: sans-serif;
+}
+
+#gn-open-nav {
+  position: fixed;
+  background-color: #007cbf;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  z-index: 9998;
+  width: 40px;
+  padding: 4px;
 }
