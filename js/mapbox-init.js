@@ -275,6 +275,15 @@ document.addEventListener("DOMContentLoaded", function () {
       map.removeControl(directionsControl);
       directionsControl = null;
     }
+    const style = map.getStyle();
+    if (style) {
+      Object.keys(style.sources)
+        .filter(id => id.startsWith('directions'))
+        .forEach(id => {
+          if (map.getLayer(id)) map.removeLayer(id);
+          if (map.getSource(id)) map.removeSource(id);
+        });
+    }
     const panel = document.getElementById('gn-distance-panel');
     if (panel) panel.textContent = '';
     if (watchId) {
