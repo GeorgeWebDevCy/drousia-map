@@ -353,22 +353,6 @@ document.addEventListener("DOMContentLoaded", function () {
     directionsControl.setOrigin(origin);
     directionsControl.setDestination(dest);
     log('Directions control added, waiting for route to render');
-
-    const res = await fetchDirections(coords);
-    if (res.coordinates.length) {
-      const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
-      map.addSource('route', { type: 'geojson', data: routeGeoJson });
-      map.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#ff0000', 'line-width': 4 }
-      });
-      log('Route line drawn with', res.coordinates.length, 'points');
-    } else {
-      log('No coordinates returned for route');
-    }
   }
 
   function applyRouteSettings(key) {
