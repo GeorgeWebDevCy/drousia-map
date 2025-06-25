@@ -449,7 +449,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!data.routes || !data.routes[0]) continue;
         const segCoords = data.routes[0].geometry.coordinates;
         if (routeCoords.length) {
-          routeCoords = routeCoords.concat(segCoords.slice(1));
+          routeCoords = routeCoords.concat(
+            segCoords.filter(
+              (v, i) =>
+                i > 0 &&
+                !(
+                  v[0] === routeCoords[routeCoords.length - 1][0] &&
+                  v[1] === routeCoords[routeCoords.length - 1][1]
+                )
+            )
+          );
         } else {
           routeCoords = segCoords;
         }
