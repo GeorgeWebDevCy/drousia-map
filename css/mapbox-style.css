@@ -115,12 +115,12 @@
 /* Navigation panel override for mobile */
 @media (max-width: 767px) {
   #gn-nav-panel {
-    width: 90vw !important;
+    width: 110px !important;
     left: 5vw !important;
     top: 10vh !important;
   }
   #gn-debug-panel {
-    width: 90vw !important;
+    width: 300px !important;
     right: 5vw !important;
     bottom: 10vh !important;
   }
