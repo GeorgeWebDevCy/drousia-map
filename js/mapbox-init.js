@@ -444,10 +444,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let distance = 0;
     let duration = 0;
 
+    const validCoords = allCoords.filter(c => Array.isArray(c) && c.length >= 2 &&
+      typeof c[0] === 'number' && typeof c[1] === 'number');
+    if (!validCoords.length) {
+      console.error('No valid coordinates supplied for directions');
+      return { coordinates: [], steps: [], distance: 0, duration: 0 };
+    }
+
     try {
-      for (let i = 0; i < allCoords.length; i += MAX - 1) {
-        let segment = allCoords.slice(i, i + MAX);
-        if (i !== 0) segment.unshift(allCoords[i - 1]);
+      for (let i = 0; i < validCoords.length; i += MAX - 1) {
+        let segment = validCoords.slice(i, i + MAX);
+        if (i !== 0) segment.unshift(validCoords[i - 1]);
         const pairs = segment.map(p => p.join(',')).join(';');
         let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
         if (includeSteps) {
