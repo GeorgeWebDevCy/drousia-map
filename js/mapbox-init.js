@@ -542,8 +542,11 @@ document.addEventListener("DOMContentLoaded", function () {
       log("Navigation route displayed.");
 
       let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
+      const totalDistance = distance;
+      const totalDuration = duration;
       let remainingDistance = distance;
       let remainingDuration = duration;
+      let prevCoord = userLngLat;
       const panel = document.getElementById("gn-distance-panel");
       const updatePanel = () => {
         if (panel) {
@@ -572,16 +575,20 @@ document.addEventListener("DOMContentLoaded", function () {
       watchId = navigator.geolocation.watchPosition(pos => {
         const cur = [pos.coords.longitude, pos.coords.latitude];
         updateTracker(cur);
+
+        const delta = prevCoord ? haversineDistance(prevCoord, cur) : 0;
+        remainingDistance = Math.max(0, remainingDistance - delta);
+        remainingDuration = Math.max(0, remainingDuration - (delta / totalDistance) * totalDuration);
+        prevCoord = cur;
+
         if (stepIndex < steps.length) {
           const target = steps[stepIndex].maneuver.location;
           if (haversineDistance(cur, target) < 20) {
-            remainingDistance -= steps[stepIndex].distance;
-            remainingDuration -= steps[stepIndex].duration;
             stepIndex++;
             if (stepIndex < steps.length) speakInstruction(steps[stepIndex]);
-            updatePanel();
           }
         }
+        updatePanel();
       }, err => log('Geolocation watch error', err.message), { enableHighAccuracy: true });
 
       // store watchId globally if needed to stop later
