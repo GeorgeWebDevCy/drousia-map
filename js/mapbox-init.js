@@ -316,9 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ${galleryHTML}
           ${uploadHTML}
         </div>`;
-      if (loc.waypoint || idx === 0 || idx === gnMapData.locations.length - 1) {
-        coords.push([loc.lng, loc.lat]);
-      }
+      coords.push([loc.lng, loc.lat]);
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
         const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
