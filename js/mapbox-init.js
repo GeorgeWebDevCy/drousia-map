@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (coords.length > 1) {
-      fetchDirections(coords).then(res => {
+      fetchDirections(coords, navigationMode).then(res => {
         if (!res.coordinates.length) {
           log('No coordinates returned for route');
           return;
