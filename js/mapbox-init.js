@@ -677,5 +677,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   map.on("load", () => {
     log("Map loaded");
+    const routeSel = document.getElementById("gn-route-select");
+    if (routeSel) routeSel.value = "default";
+    selectRoute("default");
   });
   });

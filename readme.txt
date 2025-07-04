@@ -42,6 +42,7 @@ Markers are logged in the order they appear in `data/locations.json`.
 == Changelog ==
 = 2.72.0 =
 * Nature path route uses only start, end and waypoint coordinates
+* Nature Path selected by default
 = 2.71.0 =
 * Distance, time and elevation stats now adjust when moving away from the route
 = 2.70.0 =
