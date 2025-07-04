@@ -437,6 +437,14 @@ document.addEventListener("DOMContentLoaded", function () {
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
+  function computeCumulativeDistances(coords) {
+    const dists = [0];
+    for (let i = 1; i < coords.length; i++) {
+      dists[i] = dists[i - 1] + haversineDistance(coords[i - 1], coords[i]);
+    }
+    return dists;
+  }
+
   async function fetchDirections(allCoords, mode = 'driving', includeSteps = false, lang = 'en') {
     const MAX = 25;
     let routeCoords = [];
@@ -522,6 +530,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const elevationGain = await getElevationGain(routeCoords);
+      const cumulativeDistances = computeCumulativeDistances(routeCoords);
 
       const routeGeoJSON = {
         type: "Feature",
@@ -553,7 +562,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const totalDuration = duration;
       let remainingDistance = distance;
       let remainingDuration = duration;
-      let prevCoord = userLngLat;
       const panel = document.getElementById("gn-distance-panel");
       const updatePanel = () => {
         if (panel) {
@@ -579,14 +587,22 @@ document.addEventListener("DOMContentLoaded", function () {
       };
       if (steps.length) speakInstruction(steps[0]);
 
+      const calcRemaining = (cur) => {
+        let nearestIdx = 0;
+        let minDist = Infinity;
+        for (let i = 0; i < routeCoords.length; i++) {
+          const d = haversineDistance(cur, routeCoords[i]);
+          if (d < minDist) { minDist = d; nearestIdx = i; }
+        }
+        return minDist + (totalDistance - cumulativeDistances[nearestIdx]);
+      };
+
       watchId = navigator.geolocation.watchPosition(pos => {
         const cur = [pos.coords.longitude, pos.coords.latitude];
         updateTracker(cur);
 
-        const delta = prevCoord ? haversineDistance(prevCoord, cur) : 0;
-        remainingDistance = Math.max(0, remainingDistance - delta);
-        remainingDuration = Math.max(0, remainingDuration - (delta / totalDistance) * totalDuration);
-        prevCoord = cur;
+        remainingDistance = calcRemaining(cur);
+        remainingDuration = (remainingDistance / totalDistance) * totalDuration;
 
         if (stepIndex < steps.length) {
           const target = steps[stepIndex].maneuver.location;
