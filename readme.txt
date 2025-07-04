@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.71.0
+Stable tag: 2.72.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.72.0 =
+* Nature path route uses only start, end and waypoint coordinates
 = 2.71.0 =
 * Distance, time and elevation stats now adjust when moving away from the route
 = 2.70.0 =
