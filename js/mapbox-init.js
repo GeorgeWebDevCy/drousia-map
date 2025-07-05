@@ -326,16 +326,22 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (coords.length > 1) {
-      fetchDirections(coords, navigationMode).then(res => {
-        if (!res.coordinates.length) {
-          log('No coordinates returned for route');
-          return;
+      const routeGeoJson = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coords
         }
-        const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
-        map.addSource('route', { type: 'geojson', data: routeGeoJson });
-        map.addLayer({ id: 'route', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ff0000', 'line-width': 4 } });
-        log('Route line drawn with', res.coordinates.length, 'points');
+      };
+      map.addSource('route', { type: 'geojson', data: routeGeoJson });
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#ff0000', 'line-width': 4 }
       });
+      log('Route line drawn using direct coordinates:', coords.length);
     } else {
       log('Not enough coordinates for route line');
     }
