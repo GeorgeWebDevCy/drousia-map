@@ -299,6 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
     clearMap();
     log('Showing default route');
     coords = [];
+    const lastIndex = gnMapData.locations.length - 1;
     gnMapData.locations.forEach((loc, idx) => {
       const galleryHTML = loc.gallery && loc.gallery.length
         ? '<div class="gallery">' +
@@ -316,7 +317,9 @@ document.addEventListener("DOMContentLoaded", function () {
           ${galleryHTML}
           ${uploadHTML}
         </div>`;
-      coords.push([loc.lng, loc.lat]);
+      if (idx === 0 || idx === lastIndex || loc.waypoint) {
+        coords.push([loc.lng, loc.lat]);
+      }
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
         const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
