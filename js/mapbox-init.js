@@ -12,8 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
-  // Default mode now set to driving
-  let navigationMode = "driving";
+  // 'walking' keeps the route on the footpath
+  // try this default to see if it fixes multipath issues
+  let navigationMode = "walking";
   let map;
   let languageControl;
   let markers = [];
