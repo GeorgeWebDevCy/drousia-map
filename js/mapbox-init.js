@@ -402,10 +402,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   window.setMode = function (mode) {
-    navigationMode = mode;
     const sel = document.getElementById("gn-mode-select");
     if (sel) sel.value = mode;
-    log("Navigation mode set to:", mode);
+    navigationMode = mode === 'driving' ? 'walking' : mode;
+    log(
+      "Navigation mode icon:",
+      mode,
+      "using actual mode:",
+      navigationMode
+    );
   };
 
   async function getElevationGain(points) {

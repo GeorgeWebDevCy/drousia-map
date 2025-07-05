@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.80.0
+Stable tag: 2.81.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,8 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
-= 2.80.0 =
-* Default navigation mode reverted to walking
+= 2.81.0 =
+* Driving icon requests walking directions to avoid multi-route behavior
 = 2.78.0 =
 * Fix nature path route using only start, end and waypoint coordinates
 = 2.77.0 =
