@@ -29,8 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.79.0
-- Default navigation mode is now driving
+### 2.80.0
+- Default navigation mode reverted to walking
 ### 2.78.0
 - Fix nature path route using only start, end and waypoint coordinates
 ### 2.77.0
@@ -144,8 +144,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.79.0
-- Default navigation mode is now driving
+### 2.80.0
+- Default navigation mode reverted to walking
 ### 2.78.0
 - Fix nature path route using only start, end and waypoint coordinates
 ### 2.77.0
