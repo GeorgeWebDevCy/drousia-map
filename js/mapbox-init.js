@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
-  // driving mode provides the most direct route by default
-  let navigationMode = "driving";
+  // default icon shows driving but we actually request walking directions
+  let navigationMode = "walking";
   let map;
   let languageControl;
   let markers = [];
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const modeSel = navPanel.querySelector("#gn-mode-select");
     if (modeSel) {
-      modeSel.value = navigationMode;
+      modeSel.value = 'driving';
       modeSel.onchange = () => setMode(modeSel.value);
     }
 
