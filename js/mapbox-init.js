@@ -12,9 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
-  // 'walking' keeps the route on the footpath
-  // try this default to see if it fixes multipath issues
-  let navigationMode = "walking";
+  // driving mode provides the most direct route by default
+  let navigationMode = "driving";
   let map;
   let languageControl;
   let markers = [];
@@ -404,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.setMode = function (mode) {
     const sel = document.getElementById("gn-mode-select");
     if (sel) sel.value = mode;
-    navigationMode = mode === 'driving' ? 'walking' : mode;
+    navigationMode = mode;
     log(
       "Navigation mode icon:",
       mode,
