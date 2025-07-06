@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.91.0
+Stable tag: 2.92.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,7 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
-= 2.91.0 =
+= 2.92.0 =
 * Default route expects 15 coordinates and loop closes properly
 = 2.90.0 =
 * Default dataset closes the loop by repeating the starting location
