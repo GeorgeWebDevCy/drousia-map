@@ -29,26 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.114.0
-- Add waypoint WP1.3 so the route turns right from the start
-
-### 2.113.0
-- Removed waypoint markers WP2.1 and WP2.2
-
-### 2.112.0
-- Set WP2.1 and WP2.2 to keep going straight after Θέα προς Κόλπους Λάρας (Κιόσκι Πιττοκόπου) with no turning
-
-### 2.111.0
-- Move WP2.2 before Βρύση Καραμάνα to stay on straight road
-
-### 2.110.0
-- Adjust WP2.1 so Βρύση Καραμάνα uses the straight road
-### 2.109.0
-- Repositioned WP2.1 closer to the road
-### 2.108.0
-- Add waypoint near Βρύση Καραμάνα to keep route straight
-### 2.107.0
-- Add waypoint between Κιόσκι Πιττοκόπου and Οικισμός Πιττοκόπος
+### 2.115.0
+- Revert dataset to version 2.106.0
 ### 2.106.0
 - Add waypoints to ensure right turn from start
 ### 2.104.0
@@ -211,24 +193,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.114.0
-- Add waypoint WP1.3 so the route turns right from the start
-
-### 2.113.0
-- Removed waypoint markers WP2.1 and WP2.2
-
-### 2.112.0
-- Set WP2.1 and WP2.2 to keep going straight after Θέα προς Κόλπους Λάρας (Κιόσκι Πιττοκόπου) with no turning
-### 2.111.0
-- Move WP2.2 before Βρύση Καραμάνα for a straight route
-### 2.110.0
-- Adjust WP2.1 so Βρύση Καραμάνα uses the straight road
-### 2.109.0
-- Repositioned WP2.1 closer to the road
-### 2.108.0
-- Add waypoint near Βρύση Καραμάνα to keep route straight
-### 2.107.0
-- Add waypoint between Κιόσκι Πιττοκόπου and Οικισμός Πιττοκόπος
+### 2.115.0
+- Revert dataset to version 2.106.0
 ### 2.106.0
 - Add waypoints to ensure right turn from start
 ### 2.104.0
