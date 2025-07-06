@@ -29,8 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.103.0
-- Repositioned Θεατράκι closer to the main road at 34.96322, 32.39706
+### 2.104.0
+- Fixed coordinates for multiple Beloa locations in Drousia
 
 ### 2.102.0
 - Repositioned Οικισμός Πιττοκόπος near the main road at 34.97415, 32.38285
@@ -189,8 +189,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.103.0
-- Repositioned Θεατράκι closer to the main road at 34.96322, 32.39706
+### 2.104.0
+- Fixed coordinates for multiple Beloa locations in Drousia
 ### 2.102.0
 - Repositioned Οικισμός Πιττοκόπος near the main road at 34.97415, 32.38285
 ### 2.101.0
