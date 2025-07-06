@@ -29,6 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.122.0
+- Pass waypoint indexes to Directions API for accurate routing
 ### 2.121.1
 - Add `gnDebugPath` console function for inspecting route creation
 ### 2.121.0
