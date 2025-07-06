@@ -29,7 +29,7 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
-### 2.88.0
+### 2.89.0
 - Nature path uses 14 non-waypoint locations
 
 
@@ -158,7 +158,7 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
-### 2.88.0
+### 2.89.0
 - Nature path uses 14 non-waypoint locations
 
 ### 2.86.0
