@@ -537,6 +537,28 @@ document.addEventListener("DOMContentLoaded", function () {
     return { coordinates: routeCoords, steps, distance, duration };
   }
 
+  const gnDebugPath = async (
+    points = coords,
+    mode = navigationMode,
+    lang = getSelectedLanguage()
+  ) => {
+    console.log('[GN DEBUG]', 'Debugging path');
+    console.log('[GN DEBUG]', 'Waypoints:', points);
+    console.log('[GN DEBUG]', 'Mode:', mode, 'Lang:', lang);
+    const result = await fetchDirections(points, mode, true, lang);
+    console.log('[GN DEBUG]', 'Total distance', result.distance, 'm');
+    console.log('[GN DEBUG]', 'Total duration', result.duration, 'sec');
+    result.steps.forEach((step, i) => {
+      const m = step.maneuver;
+      console.log(
+        '[GN DEBUG]',
+        `Step ${i + 1}: ${m.instruction} (type: ${m.type}, modifier: ${m.modifier || 'none'})`
+      );
+    });
+    return result;
+  };
+  window.gnDebugPath = gnDebugPath;
+
   async function startNavigation() {
     if (!navigator.geolocation) {
       log("Geolocation not supported.");
