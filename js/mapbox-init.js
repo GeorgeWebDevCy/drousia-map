@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let map;
   let languageControl;
   let markers = [];
+  let popups = [];
   let directionsControl;
   let watchId;
   let trail = [];
@@ -262,6 +263,12 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.querySelector('img').src = e.target.src;
         overlay.classList.add('visible');
       }
+      if (e.target.classList.contains('gn-desc-label')) {
+        const content = e.target.nextElementSibling;
+        if (content) {
+          content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        }
+      }
   });
   }
 
@@ -269,6 +276,8 @@ document.addEventListener("DOMContentLoaded", function () {
     log('Clearing map');
     markers.forEach(m => m.remove());
     markers = [];
+    popups.forEach(p => p.remove());
+    popups = [];
     const sources = ['route', 'route-tracker', 'trail-line', 'nav-route'];
     const layers = ['route', 'route-tracker', 'trail-line', 'nav-route'];
     layers.forEach(l => { if (map.getLayer(l)) map.removeLayer(l); });
@@ -303,6 +312,10 @@ document.addEventListener("DOMContentLoaded", function () {
       log('Expected 15 coordinates but got', coords.length);
     }
     gnMapData.locations.forEach(loc => {
+      const firstImages = (loc.gallery || []).slice(0, 2)
+        .map(item => item.type === 'video'
+          ? `<video src="${item.url}" controls></video>`
+          : `<img src="${item.url}" alt="${loc.title}">`).join('');
       const galleryHTML = loc.gallery && loc.gallery.length
         ? '<div class="gallery">' +
           loc.gallery.map(item => item.type === 'video'
@@ -313,16 +326,31 @@ document.addEventListener("DOMContentLoaded", function () {
       const uploadHTML = loc.upload_form ? `<div class="gn-upload-form">${loc.upload_form}</div>` : '';
       const popupHTML = `
         <div class="popup-content">
-          ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ""}
           <h3>${loc.title}</h3>
-          <div>${loc.content}</div>
+          ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ''}
+          ${firstImages}
+          <div class="gn-desc-label">Description &raquo;</div>
+          <div class="gn-desc-content">${loc.content}</div>
           ${galleryHTML}
           ${uploadHTML}
         </div>`;
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-        const marker = new mapboxgl.Marker().setLngLat([loc.lng, loc.lat]).setPopup(popup).addTo(map);
+        const el = document.createElement('div');
+        el.className = 'gn-marker';
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([loc.lng, loc.lat])
+          .addTo(map);
+        el.addEventListener('mouseenter', () => {
+          el.classList.add('hover');
+          popup.setLngLat([loc.lng, loc.lat]).addTo(map);
+        });
+        el.addEventListener('mouseleave', () => {
+          el.classList.remove('hover');
+          popup.remove();
+        });
         markers.push(marker);
+        popups.push(popup);
       }
     });
     if (coords.length > 1) {
