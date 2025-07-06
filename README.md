@@ -29,6 +29,9 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.124.0
+- Hide all waypoints
+
 ### 2.123.0
 - Reintroduce waypoint WP14.1 for improved routing
 ### 2.122.0
