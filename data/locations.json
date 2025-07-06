@@ -110,18 +110,16 @@
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.977300,
-    "lng": 32.375900,
-    "waypoint": true
+    "lat": 34.977087,
+    "lng": 32.375209
   },
   {
     "title": "WP2.2",
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.983900,
-    "lng": 32.377000,
-    "waypoint": true
+    "lat": 34.984638,
+    "lng": 32.377496
   },
   {
     "title": "Θέα προς Κόλπους Λάρας (Κιόσκι Πιττοκόπου)",
@@ -144,9 +142,8 @@
     "content": "",
     "image": null,
     "gallery": [],
-    "lat": 34.960700,
-    "lng": 32.398000,
-    "waypoint": true
+    "lat": 34.960465,
+    "lng": 32.398292
   },
   {
     "title": "Ιερό Εξωκλήσι Αποστόλου Λουκά",
