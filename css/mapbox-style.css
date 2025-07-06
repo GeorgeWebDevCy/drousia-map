@@ -243,17 +243,7 @@
 }
 
 /* === Custom Markers === */
-.gn-marker {
-  width: 24px;
-  height: 24px;
-  background-color: #007cbf;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.gn-marker.hover {
-  background-color: #005f91;
-}
+/* Default Mapbox marker icons are used. */
 
 /* === Description Toggle === */
 .gn-desc-label {

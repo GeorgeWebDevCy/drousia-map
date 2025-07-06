@@ -336,21 +336,17 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>`;
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-        const el = document.createElement('div');
-        el.className = 'gn-marker';
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        const marker = new mapboxgl.Marker()
           .setLngLat([loc.lng, loc.lat])
           .addTo(map);
+        const el = marker.getElement();
         el.addEventListener('mouseenter', () => {
-          el.classList.add('hover');
+          popups.forEach(p => p.remove());
+          popups = [];
           popup.setLngLat([loc.lng, loc.lat]).addTo(map);
-        });
-        el.addEventListener('mouseleave', () => {
-          el.classList.remove('hover');
-          popup.remove();
+          popups.push(popup);
         });
         markers.push(marker);
-        popups.push(popup);
       }
     });
     if (coords.length > 1) {
