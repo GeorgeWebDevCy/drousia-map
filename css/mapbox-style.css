@@ -241,3 +241,29 @@
   width: 30px;
   padding: 4px;
 }
+
+/* === Custom Markers === */
+.gn-marker {
+  width: 24px;
+  height: 24px;
+  background-color: #007cbf;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.gn-marker.hover {
+  background-color: #005f91;
+}
+
+/* === Description Toggle === */
+.gn-desc-label {
+  margin-top: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #007cbf;
+}
+
+.gn-desc-content {
+  display: none;
+  margin-top: 5px;
+}
