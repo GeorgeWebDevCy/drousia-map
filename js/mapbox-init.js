@@ -28,40 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
     airport: { center: [32.4297, 34.7753], zoom: 12 },
   };
 
-  // Manual coordinates for the Drousia Cultural Trail
-  const culturalTrail = [
-    [32.39830556, 34.96038889],
-    [32.39827778, 34.96169444],
-    [32.39755556, 34.96266667],
-    [32.39405556, 34.96730556],
-    [32.39213889, 34.96883333],
-    [32.38966667, 34.97344444],
-    [32.38116667, 34.98583333],
-    [32.37966667, 34.98558333],
-    [32.3775, 34.98469444],
-    [32.37602778, 34.98405556],
-    [32.37438889, 34.98258333],
-    [32.37430556, 34.97938889],
-    [32.37555556, 34.97911111],
-    [32.37633333, 34.978],
-    [32.37627778, 34.97680556],
-    [32.37522222, 34.97722222],
-    [32.37477778, 34.97597222],
-    [32.37391667, 34.97447222],
-    [32.37608333, 34.96863889],
-    [32.38241667, 34.96738889],
-    [32.38447222, 34.96683333],
-    [32.3857802, 34.9664249],
-    [32.38911111, 34.96463889],
-    [32.39111111, 34.96283333],
-    [32.39247222, 34.96266667],
-    [32.39466667, 34.96194444],
-    [32.39577778, 34.96194444],
-    [32.39675, 34.96233333],
-    [32.397, 34.96163889],
-    [32.39766667, 34.96088889],
-    [32.39822222, 34.96072222],
-  ];
 
   function mapLangPart(code) {
     return code.split("-")[0];
@@ -332,7 +298,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function showDefaultRoute() {
     clearMap();
     log('Showing default route');
-    coords = culturalTrail.slice();
+    coords = gnMapData.locations
+      .filter(loc => !loc.waypoint)
+      .map(loc => [loc.lng, loc.lat]);
     gnMapData.locations.forEach(loc => {
       const galleryHTML = loc.gallery && loc.gallery.length
         ? '<div class="gallery">' +
