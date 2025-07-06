@@ -295,12 +295,10 @@ document.addEventListener("DOMContentLoaded", function () {
     trail = [];
   }
 
-  function showDefaultRoute() {
+  async function showDefaultRoute() {
     clearMap();
     log('Showing default route');
-    coords = gnMapData.locations
-      .filter(loc => !loc.waypoint)
-      .map(loc => [loc.lng, loc.lat]);
+    coords = gnMapData.locations.map(loc => [loc.lng, loc.lat]);
     if (coords.length !== 15) {
       log('Expected 15 coordinates but got', coords.length);
     }
@@ -328,22 +326,24 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (coords.length > 1) {
-      const routeGeoJson = {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: coords
-        }
-      };
-      map.addSource('route', { type: 'geojson', data: routeGeoJson });
-      map.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#ff0000', 'line-width': 4 }
-      });
-      log('Route line drawn using direct coordinates:', coords.length);
+      const res = await fetchDirections(coords, 'walking');
+      if (res.coordinates.length) {
+        const routeGeoJson = {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: res.coordinates }
+        };
+        map.addSource('route', { type: 'geojson', data: routeGeoJson });
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: 'route',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#ff0000', 'line-width': 4 }
+        });
+        log('Route line drawn with', res.coordinates.length, 'points');
+      } else {
+        log('No coordinates returned for default route');
+      }
     } else {
       log('Not enough coordinates for route line');
     }
