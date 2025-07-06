@@ -301,8 +301,8 @@ document.addEventListener("DOMContentLoaded", function () {
     coords = gnMapData.locations
       .filter(loc => !loc.waypoint)
       .map(loc => [loc.lng, loc.lat]);
-    if (coords.length !== 14) {
-      log('Expected 14 coordinates but got', coords.length);
+    if (coords.length !== 15) {
+      log('Expected 15 coordinates but got', coords.length);
     }
     gnMapData.locations.forEach(loc => {
       const galleryHTML = loc.gallery && loc.gallery.length
