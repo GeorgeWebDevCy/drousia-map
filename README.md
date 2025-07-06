@@ -29,6 +29,8 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
 
+### 2.105.0
+- Bump plugin version
 ### 2.104.0
 - Fixed coordinates for multiple Beloa locations in Drousia
 
@@ -189,6 +191,8 @@ at runtime, those locations are also created as posts so all features keep
 working. Update this file to change the built-in locations.
 
 ## Changelog
+### 2.105.0
+- Bump plugin version
 ### 2.104.0
 - Fixed coordinates for multiple Beloa locations in Drousia
 ### 2.102.0
