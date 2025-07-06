@@ -350,7 +350,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     if (coords.length > 1) {
-      const res = await fetchDirections(coords, 'walking');
+      const stopIndexes = gnMapData.locations.reduce((arr, loc, i) => {
+        if (!loc.waypoint) arr.push(i);
+        return arr;
+      }, []);
+      const res = await fetchDirections(
+        coords,
+        'walking',
+        false,
+        getSelectedLanguage(),
+        stopIndexes
+      );
       if (res.coordinates.length) {
         const routeGeoJson = {
           type: 'Feature',
@@ -390,7 +400,13 @@ document.addEventListener("DOMContentLoaded", function () {
     directionsControl.setDestination(dest);
     log('Directions control added, waiting for route to render');
 
-    const res = await fetchDirections(coords);
+    const res = await fetchDirections(
+      coords,
+      'driving',
+      false,
+      getSelectedLanguage(),
+      [0, 1]
+    );
     if (res.coordinates.length) {
       const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
       map.addSource('route', { type: 'geojson', data: routeGeoJson });
@@ -486,18 +502,28 @@ document.addEventListener("DOMContentLoaded", function () {
     return dists;
   }
 
-  async function fetchDirections(allCoords, mode = 'driving', includeSteps = false, lang = 'en') {
+  async function fetchDirections(
+    allCoords,
+    mode = 'driving',
+    includeSteps = false,
+    lang = 'en',
+    stopIndexes = null
+  ) {
     const MAX = 25;
     let routeCoords = [];
     let steps = [];
     let distance = 0;
     let duration = 0;
 
-    const validCoords = allCoords.filter(c => Array.isArray(c) && c.length >= 2 &&
-      typeof c[0] === 'number' && typeof c[1] === 'number');
+    const validCoords = allCoords.filter(
+      c => Array.isArray(c) && c.length >= 2 && typeof c[0] === 'number' && typeof c[1] === 'number'
+    );
     if (!validCoords.length) {
       console.error('No valid coordinates supplied for directions');
       return { coordinates: [], steps: [], distance: 0, duration: 0 };
+    }
+    if (!stopIndexes) {
+      stopIndexes = validCoords.map((_, i) => i);
     }
 
     try {
@@ -508,6 +534,9 @@ document.addEventListener("DOMContentLoaded", function () {
         let url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${pairs}?geometries=geojson&overview=full&alternatives=false`;
         if (includeSteps) {
           url += `&steps=true&annotations=duration,distance&language=${lang}`;
+        }
+        if (stopIndexes && validCoords.length <= MAX) {
+          url += `&waypoints=${stopIndexes.join(';')}`;
         }
         url += `&access_token=${mapboxgl.accessToken}`;
         log('Fetching directions:', url);
@@ -581,12 +610,22 @@ document.addEventListener("DOMContentLoaded", function () {
       const waypoints = coords.slice(0, -1);
       const destination = coords[coords.length - 1];
       const ordered = [userLngLat, ...waypoints, destination];
+      const stopIndexes = [0];
+      gnMapData.locations.forEach((loc, i) => {
+        if (!loc.waypoint) stopIndexes.push(i + 1);
+      });
       const {
         coordinates: routeCoords,
         steps,
         distance,
         duration,
-      } = await fetchDirections(ordered, navigationMode, true, lang);
+      } = await fetchDirections(
+        ordered,
+        navigationMode,
+        true,
+        lang,
+        stopIndexes
+      );
       if (!routeCoords.length) {
         log("No route found.");
         return;
