@@ -507,7 +507,8 @@ document.addEventListener("DOMContentLoaded", function () {
     mode = 'driving',
     includeSteps = false,
     lang = 'en',
-    stopIndexes = null
+    stopIndexes = null,
+    bearings = null
   ) {
     const MAX = 25;
     let routeCoords = [];
@@ -537,6 +538,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (stopIndexes && validCoords.length <= MAX) {
           url += `&waypoints=${stopIndexes.join(';')}`;
+        }
+        if (bearings && Array.isArray(bearings) && bearings.length === validCoords.length) {
+          let segBearings = bearings.slice(i, i + MAX);
+          if (i !== 0) segBearings.unshift(bearings[i - 1]);
+          const bStr = segBearings
+            .map(b => (Array.isArray(b) ? b.join(',') : ''))
+            .join(';');
+          url += `&bearings=${bStr}`;
         }
         url += `&access_token=${mapboxgl.accessToken}`;
         log('Fetching directions:', url);
