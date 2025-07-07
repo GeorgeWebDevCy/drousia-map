@@ -125,41 +125,43 @@ document.addEventListener("DOMContentLoaded", function () {
     const navPanel = document.createElement("div");
     navPanel.id = "gn-nav-panel";
     navPanel.innerHTML = `
-      <div style="cursor: move; background: #002d44; color: #fff; padding: 4px; font-size:13px; border-top-left-radius:6px;border-top-right-radius:6px;">
+      <div class="gn-nav-header">
         ☰ Navigation
-        <button id="gn-close-nav" style="float:right;background:none;border:none;color:#fff;font-size:16px;cursor:pointer">×</button>
+        <button id="gn-close-nav">×</button>
       </div>
-      <div id="gn-nav-controls" style="padding: 6px; background: white; display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-bottom-left-radius:6px;border-bottom-right-radius:6px;">
-          <select id="gn-route-select" class="gn-nav-select">
-            <option value="">Select Route</option>
-            <option value="default">Nature Path</option>
-            <option value="paphos">Drousia → Paphos</option>
-            <option value="polis">Drousia → Polis</option>
-            <option value="airport">Paphos → Airport</option>
-          </select>
-          <select id="gn-mode-select" class="gn-nav-select">
-            <option value="driving" title="Driving">🚗</option>
-            <option value="walking" title="Walking">🚶</option>
-            <option value="cycling" title="Cycling">🚲</option>
-          </select>
-          <select id="gn-language-select" class="gn-nav-select">
-            <option value="en-US" title="English">🇬🇧</option>
-            <option value="el-GR" title="Ελληνικά">🇬🇷</option>
-          </select>
-          <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;grid-column:span 3;"></div>
-          <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶</button>
+      <div class="gn-nav-content">
+        <select id="gn-route-select" class="gn-nav-select">
+          <option value="">Select Route</option>
+          <option value="default">Nature Path</option>
+          <option value="paphos">Drousia → Paphos</option>
+          <option value="polis">Drousia → Polis</option>
+          <option value="airport">Paphos → Airport</option>
+        </select>
+        <select id="gn-mode-select" class="gn-nav-select">
+          <option value="driving" title="Driving">🚗 Driving</option>
+          <option value="walking" title="Walking">🚶 Walking</option>
+          <option value="cycling" title="Cycling">🚲 Cycling</option>
+        </select>
+        <select id="gn-language-select" class="gn-nav-select">
+          <option value="en-US" title="English">English</option>
+          <option value="el-GR" title="Ελληνικά">Ελληνικά</option>
+        </select>
+        <button class="gn-nav-btn" id="gn-start-nav">▶ Start Navigation</button>
+        <button class="gn-nav-btn" id="gn-voice-toggle">Mute Directions</button>
       </div>
+      <div id="gn-distance-panel" style="font-size:12px;margin-top:4px;"></div>
     `;
     navPanel.style.cssText = `
       position: fixed;
       top: 100px;
       left: 10px;
-      width: 180px;
+      width: 50%;
+      max-width: 320px;
       z-index: 9998;
       border: 1px solid #ccc;
+      border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       background: #fff;
-      border-radius: 6px;
       font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
@@ -225,26 +227,27 @@ document.addEventListener("DOMContentLoaded", function () {
       openBtn.style.display = 'block';
     };
 
-    document.getElementById("gn-start-nav").onclick = startNavigation;
+    const startBtn = document.getElementById("gn-start-nav");
+    startBtn.onclick = () => {
+      if (watchId) stopNavigation();
+      else startNavigation();
+    };
     addVoiceToggleButton();
   }
 
   function addVoiceToggleButton() {
-    const btn = document.createElement("button");
-    btn.id = "gn-voice-toggle";
-    btn.title = "Toggle Voice";
-    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔇" : "🔊";
-    btn.className = "gn-nav-btn";
-    btn.style.marginTop = "0";
-
-    btn.onclick = () => {
-      const isMuted = localStorage.getItem("gn_voice_muted") === "true";
-      localStorage.setItem("gn_voice_muted", !isMuted);
-      btn.textContent = !isMuted ? "🔇" : "🔊";
+    const btn = document.getElementById('gn-voice-toggle');
+    if (!btn) return;
+    const update = () => {
+      const muted = localStorage.getItem('gn_voice_muted') === 'true';
+      btn.textContent = muted ? '🔊 Unmute Directions' : '🔇 Mute Directions';
     };
-
-    const panel = document.getElementById("gn-nav-controls");
-    if (panel) panel.appendChild(btn);
+    btn.addEventListener('click', () => {
+      const muted = localStorage.getItem('gn_voice_muted') === 'true';
+      localStorage.setItem('gn_voice_muted', !muted);
+      update();
+    });
+    update();
   }
 
   function setupLightbox() {
@@ -305,6 +308,12 @@ document.addEventListener("DOMContentLoaded", function () {
     trail = [];
   }
 
+  function stopNavigation() {
+    clearMap();
+    const btn = document.getElementById('gn-start-nav');
+    if (btn) btn.textContent = '▶ Start Navigation';
+  }
+
   async function showDefaultRoute() {
     clearMap();
     log('Showing default route');
@@ -341,19 +350,19 @@ document.addEventListener("DOMContentLoaded", function () {
           .setLngLat([loc.lng, loc.lat])
           .addTo(map);
         const el = marker.getElement();
-        el.addEventListener('click', () => {
-          markers.forEach(m => {
-            const e = m.getElement();
-            if (e) e.style.backgroundColor = '#1198B3';
-          });
-          el.style.backgroundColor = '#002D44';
-        });
-        el.addEventListener('mouseenter', () => {
+        el.classList.add('gn-location-marker');
+        const showPopup = () => {
           popups.forEach(p => p.remove());
           popups = [];
           popup.setLngLat([loc.lng, loc.lat]).addTo(map);
           popups.push(popup);
-        });
+          document
+            .querySelectorAll('.gn-location-marker.selected')
+            .forEach(m => m.classList.remove('selected'));
+          el.classList.add('selected');
+        };
+        el.addEventListener('mouseenter', showPopup);
+        el.addEventListener('click', showPopup);
         markers.push(marker);
       }
     });
@@ -729,8 +738,9 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#ECF1F8",
-            "line-width": 6
+            "line-color": "#DB8718",
+            "line-width": 6,
+            "line-dasharray": [2, 2],
           },
         });
       }
@@ -800,14 +810,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }, err => {
       log("Geolocation error:", err.message);
     });
+    const btn = document.getElementById('gn-start-nav');
+    if (btn) btn.textContent = '■ Stop Navigation';
   }
 
   setupDebugPanel();
   setupNavPanel();
   setupLightbox();
   function updateTracker(coord) {
-    const icon = navigationMode === 'cycling' ? 'bicycle-15'
-      : navigationMode === 'walking' ? 'pedestrian-15' : 'car-15';
+    const icon =
+      navigationMode === 'driving'
+        ? 'car-15'
+        : navigationMode === 'cycling'
+          ? 'bicycle-15'
+          : 'pedestrian-15';
     if (!map.getSource('route-tracker')) {
       map.addSource('route-tracker', {
         type: 'geojson',
@@ -817,7 +833,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'route-tracker',
         type: 'symbol',
         source: 'route-tracker',
-        layout: { 'icon-image': icon, 'icon-size': 1 }
+        layout: { 'icon-image': icon, 'icon-size': 1 },
       });
     } else {
       map.getSource('route-tracker').setData({ type: 'Feature', geometry: { type: 'Point', coordinates: coord } });
