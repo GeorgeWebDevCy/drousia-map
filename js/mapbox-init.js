@@ -363,6 +363,7 @@ document.addEventListener("DOMContentLoaded", function () {
           popups.push(popup);
         };
         el.addEventListener('click', showPopup);
+        el.addEventListener('touchstart', showPopup);
         if (window.innerWidth > 768) {
           el.addEventListener('mouseenter', showPopup);
           el.addEventListener('mouseleave', () => {
