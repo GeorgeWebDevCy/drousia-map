@@ -354,12 +354,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!loc.waypoint) arr.push(i);
         return arr;
       }, []);
+      const bearings = computeBearings(coords);
       const res = await fetchDirections(
         coords,
         'walking',
         false,
         getSelectedLanguage(),
-        stopIndexes
+        stopIndexes,
+        bearings
       );
       if (res.coordinates.length) {
         const routeGeoJson = {
@@ -400,12 +402,14 @@ document.addEventListener("DOMContentLoaded", function () {
     directionsControl.setDestination(dest);
     log('Directions control added, waiting for route to render');
 
+    const bearings = computeBearings(coords);
     const res = await fetchDirections(
       coords,
       'driving',
       false,
       getSelectedLanguage(),
-      [0, 1]
+      [0, 1],
+      bearings
     );
     if (res.coordinates.length) {
       const routeGeoJson = { type: 'Feature', geometry: { type: 'LineString', coordinates: res.coordinates } };
@@ -502,6 +506,34 @@ document.addEventListener("DOMContentLoaded", function () {
     return dists;
   }
 
+  function bearingBetween(a, b) {
+    const toRad = d => (d * Math.PI) / 180;
+    const toDeg = r => (r * 180) / Math.PI;
+    const lat1 = toRad(a[1]);
+    const lat2 = toRad(b[1]);
+    const dLon = toRad(b[0] - a[0]);
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x =
+      Math.cos(lat1) * Math.sin(lat2) -
+      Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  }
+
+  function computeBearings(points, tol = 45) {
+    if (!Array.isArray(points) || points.length < 2) return null;
+    const res = [];
+    for (let i = 0; i < points.length; i++) {
+      let ang;
+      if (i === points.length - 1) {
+        ang = bearingBetween(points[i - 1], points[i]);
+      } else {
+        ang = bearingBetween(points[i], points[i + 1]);
+      }
+      res.push([Math.round(ang), tol]);
+    }
+    return res;
+  }
+
   async function fetchDirections(
     allCoords,
     mode = 'driving',
@@ -583,7 +615,8 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('[GN DEBUG]', 'Debugging path');
     console.log('[GN DEBUG]', 'Waypoints:', points);
     console.log('[GN DEBUG]', 'Mode:', mode, 'Lang:', lang);
-    const result = await fetchDirections(points, mode, true, lang);
+    const bearings = computeBearings(points);
+    const result = await fetchDirections(points, mode, true, lang, null, bearings);
     console.log('[GN DEBUG]', 'Total distance', result.distance, 'm');
     console.log('[GN DEBUG]', 'Total duration', result.duration, 'sec');
     result.steps.forEach((step, i) => {
@@ -623,6 +656,7 @@ document.addEventListener("DOMContentLoaded", function () {
       gnMapData.locations.forEach((loc, i) => {
         if (!loc.waypoint) stopIndexes.push(i + 1);
       });
+      const bearings = computeBearings(ordered);
       const {
         coordinates: routeCoords,
         steps,
@@ -633,7 +667,8 @@ document.addEventListener("DOMContentLoaded", function () {
         navigationMode,
         true,
         lang,
-        stopIndexes
+        stopIndexes,
+        bearings
       );
       if (!routeCoords.length) {
         log("No route found.");

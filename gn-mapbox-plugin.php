@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.126.0
+Version: 2.127.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
