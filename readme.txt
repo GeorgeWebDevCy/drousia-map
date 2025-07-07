@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.141.0
+Stable tag: 2.135.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,12 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
-= 2.141.0
-* Adjust colors for routes and markers
-= 2.140.0
-* Reverted plugin to version 2.134.0 state
-= 2.138.0
-* Reverted plugin to version 2.134.0 state
+= 2.135.0
+* UI updates for navigation panel and markers
 = 2.134.0
 * Removed waypoint WP20.3 between points 20 and 21
 = 2.133.0
