@@ -31,6 +31,8 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 
 ### 2.136.0
 - Improve tracker icons and popup interactions
+### 2.137.0
+- Fix mobile popups and correct driving route endpoints
 ### 2.135.0
 - Updated marker interactions and navigation interface
 ### 2.134.0
