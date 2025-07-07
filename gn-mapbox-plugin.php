@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.137.0
+Version: 2.138.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -993,7 +993,7 @@ function gn_mapbox_drousia_to_polis_shortcode() {
 }
 add_shortcode('gn_mapbox_drousia_polis', 'gn_mapbox_drousia_to_polis_shortcode');
 
-// Paphos Airport to Drouseia
+// Paphos to Paphos Airport (reversed to show directions from the airport to Paphos)
 function gn_mapbox_paphos_to_airport_shortcode() {
     if (!get_option('gn_mapbox_token')) {
         return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
@@ -1021,7 +1021,7 @@ function gn_mapbox_paphos_to_airport_shortcode() {
         mapPA.addControl(directionsPA, 'top-left');
         mapPA.on('load', function() {
             directionsPA.setOrigin([32.4858, 34.7174]);
-            directionsPA.setDestination([32.3975751, 34.9627965]);
+            directionsPA.setDestination([32.4297, 34.7753]);
         });
     });
     </script>

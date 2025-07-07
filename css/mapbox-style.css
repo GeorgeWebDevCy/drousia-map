@@ -112,50 +112,12 @@
   display: none;
 }
 
-/* Navigation panel base */
-#gn-nav-panel {
-  position: fixed;
-  top: 100px;
-  left: 10px;
-  width: 50%;
-  max-width: 400px;
-  z-index: 9998;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  background: #fff;
-  font-family: sans-serif;
-}
-
-.gn-nav-header {
-  cursor: move;
-  background: #002d44;
-  color: #fff;
-  padding: 4px;
-  font-size: 13px;
-}
-
-#gn-close-nav {
-  float: right;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-
-.gn-nav-content {
-  padding: 6px;
-}
-
 /* Navigation panel override for mobile */
 @media (max-width: 767px) {
   #gn-nav-panel {
-    width: 100% !important;
-    left: 0 !important;
-    top: auto !important;
-    bottom: 0;
+    width: 110px !important;
+    left: 5vw !important;
+    top: 10vh !important;
   }
   #gn-debug-panel {
     width: 300px !important;
@@ -185,21 +147,6 @@
   width: 100%;
   padding: 4px 6px;
   font-size: 13px;
-}
-
-.gn-nav-row {
-  display: grid;
-  gap: 4px;
-}
-
-.gn-nav-select-row {
-  grid-template-columns: repeat(3, 1fr);
-  margin-bottom: 4px;
-}
-
-.gn-nav-btn-row {
-  grid-template-columns: repeat(2, 1fr);
-  margin-bottom: 4px;
 }
 
 #gn-route-select {
@@ -286,15 +233,12 @@
 
 #gn-open-nav {
   position: fixed;
-  top: 100px;
-  left: 10px;
   background-color: #007cbf;
   color: #fff;
   border: none;
   cursor: pointer;
   z-index: 9998;
   width: 30px;
-  display: none;
   padding: 4px;
 }
 
@@ -312,10 +256,4 @@
 .gn-desc-content {
   display: none;
   margin-top: 5px;
-}
-
-/* === Marker Hover === */
-.gn-marker:hover,
-.gn-marker.gn-active {
-  filter: brightness(85%);
 }
