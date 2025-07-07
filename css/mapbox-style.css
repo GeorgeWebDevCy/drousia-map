@@ -115,7 +115,7 @@
 /* Navigation panel override for mobile */
 @media (max-width: 767px) {
   #gn-nav-panel {
-    width: 110px !important;
+    width: 180px !important;
     left: 5vw !important;
     top: 10vh !important;
   }

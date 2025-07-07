@@ -125,11 +125,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const navPanel = document.createElement("div");
     navPanel.id = "gn-nav-panel";
     navPanel.innerHTML = `
-      <div style="cursor: move; background: #333; color: #fff; padding: 4px; font-size:13px;">
+      <div style="cursor: move; background: #002d44; color: #fff; padding: 4px; font-size:13px; border-top-left-radius:6px;border-top-right-radius:6px;">
         ☰ Navigation
         <button id="gn-close-nav" style="float:right;background:none;border:none;color:#fff;font-size:16px;cursor:pointer">×</button>
       </div>
-      <div style="padding: 6px; background: white;">
+      <div id="gn-nav-controls" style="padding: 6px; background: white; display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-bottom-left-radius:6px;border-bottom-right-radius:6px;">
           <select id="gn-route-select" class="gn-nav-select">
             <option value="">Select Route</option>
             <option value="default">Nature Path</option>
@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <option value="en-US" title="English">🇬🇧</option>
             <option value="el-GR" title="Ελληνικά">🇬🇷</option>
           </select>
-          <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;"></div>
+          <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;grid-column:span 3;"></div>
           <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶</button>
       </div>
     `;
@@ -154,11 +154,12 @@ document.addEventListener("DOMContentLoaded", function () {
       position: fixed;
       top: 100px;
       left: 10px;
-      width: 110px;
+      width: 180px;
       z-index: 9998;
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       background: #fff;
+      border-radius: 6px;
       font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
@@ -234,7 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.title = "Toggle Voice";
     btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔇" : "🔊";
     btn.className = "gn-nav-btn";
-    btn.style.marginTop = "10px";
+    btn.style.marginTop = "0";
 
     btn.onclick = () => {
       const isMuted = localStorage.getItem("gn_voice_muted") === "true";
@@ -242,8 +243,8 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.textContent = !isMuted ? "🔇" : "🔊";
     };
 
-    const panel = document.getElementById("gn-nav-panel");
-    panel.querySelector("div:last-child").appendChild(btn);
+    const panel = document.getElementById("gn-nav-controls");
+    if (panel) panel.appendChild(btn);
   }
 
   function setupLightbox() {
@@ -336,10 +337,17 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>`;
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-        const marker = new mapboxgl.Marker()
+        const marker = new mapboxgl.Marker({ color: '#1198B3' })
           .setLngLat([loc.lng, loc.lat])
           .addTo(map);
         const el = marker.getElement();
+        el.addEventListener('click', () => {
+          markers.forEach(m => {
+            const e = m.getElement();
+            if (e) e.style.backgroundColor = '#1198B3';
+          });
+          el.style.backgroundColor = '#002D44';
+        });
         el.addEventListener('mouseenter', () => {
           popups.forEach(p => p.remove());
           popups = [];
@@ -374,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: 'line',
           source: 'route',
           layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#ff0000', 'line-width': 4 }
+          paint: { 'line-color': '#DB8718', 'line-width': 4 }
         });
         log('Route line drawn with', res.coordinates.length, 'points');
       } else {
@@ -419,7 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'line',
         source: 'route',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#ff0000', 'line-width': 4 }
+        paint: { 'line-color': '#DB8718', 'line-width': 4 }
       });
       log('Route line drawn with', res.coordinates.length, 'points');
     } else {
@@ -721,9 +729,8 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#007cbf",
-            "line-width": 6,
-            "line-dasharray": [2, 2],
+            "line-color": "#ECF1F8",
+            "line-width": 6
           },
         });
       }
@@ -799,23 +806,22 @@ document.addEventListener("DOMContentLoaded", function () {
   setupNavPanel();
   setupLightbox();
   function updateTracker(coord) {
+    const icon = navigationMode === 'cycling' ? 'bicycle-15'
+      : navigationMode === 'walking' ? 'pedestrian-15' : 'car-15';
     if (!map.getSource('route-tracker')) {
       map.addSource('route-tracker', {
         type: 'geojson',
         data: { type: 'Feature', geometry: { type: 'Point', coordinates: coord } }
       });
-      map.loadImage('https://cdn-icons-png.flaticon.com/512/535/535239.png', (error, image) => {
-        if (error) throw error;
-        if (!map.hasImage('hiker-icon')) map.addImage('hiker-icon', image);
-        map.addLayer({
-          id: 'route-tracker',
-          type: 'symbol',
-          source: 'route-tracker',
-          layout: { 'icon-image': 'hiker-icon', 'icon-size': 0.1, 'icon-rotate': 0 }
-        });
+      map.addLayer({
+        id: 'route-tracker',
+        type: 'symbol',
+        source: 'route-tracker',
+        layout: { 'icon-image': icon, 'icon-size': 1 }
       });
     } else {
       map.getSource('route-tracker').setData({ type: 'Feature', geometry: { type: 'Point', coordinates: coord } });
+      map.setLayoutProperty('route-tracker', 'icon-image', icon);
     }
 
     if (!map.getSource('trail-line')) {
@@ -827,7 +833,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-opacity': 0.7 }
+        paint: { 'line-color': '#DB8718', 'line-width': 3, 'line-opacity': 0.7 }
       });
     }
     trail.push(coord);
