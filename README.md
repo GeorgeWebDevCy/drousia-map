@@ -32,6 +32,10 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 ### 2.138.0
 - Reverted plugin to version 2.134.0 state
 
+### 2.139.0
+- Marker interactions updated for mobile and desktop
+- Navigation panel layout improvements
+
 ### 2.134.0
 - Removed waypoint WP20.3 between points 20 and 21
 
