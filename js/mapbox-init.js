@@ -630,6 +630,24 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   window.gnDebugPath = gnDebugPath;
 
+  const gnDebugBearings = (points = coords) => {
+    if (!Array.isArray(points) || points.length < 2) {
+      console.log('[GN DEBUG]', 'Need at least two points to compute bearings');
+      return;
+    }
+    console.log('[GN DEBUG]', 'Bearings between waypoints:');
+    for (let i = 0; i < points.length - 1; i++) {
+      const start = points[i];
+      const end = points[i + 1];
+      const ang = Math.round(bearingBetween(start, end));
+      console.log(
+        '[GN DEBUG]',
+        `Waypoint ${i} (${start.join(',')}) -> Waypoint ${i + 1} (${end.join(',')}): ${ang}\u00B0`
+      );
+    }
+  };
+  window.gnDebugBearings = gnDebugBearings;
+
   async function startNavigation() {
     if (!navigator.geolocation) {
       log("Geolocation not supported.");
