@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.131.0
+Stable tag: 2.132.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,8 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
-= 2.131.0
+= 2.132.0
+* Added waypoints WP14.1, WP14.2 and WP14.3 between points 14 and 15
 * Inserted waypoint between points 11 and 12 for straighter routing
 = 2.130.0
 * Inserted additional waypoint between points 10 and 11
