@@ -313,3 +313,9 @@
   display: none;
   margin-top: 5px;
 }
+
+/* === Marker Hover === */
+.gn-marker:hover,
+.gn-marker.gn-active {
+  filter: brightness(85%);
+}
