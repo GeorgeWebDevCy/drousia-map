@@ -17,18 +17,16 @@ document.addEventListener("DOMContentLoaded", function () {
   let map;
   let languageControl;
   let markers = [];
-  let activeMarker = null;
   let popups = [];
   let directionsControl;
   let watchId;
-  let isNavigating = false;
   let trail = [];
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
   const routeSettings = {
     default: { center: [32.3923713, 34.96211], zoom: 16 },
-    paphos: { center: [32.4353989, 34.765382], zoom: 10 },
-    polis: { center: [32.4217916, 35.0307607], zoom: 11 },
-    airport: { center: [32.5078566, 34.7248863], zoom: 12 },
+    paphos: { center: [32.3975751, 34.9627965], zoom: 10 },
+    polis: { center: [32.3975751, 34.9627965], zoom: 11 },
+    airport: { center: [32.4297, 34.7753], zoom: 12 },
   };
 
 
@@ -127,41 +125,49 @@ document.addEventListener("DOMContentLoaded", function () {
     const navPanel = document.createElement("div");
     navPanel.id = "gn-nav-panel";
     navPanel.innerHTML = `
-      <div class="gn-nav-header">
+      <div style="cursor: move; background: #333; color: #fff; padding: 4px; font-size:13px;">
         ☰ Navigation
-        <button id="gn-close-nav" class="gn-close-nav">×</button>
+        <button id="gn-close-nav" style="float:right;background:none;border:none;color:#fff;font-size:16px;cursor:pointer">×</button>
       </div>
-      <div class="gn-nav-content">
-        <div class="gn-nav-row gn-nav-select-row">
+      <div style="padding: 6px; background: white;">
           <select id="gn-route-select" class="gn-nav-select">
             <option value="">Select Route</option>
             <option value="default">Nature Path</option>
-            <option value="paphos">Paphos → Drouseia</option>
-            <option value="polis">Polis → Drouseia</option>
-            <option value="airport">Paphos Airport → Drouseia</option>
+            <option value="paphos">Drousia → Paphos</option>
+            <option value="polis">Drousia → Polis</option>
+            <option value="airport">Paphos → Airport</option>
           </select>
           <select id="gn-mode-select" class="gn-nav-select">
-            <option value="driving" title="Driving">🚗 Driving</option>
-            <option value="walking" title="Walking">🚶 Walking</option>
-            <option value="cycling" title="Cycling">🚲 Cycling</option>
+            <option value="driving" title="Driving">🚗</option>
+            <option value="walking" title="Walking">🚶</option>
+            <option value="cycling" title="Cycling">🚲</option>
           </select>
           <select id="gn-language-select" class="gn-nav-select">
-            <option value="en-US" title="English">🇬🇧 English</option>
-            <option value="el-GR" title="Ελληνικά">🇬🇷 Ελληνικά</option>
+            <option value="en-US" title="English">🇬🇧</option>
+            <option value="el-GR" title="Ελληνικά">🇬🇷</option>
           </select>
-        </div>
-        <div class="gn-nav-row gn-nav-btn-row">
-          <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶ Start Navigation</button>
-        </div>
-        <div id="gn-distance-panel" class="gn-distance-panel"></div>
+          <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;"></div>
+          <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶</button>
       </div>
+    `;
+    navPanel.style.cssText = `
+      position: fixed;
+      top: 100px;
+      left: 10px;
+      width: 110px;
+      z-index: 9998;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      background: #fff;
+      font-family: sans-serif;
     `;
     document.body.appendChild(navPanel);
 
     const openBtn = document.createElement('button');
     openBtn.id = 'gn-open-nav';
     openBtn.textContent = '☰';
-    openBtn.className = 'gn-nav-btn gn-open-nav';
+    openBtn.className = 'gn-nav-btn';
+    openBtn.style.cssText = 'position:fixed;top:100px;left:10px;z-index:9998;width:30px;display:none;padding:4px;';
     document.body.appendChild(openBtn);
     openBtn.onclick = () => {
       navPanel.style.display = 'block';
@@ -218,13 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
       openBtn.style.display = 'block';
     };
 
-    document.getElementById("gn-start-nav").onclick = () => {
-      if (isNavigating) {
-        stopNavigation();
-      } else {
-        startNavigation();
-      }
-    };
+    document.getElementById("gn-start-nav").onclick = startNavigation;
     addVoiceToggleButton();
   }
 
@@ -232,17 +232,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const btn = document.createElement("button");
     btn.id = "gn-voice-toggle";
     btn.title = "Toggle Voice";
-    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔇 Unmute Directions" : "🔊 Mute Directions";
+    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔇" : "🔊";
     btn.className = "gn-nav-btn";
+    btn.style.marginTop = "10px";
 
     btn.onclick = () => {
       const isMuted = localStorage.getItem("gn_voice_muted") === "true";
       localStorage.setItem("gn_voice_muted", !isMuted);
-      btn.textContent = !isMuted ? "🔇 Unmute Directions" : "🔊 Mute Directions";
+      btn.textContent = !isMuted ? "🔇" : "🔊";
     };
 
     const panel = document.getElementById("gn-nav-panel");
-    panel.querySelector(".gn-nav-btn-row").appendChild(btn);
+    panel.querySelector("div:last-child").appendChild(btn);
   }
 
   function setupLightbox() {
@@ -277,10 +278,6 @@ document.addEventListener("DOMContentLoaded", function () {
     markers = [];
     popups.forEach(p => p.remove());
     popups = [];
-    if (activeMarker) {
-      activeMarker.getElement().classList.remove('gn-active');
-      activeMarker = null;
-    }
     const sources = ['route', 'route-tracker', 'trail-line', 'nav-route'];
     const layers = ['route', 'route-tracker', 'trail-line', 'nav-route'];
     layers.forEach(l => { if (map.getLayer(l)) map.removeLayer(l); });
@@ -305,13 +302,6 @@ document.addEventListener("DOMContentLoaded", function () {
       watchId = null;
     }
     trail = [];
-  }
-
-  function stopNavigation() {
-    clearMap();
-    isNavigating = false;
-    const btn = document.getElementById('gn-start-nav');
-    if (btn) btn.textContent = '▶ Start Navigation';
   }
 
   async function showDefaultRoute() {
@@ -346,30 +336,16 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>`;
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-        const marker = new mapboxgl.Marker({ color: '#3FB1CE' })
+        const marker = new mapboxgl.Marker()
           .setLngLat([loc.lng, loc.lat])
           .addTo(map);
         const el = marker.getElement();
-        el.classList.add('gn-marker');
-        const showPopup = () => {
-          if (activeMarker) {
-            activeMarker.getElement().classList.remove('gn-active');
-          }
-          activeMarker = marker;
-          el.classList.add('gn-active');
+        el.addEventListener('mouseenter', () => {
           popups.forEach(p => p.remove());
           popups = [];
           popup.setLngLat([loc.lng, loc.lat]).addTo(map);
           popups.push(popup);
-        };
-        el.addEventListener('click', showPopup);
-        el.addEventListener('touchstart', showPopup);
-        if (window.innerWidth > 768) {
-          el.addEventListener('mouseenter', showPopup);
-          el.addEventListener('mouseleave', () => {
-            el.classList.remove('gn-active');
-          });
-        }
+        });
         markers.push(marker);
       }
     });
@@ -398,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: 'line',
           source: 'route',
           layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#DB8718', 'line-width': 4 }
+          paint: { 'line-color': '#ff0000', 'line-width': 4 }
         });
         log('Route line drawn with', res.coordinates.length, 'points');
       } else {
@@ -443,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'line',
         source: 'route',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#DB8718', 'line-width': 4 }
+        paint: { 'line-color': '#ff0000', 'line-width': 4 }
       });
       log('Route line drawn with', res.coordinates.length, 'points');
     } else {
@@ -466,11 +442,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (val === 'default') {
       showDefaultRoute();
     } else if (val === 'paphos') {
-      showDrivingRoute([32.4353989, 34.765382], [gnMapData.locations[0].lng, gnMapData.locations[0].lat]);
+      showDrivingRoute([32.3975751, 34.9627965], [32.4297, 34.7753]);
     } else if (val === 'polis') {
-      showDrivingRoute([32.4217916, 35.0307607], [gnMapData.locations[0].lng, gnMapData.locations[0].lat]);
+      showDrivingRoute([32.3975751, 34.9627965], [32.4147, 35.0360]);
     } else if (val === 'airport') {
-      showDrivingRoute([32.5078566, 34.7248863], [gnMapData.locations[0].lng, gnMapData.locations[0].lat]);
+      showDrivingRoute([32.4297, 34.7753], [32.4858, 34.7174]);
     }
     // Re-apply the center after controls adjust the map
     setTimeout(() => applyRouteSettings(val), 1000);
@@ -684,9 +660,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.gnDebugBearings = gnDebugBearings;
 
   async function startNavigation() {
-    isNavigating = true;
-    const startBtn = document.getElementById('gn-start-nav');
-    if (startBtn) startBtn.textContent = '■ Stop Navigation';
     if (!navigator.geolocation) {
       log("Geolocation not supported.");
       return;
@@ -748,8 +721,9 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#ECF1F8",
-            "line-width": 6
+            "line-color": "#007cbf",
+            "line-width": 6,
+            "line-dasharray": [2, 2],
           },
         });
       }
@@ -825,36 +799,23 @@ document.addEventListener("DOMContentLoaded", function () {
   setupNavPanel();
   setupLightbox();
   function updateTracker(coord) {
-    const iconMap = {
-      driving: 'car-15',
-      cycling: 'bicycle-15',
-      walking: 'pedestrian-15'
-    };
-
     if (!map.getSource('route-tracker')) {
       map.addSource('route-tracker', {
         type: 'geojson',
         data: { type: 'Feature', geometry: { type: 'Point', coordinates: coord } }
       });
-      map.addLayer({
-        id: 'route-tracker',
-        type: 'symbol',
-        source: 'route-tracker',
-        layout: {
-          'icon-image': iconMap[navigationMode],
-          'icon-size': 1.5,
-          'icon-allow-overlap': true,
-          'icon-ignore-placement': true
-        }
+      map.loadImage('https://cdn-icons-png.flaticon.com/512/535/535239.png', (error, image) => {
+        if (error) throw error;
+        if (!map.hasImage('hiker-icon')) map.addImage('hiker-icon', image);
+        map.addLayer({
+          id: 'route-tracker',
+          type: 'symbol',
+          source: 'route-tracker',
+          layout: { 'icon-image': 'hiker-icon', 'icon-size': 0.1, 'icon-rotate': 0 }
+        });
       });
     } else {
-      map.getSource('route-tracker').setData({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: coord }
-      });
-      map.setLayoutProperty('route-tracker', 'icon-image', iconMap[navigationMode]);
-      map.setLayoutProperty('route-tracker', 'icon-allow-overlap', true);
-      map.setLayoutProperty('route-tracker', 'icon-ignore-placement', true);
+      map.getSource('route-tracker').setData({ type: 'Feature', geometry: { type: 'Point', coordinates: coord } });
     }
 
     if (!map.getSource('trail-line')) {
@@ -866,7 +827,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: { 'line-color': '#DB8718', 'line-width': 3, 'line-opacity': 0.7 }
+        paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-opacity': 0.7 }
       });
     }
     trail.push(coord);
