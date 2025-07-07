@@ -277,6 +277,10 @@ document.addEventListener("DOMContentLoaded", function () {
     markers = [];
     popups.forEach(p => p.remove());
     popups = [];
+    if (activeMarker) {
+      activeMarker.getElement().classList.remove('gn-active');
+      activeMarker = null;
+    }
     const sources = ['route', 'route-tracker', 'trail-line', 'nav-route'];
     const layers = ['route', 'route-tracker', 'trail-line', 'nav-route'];
     layers.forEach(l => { if (map.getLayer(l)) map.removeLayer(l); });
@@ -342,28 +346,27 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>`;
       if (!loc.waypoint) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-        const marker = new mapboxgl.Marker()
+        const marker = new mapboxgl.Marker({ color: '#3FB1CE' })
           .setLngLat([loc.lng, loc.lat])
           .addTo(map);
         const el = marker.getElement();
-        el.style.backgroundColor = '#3FB1CE';
+        el.classList.add('gn-marker');
         const showPopup = () => {
           if (activeMarker) {
-            activeMarker.getElement().style.backgroundColor = '#3FB1CE';
+            activeMarker.getElement().classList.remove('gn-active');
           }
           activeMarker = marker;
-          el.style.backgroundColor = '#002D44';
+          el.classList.add('gn-active');
           popups.forEach(p => p.remove());
           popups = [];
           popup.setLngLat([loc.lng, loc.lat]).addTo(map);
           popups.push(popup);
         };
-        if (window.innerWidth <= 768) {
-          el.addEventListener('click', showPopup);
-        } else {
+        el.addEventListener('click', showPopup);
+        if (window.innerWidth > 768) {
           el.addEventListener('mouseenter', showPopup);
           el.addEventListener('mouseleave', () => {
-            el.style.backgroundColor = '#3FB1CE';
+            el.classList.remove('gn-active');
           });
         }
         markers.push(marker);
@@ -836,7 +839,12 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'route-tracker',
         type: 'symbol',
         source: 'route-tracker',
-        layout: { 'icon-image': iconMap[navigationMode], 'icon-size': 1.5 }
+        layout: {
+          'icon-image': iconMap[navigationMode],
+          'icon-size': 1.5,
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true
+        }
       });
     } else {
       map.getSource('route-tracker').setData({
@@ -844,6 +852,8 @@ document.addEventListener("DOMContentLoaded", function () {
         geometry: { type: 'Point', coordinates: coord }
       });
       map.setLayoutProperty('route-tracker', 'icon-image', iconMap[navigationMode]);
+      map.setLayoutProperty('route-tracker', 'icon-allow-overlap', true);
+      map.setLayoutProperty('route-tracker', 'icon-ignore-placement', true);
     }
 
     if (!map.getSource('trail-line')) {
