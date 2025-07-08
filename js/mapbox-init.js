@@ -32,6 +32,13 @@ document.addEventListener("DOMContentLoaded", function () {
     airport: { center: [32.490296426999045, 34.70974769197728], zoom: 12 },
   };
 
+  // navigation step tracking
+  let navSteps = [];
+  let navStepIndex = 0;
+  let speakCurrentStep = null;
+
+  const isVoiceMuted = () => localStorage.getItem("gn_voice_muted") === "true";
+
 
   function mapLangPart(code) {
     return code.split("-")[0];
@@ -246,6 +253,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!wasMuted && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
+      if (wasMuted && speakCurrentStep && navSteps[navStepIndex]) {
+        speakCurrentStep(navSteps[navStepIndex]);
+      }
     };
 
     const controls = document.getElementById("gn-nav-controls");
@@ -370,6 +380,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         el.addEventListener('mouseenter', showPopup);
         el.addEventListener('click', showPopup);
+        el.addEventListener('touchstart', showPopup);
         markers.push(marker);
       }
     });
@@ -483,6 +494,13 @@ document.addEventListener("DOMContentLoaded", function () {
     navigationMode = mode;
     if (map && map.getLayer('route-tracker')) {
       map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+    }
+    if (isNavigating) {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      startNavigation();
     }
     log(
       "Navigation mode icon:",
@@ -753,6 +771,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const elevationGain = await getElevationGain(routeCoords);
       const cumulativeDistances = computeCumulativeDistances(routeCoords);
+      navSteps = steps;
+      navStepIndex = 0;
 
       const routeGeoJSON = {
         type: "Feature",
@@ -768,8 +788,8 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#002D44",
-            "line-width": 8,
+            "line-color": "#1198B3",
+            "line-width": 4,
           },
         });
       }
@@ -778,7 +798,6 @@ document.addEventListener("DOMContentLoaded", function () {
       updateTracker(userLngLat);
       log("Navigation route displayed.");
 
-      const isVoiceMuted = () => localStorage.getItem("gn_voice_muted") === "true";
       const totalDistance = distance;
       const totalDuration = duration;
       let remainingDistance = distance;
@@ -806,6 +825,7 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.volume = 1.0;
         if (!isVoiceMuted()) window.speechSynthesis.speak(msg);
       };
+      speakCurrentStep = speakInstruction;
       if (steps.length) speakInstruction(steps[0]);
 
       const calcRemaining = (cur) => {
@@ -829,6 +849,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const target = steps[stepIndex].maneuver.location;
           if (haversineDistance(cur, target) < 20) {
             stepIndex++;
+            navStepIndex = stepIndex;
             if (stepIndex < steps.length) speakInstruction(steps[stepIndex]);
           }
         }
@@ -881,7 +902,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: { 'line-color': '#002D44', 'line-width': 3, 'line-opacity': 0.7 }
+        paint: { 'line-color': '#002D44', 'line-width': 8, 'line-opacity': 0.7 }
       });
     }
     trail.push(coord);
