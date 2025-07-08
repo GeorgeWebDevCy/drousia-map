@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.142.0
+Stable tag: 2.73.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,73 +40,9 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
-= 2.142.0
-* Reverted plugin to version 2.134.0 state
+= 2.73.1 =
+* Change some route coordinates
 
-= 2.134.0
-* Removed waypoint WP20.3 between points 20 and 21
-= 2.133.0
-* Added waypoints WP20.1 to WP20.6 between points 20 and 21
-= 2.132.0
-* Added waypoints WP14.1, WP14.2 and WP14.3 between points 14 and 15
-* Inserted waypoint between points 11 and 12 for straighter routing
-= 2.130.0
-* Inserted additional waypoint between points 10 and 11
-= 2.129.0
-* `gnDebugBearings` now reports LEFT, RIGHT or STRAIGHT for each turn
-= 2.128.0
-* Add `gnDebugBearings` console utility to inspect segment bearings
-= 2.127.0
-* Apply bearings to all coordinates for accurate routing
-= 2.126.0
-* Add optional `bearings` to Directions API requests
-
-= 2.125.0
-* Revert dataset to version 2.106.0
-
-= 2.124.0
-* Hide all waypoints
-= 2.123.0 =
-* Reintroduce waypoint WP14.1 for improved routing
-= 2.122.0 =
-* Pass waypoint indexes to Directions API for accurate routing
-= 2.121.1 =
-* Add `gnDebugPath` console function for inspecting route creation
-= 2.121.0 =
-* Fix duplicate straight route near Πιττοκόπος
-= 2.95.0 =
-* No code changes; version bump
-= 2.94.0 =
-* Default route uses Mapbox Directions to follow roads
-= 2.93.0 =
-* Import all 15 default locations without skipping duplicates
-= 2.92.0 =
-* Default route expects 15 coordinates and loop closes properly
-= 2.90.0 =
-* Default dataset closes the loop by repeating the starting location
-= 2.86.0 =
-* Route drawn using LineString from 14 non-waypoint locations
-
-= 2.85.0 =
-* Route drawn using manual LineString with 31 coordinates
-= 2.84.0 =
-* Route line drawn using direct coordinates
-= 2.83.0 =
-* Driving icon remains selected but walking directions are used by default
-= 2.82.0 =
-* Driving mode selected by default
-= 2.81.0 =
-* Driving icon requests walking directions to avoid multi-route behavior
-= 2.78.0 =
-* Fix nature path route using only start, end and waypoint coordinates
-= 2.77.0 =
-* Nature path line uses all location posts in order
-= 2.76.0 =
-* No code changes; version bump
-= 2.75.0 =
-* Default route fetches directions using the selected navigation mode
-= 2.74.0 =
-* No code changes; version bump
 = 2.73.0 =
 * No code changes; version bump
 = 2.72.0 =
