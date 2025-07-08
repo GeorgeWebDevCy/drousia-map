@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let directionsControl;
   let watchId;
   let trail = [];
+  let isNavigating = false;
+  let currentElevation = 0;
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
   const routeSettings = {
     default: { center: [32.3923713, 34.96211], zoom: 16 },
@@ -147,8 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <option value="el-GR" title="Ελληνικά">🇬🇷 Ελληνικά</option>
           </select>
           <div id="gn-distance-panel" style="font-size:12px;margin-bottom:4px;"></div>
-          <button class="gn-nav-btn" id="gn-start-nav" title="Start Navigation">▶ Start Navigation</button>
-          <button class="gn-nav-btn" id="gn-stop-nav" title="Stop Navigation">■ Stop Navigation</button>
+          <button class="gn-nav-btn" id="gn-nav-toggle" title="Start Navigation">▶ Start Navigation</button>
       </div>
     `;
     navPanel.style.cssText = `
@@ -226,8 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
       openBtn.style.display = 'block';
     };
 
-    document.getElementById("gn-start-nav").onclick = startNavigation;
-    document.getElementById("gn-stop-nav").onclick = clearMap;
+    document.getElementById("gn-nav-toggle").onclick = toggleNavigation;
     addVoiceToggleButton();
   }
 
@@ -246,6 +246,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const controls = document.getElementById("gn-nav-controls");
     controls.appendChild(btn);
+  }
+
+  function toggleNavigation() {
+    if (isNavigating) {
+      stopNavigation();
+    } else {
+      startNavigation();
+    }
   }
 
   function setupLightbox() {
@@ -304,6 +312,13 @@ document.addEventListener("DOMContentLoaded", function () {
       watchId = null;
     }
     trail = [];
+    isNavigating = false;
+    const btn = document.getElementById('gn-nav-toggle');
+    if (btn) btn.textContent = '▶ Start Navigation';
+  }
+
+  function stopNavigation() {
+    clearMap();
   }
 
   async function showDefaultRoute() {
@@ -376,7 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: 'line',
           source: 'route',
           layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#DB8718', 'line-width': 4 }
+          paint: { 'line-color': '#1198B3', 'line-width': 4 }
         });
         log('Route line drawn with', res.coordinates.length, 'points');
       } else {
@@ -421,7 +436,7 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'line',
         source: 'route',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#DB8718', 'line-width': 4 }
+        paint: { 'line-color': '#1198B3', 'line-width': 4 }
       });
       log('Route line drawn with', res.coordinates.length, 'points');
     } else {
@@ -487,6 +502,21 @@ document.addEventListener("DOMContentLoaded", function () {
       console.warn("Elevation fetch failed", e);
       return 0;
     }
+  }
+
+  async function fetchElevation(lat, lng) {
+    try {
+      const res = await fetch(
+        `https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lng}`
+      );
+      const json = await res.json();
+      if (json.results && json.results[0]) {
+        return json.results[0].elevation;
+      }
+    } catch (e) {
+      console.warn('Elevation fetch failed', e);
+    }
+    return null;
   }
 
   function haversineDistance(a, b) {
@@ -667,6 +697,10 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    isNavigating = true;
+    const toggleBtn = document.getElementById('gn-nav-toggle');
+    if (toggleBtn) toggleBtn.textContent = '■ Stop Navigation';
+
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const lang = getSelectedLanguage();
         if (!window.speechSynthesis) {
@@ -723,7 +757,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#007cbf",
+            "line-color": "#1198B3",
             "line-width": 6,
             "line-dasharray": [2, 2],
           },
@@ -745,7 +779,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const km = (remainingDistance / 1000).toFixed(2);
           const mins = Math.ceil(remainingDuration / 60);
           panel.innerHTML = `Distance: ${km} km<br>Time: ${mins} min<br>Elevation: ${Math.round(
-            elevationGain
+            currentElevation
           )} m`;
         }
       };
@@ -774,7 +808,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return minDist + (totalDistance - cumulativeDistances[nearestIdx]);
       };
 
-      watchId = navigator.geolocation.watchPosition(pos => {
+      watchId = navigator.geolocation.watchPosition(async pos => {
         const cur = [pos.coords.longitude, pos.coords.latitude];
         updateTracker(cur);
 
@@ -788,6 +822,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (stepIndex < steps.length) speakInstruction(steps[stepIndex]);
           }
         }
+
+        const elev = await fetchElevation(pos.coords.latitude, pos.coords.longitude);
+        if (elev !== null) currentElevation = elev;
         updatePanel();
       }, err => log('Geolocation watch error', err.message), { enableHighAccuracy: true });
 
@@ -829,7 +866,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: { 'line-color': '#DB8718', 'line-width': 3, 'line-opacity': 0.7 }
+        paint: { 'line-color': '#002D44', 'line-width': 3, 'line-opacity': 0.7 }
       });
     }
     trail.push(coord);
