@@ -32,13 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
     airport: { center: [32.490296426999045, 34.70974769197728], zoom: 12 },
   };
 
-  // navigation step tracking
-  let navSteps = [];
-  let navStepIndex = 0;
-  let speakCurrentStep = null;
-
-  const isVoiceMuted = () => localStorage.getItem("gn_voice_muted") === "true";
-
 
   function mapLangPart(code) {
     return code.split("-")[0];
@@ -49,8 +42,26 @@ document.addEventListener("DOMContentLoaded", function () {
     return sel ? sel.value : defaultLang;
   }
 
-  function checkVoiceAvailability() {
-    return !!window.speechSynthesis;
+  function checkVoiceAvailability(lang) {
+    if (!window.speechSynthesis) return false;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) {
+      const onVoicesChanged = () => {
+        const updatedVoices = window.speechSynthesis.getVoices();
+        window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
+        if (!updatedVoices.some(v => v.lang === lang)) {
+          alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+        }
+      };
+      window.speechSynthesis.addEventListener("voiceschanged", onVoicesChanged);
+      window.speechSynthesis.getVoices();
+      return true;
+    }
+    const hasVoice = voices.some(v => v.lang === lang);
+    if (!hasVoice) {
+      alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+    }
+    return hasVoice;
   }
 
   function log(...args) {
@@ -154,11 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
       font-family: sans-serif;
       border-radius: 8px;
     `;
-    if (window.innerWidth <= 767) {
-      navPanel.style.width = 'calc(100% - 60px)';
-      navPanel.style.left = '60px';
-      navPanel.style.right = 'auto';
-    }
     document.body.appendChild(navPanel);
 
     const openBtn = document.createElement('button');
@@ -166,10 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
     openBtn.textContent = '☰';
     openBtn.className = 'gn-nav-btn';
     openBtn.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9998;width:30px;display:none;padding:4px;';
-    if (window.innerWidth <= 767) {
-      openBtn.style.left = '60px';
-      openBtn.style.right = 'auto';
-    }
     document.body.appendChild(openBtn);
     openBtn.onclick = () => {
       navPanel.style.display = 'block';
@@ -190,12 +192,10 @@ document.addEventListener("DOMContentLoaded", function () {
       langSel.value = defaultLang;
       langSel.onchange = () => {
         localStorage.setItem("gn_voice_lang", langSel.value);
+        checkVoiceAvailability(langSel.value);
         if (languageControl && map) {
           const code = mapLangPart(langSel.value);
           map.setStyle(languageControl.setLanguage(map.getStyle(), code));
-        }
-        if (isNavigating && speakCurrentStep && navSteps[navStepIndex]) {
-          speakCurrentStep(navSteps[navStepIndex]);
         }
       };
     }
@@ -245,9 +245,6 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.textContent = !wasMuted ? "🔇 Mute Directions" : "🔊 Unmute Directions";
       if (!wasMuted && window.speechSynthesis) {
         window.speechSynthesis.cancel();
-      }
-      if (wasMuted && speakCurrentStep && navSteps[navStepIndex]) {
-        speakCurrentStep(navSteps[navStepIndex]);
       }
     };
 
@@ -465,8 +462,6 @@ document.addEventListener("DOMContentLoaded", function () {
     log('Route selected:', val);
     currentRoute = val || 'default';
     clearMap();
-    navSteps = [];
-    navStepIndex = 0;
     if (!val) return;
     applyRouteSettings(val);
     if (val === 'default') {
@@ -488,13 +483,6 @@ document.addEventListener("DOMContentLoaded", function () {
     navigationMode = mode;
     if (map && map.getLayer('route-tracker')) {
       map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
-    }
-    if (isNavigating) {
-      if (watchId) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
-      startNavigation();
     }
     log(
       "Navigation mode icon:",
@@ -726,7 +714,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const lang = getSelectedLanguage();
-        if (window.speechSynthesis) {
+        if (!window.speechSynthesis) {
+          alert("Voice guidance is not supported in your browser.");
+        } else {
+          checkVoiceAvailability(lang);
           if (!localStorage.getItem("gn_voice_prompted")) {
             const consent = confirm(`Enable voice directions in ${lang}?`);
             if (!consent) localStorage.setItem("gn_voice_muted", true);
@@ -762,8 +753,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const elevationGain = await getElevationGain(routeCoords);
       const cumulativeDistances = computeCumulativeDistances(routeCoords);
-      navSteps = steps;
-      navStepIndex = 0;
 
       const routeGeoJSON = {
         type: "Feature",
@@ -779,8 +768,8 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#1198B3",
-            "line-width": 4,
+            "line-color": "#002D44",
+            "line-width": 8,
           },
         });
       }
@@ -789,6 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateTracker(userLngLat);
       log("Navigation route displayed.");
 
+      const isVoiceMuted = () => localStorage.getItem("gn_voice_muted") === "true";
       const totalDistance = distance;
       const totalDuration = duration;
       let remainingDistance = distance;
@@ -810,13 +800,12 @@ document.addEventListener("DOMContentLoaded", function () {
         let instr = step.maneuver.instruction.replace(/^Drive/i,
           navigationMode === 'walking' ? 'Walk' : navigationMode === 'cycling' ? 'Cycle' : 'Drive');
         const msg = new SpeechSynthesisUtterance(instr);
-        msg.lang = getSelectedLanguage();
+        msg.lang = lang;
         msg.rate = 0.95;
         msg.pitch = 1;
         msg.volume = 1.0;
         if (!isVoiceMuted()) window.speechSynthesis.speak(msg);
       };
-      speakCurrentStep = speakInstruction;
       if (steps.length) speakInstruction(steps[0]);
 
       const calcRemaining = (cur) => {
@@ -840,7 +829,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const target = steps[stepIndex].maneuver.location;
           if (haversineDistance(cur, target) < 20) {
             stepIndex++;
-            navStepIndex = stepIndex;
             if (stepIndex < steps.length) speakInstruction(steps[stepIndex]);
           }
         }
@@ -877,11 +865,6 @@ document.addEventListener("DOMContentLoaded", function () {
           'text-field': getTrackerEmoji(),
           'text-size': 24,
           'text-allow-overlap': true
-        },
-        paint: {
-          'text-color': '#000',
-          'text-halo-color': '#fff',
-          'text-halo-width': 1
         }
       });
     } else {
@@ -898,7 +881,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: { 'line-color': '#002D44', 'line-width': 8, 'line-opacity': 0.7 }
+        paint: { 'line-color': '#002D44', 'line-width': 3, 'line-opacity': 0.7 }
       });
     }
     trail.push(coord);
