@@ -133,9 +133,9 @@ document.addEventListener("DOMContentLoaded", function () {
           <select id="gn-route-select" class="gn-nav-select">
             <option value="">Select Route</option>
             <option value="default">Nature Path</option>
-            <option value="paphos">Drousia → Paphos</option>
-            <option value="polis">Drousia → Polis</option>
-            <option value="airport">Paphos → Airport</option>
+            <option value="paphos">Paphos → Drouseia</option>
+            <option value="polis">Polis → Drouseia</option>
+            <option value="airport">Paphos Airport → Drouseia</option>
           </select>
           <select id="gn-mode-select" class="gn-nav-select">
             <option value="driving" title="Driving">🚗</option>
@@ -442,11 +442,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (val === 'default') {
       showDefaultRoute();
     } else if (val === 'paphos') {
-      showDrivingRoute([32.3975751, 34.9627965], [32.4297, 34.7753]);
+      showDrivingRoute([32.4297, 34.7753], [32.3975751, 34.9627965]);
     } else if (val === 'polis') {
-      showDrivingRoute([32.3975751, 34.9627965], [32.4147, 35.0360]);
+      showDrivingRoute([32.4147, 35.0360], [32.3975751, 34.9627965]);
     } else if (val === 'airport') {
-      showDrivingRoute([32.4297, 34.7753], [32.4858, 34.7174]);
+      showDrivingRoute([32.4858, 34.7174], [32.3975751, 34.9627965]);
     }
     // Re-apply the center after controls adjust the map
     setTimeout(() => applyRouteSettings(val), 1000);
