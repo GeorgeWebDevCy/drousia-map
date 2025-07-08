@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let watchId;
   let trail = [];
   let isNavigating = false;
+  let currentRoute = 'default';
   let currentElevation = 0;
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
   const routeSettings = {
@@ -154,9 +155,9 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
     navPanel.style.cssText = `
       position: fixed;
-      top: 100px;
-      left: 25%;
-      width: 50%;
+      top: 10px;
+      right: 10px;
+      width: 300px;
       z-index: 9998;
       border: 1px solid #ccc;
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
@@ -170,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
     openBtn.id = 'gn-open-nav';
     openBtn.textContent = '☰';
     openBtn.className = 'gn-nav-btn';
-    openBtn.style.cssText = 'position:fixed;top:100px;left:10px;z-index:9998;width:30px;display:none;padding:4px;';
+    openBtn.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9998;width:30px;display:none;padding:4px;';
     document.body.appendChild(openBtn);
     openBtn.onclick = () => {
       navPanel.style.display = 'block';
@@ -239,9 +240,12 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.className = "gn-nav-btn";
 
     btn.onclick = () => {
-      const isMuted = localStorage.getItem("gn_voice_muted") === "true";
-      localStorage.setItem("gn_voice_muted", !isMuted);
-      btn.textContent = !isMuted ? "🔇 Mute Directions" : "🔊 Unmute Directions";
+      const wasMuted = localStorage.getItem("gn_voice_muted") === "true";
+      localStorage.setItem("gn_voice_muted", !wasMuted);
+      btn.textContent = !wasMuted ? "🔇 Mute Directions" : "🔊 Unmute Directions";
+      if (!wasMuted && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
     };
 
     const controls = document.getElementById("gn-nav-controls");
@@ -319,6 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function stopNavigation() {
     clearMap();
+    selectRoute(currentRoute);
   }
 
   async function showDefaultRoute() {
@@ -357,12 +362,14 @@ document.addEventListener("DOMContentLoaded", function () {
           .setLngLat([loc.lng, loc.lat])
           .addTo(map);
         const el = marker.getElement();
-        el.addEventListener('mouseenter', () => {
+        const showPopup = () => {
           popups.forEach(p => p.remove());
           popups = [];
           popup.setLngLat([loc.lng, loc.lat]).addTo(map);
           popups.push(popup);
-        });
+        };
+        el.addEventListener('mouseenter', showPopup);
+        el.addEventListener('click', showPopup);
         markers.push(marker);
       }
     });
@@ -453,6 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function selectRoute(val) {
     log('Route selected:', val);
+    currentRoute = val || 'default';
     clearMap();
     if (!val) return;
     applyRouteSettings(val);
@@ -473,6 +481,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const sel = document.getElementById("gn-mode-select");
     if (sel) sel.value = mode;
     navigationMode = mode;
+    if (map && map.getLayer('route-tracker')) {
+      map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+    }
     log(
       "Navigation mode icon:",
       mode,
@@ -757,9 +768,8 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#1198B3",
-            "line-width": 6,
-            "line-dasharray": [2, 2],
+            "line-color": "#002D44",
+            "line-width": 8,
           },
         });
       }
@@ -768,7 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateTracker(userLngLat);
       log("Navigation route displayed.");
 
-      let voiceMuted = localStorage.getItem("gn_voice_muted") === "true";
+      const isVoiceMuted = () => localStorage.getItem("gn_voice_muted") === "true";
       const totalDistance = distance;
       const totalDuration = duration;
       let remainingDistance = distance;
@@ -794,7 +804,7 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.rate = 0.95;
         msg.pitch = 1;
         msg.volume = 1.0;
-        if (!voiceMuted) window.speechSynthesis.speak(msg);
+        if (!isVoiceMuted()) window.speechSynthesis.speak(msg);
       };
       if (steps.length) speakInstruction(steps[0]);
 
@@ -837,24 +847,29 @@ document.addEventListener("DOMContentLoaded", function () {
   setupDebugPanel();
   setupNavPanel();
   setupLightbox();
+  function getTrackerEmoji() {
+    if (navigationMode === 'driving') return '🚗';
+    if (navigationMode === 'cycling') return '🚲';
+    return '🚶';
+  }
+
   function updateTracker(coord) {
+    const data = { type: 'Feature', geometry: { type: 'Point', coordinates: coord } };
     if (!map.getSource('route-tracker')) {
-      map.addSource('route-tracker', {
-        type: 'geojson',
-        data: { type: 'Feature', geometry: { type: 'Point', coordinates: coord } }
-      });
-      map.loadImage('https://cdn-icons-png.flaticon.com/512/535/535239.png', (error, image) => {
-        if (error) throw error;
-        if (!map.hasImage('hiker-icon')) map.addImage('hiker-icon', image);
-        map.addLayer({
-          id: 'route-tracker',
-          type: 'symbol',
-          source: 'route-tracker',
-          layout: { 'icon-image': 'hiker-icon', 'icon-size': 0.1, 'icon-rotate': 0 }
-        });
+      map.addSource('route-tracker', { type: 'geojson', data });
+      map.addLayer({
+        id: 'route-tracker',
+        type: 'symbol',
+        source: 'route-tracker',
+        layout: {
+          'text-field': getTrackerEmoji(),
+          'text-size': 24,
+          'text-allow-overlap': true
+        }
       });
     } else {
-      map.getSource('route-tracker').setData({ type: 'Feature', geometry: { type: 'Point', coordinates: coord } });
+      map.getSource('route-tracker').setData(data);
+      map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
     }
 
     if (!map.getSource('trail-line')) {
