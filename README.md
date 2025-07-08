@@ -28,6 +28,9 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
+### 2.142.2
+- Updated route labels to direct visitors toward Drouseia
+- Reversed driving routes for Paphos, Polis and the airport
 ### 2.142.0
 - Reverted plugin to version 2.134.0 state
 
