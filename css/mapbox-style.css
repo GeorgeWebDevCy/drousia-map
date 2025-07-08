@@ -122,10 +122,11 @@
 /* Navigation panel override for mobile */
 @media (max-width: 767px) {
   #gn-nav-panel {
-    width: 90% !important;
-    left: 50% !important;
+    width: calc(100% - 60px) !important;
+    left: 60px !important;
     top: 10px !important;
-    transform: translateX(-50%) !important;
+    right: auto !important;
+    transform: none !important;
   }
   #gn-debug-panel {
     width: 300px !important;
@@ -256,6 +257,13 @@
   z-index: 9998;
   width: 30px;
   padding: 4px;
+}
+
+@media (max-width: 767px) {
+  #gn-open-nav {
+    left: 60px !important;
+    right: auto !important;
+  }
 }
 
 /* === Custom Markers === */
