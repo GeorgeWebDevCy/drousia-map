@@ -8,8 +8,8 @@
 
 /* Popup layout */
 #gn-mapbox-map .mapboxgl-popup-content {
-  width: 33vw !important;
-  max-width: 33vw !important;
+  width: 50vw !important;
+  max-width: 50vw !important;
   padding: 0 !important;
   box-sizing: border-box !important;
   background: #fff !important;
@@ -122,11 +122,10 @@
 /* Navigation panel override for mobile */
 @media (max-width: 767px) {
   #gn-nav-panel {
-    width: calc(100% - 60px) !important;
-    left: 60px !important;
+    width: 90% !important;
+    left: 50% !important;
     top: 10px !important;
-    right: auto !important;
-    transform: none !important;
+    transform: translateX(-50%) !important;
   }
   #gn-debug-panel {
     width: 300px !important;
@@ -257,13 +256,6 @@
   z-index: 9998;
   width: 30px;
   padding: 4px;
-}
-
-@media (max-width: 767px) {
-  #gn-open-nav {
-    left: 60px !important;
-    right: auto !important;
-  }
 }
 
 /* === Custom Markers === */
