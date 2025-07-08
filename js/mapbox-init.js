@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const defaultLang = localStorage.getItem("gn_voice_lang") || "el-GR";
   const routeSettings = {
     default: { center: [32.3923713, 34.96211], zoom: 16 },
-    paphos: { center: [32.3975751, 34.9627965], zoom: 10 },
-    polis: { center: [32.3975751, 34.9627965], zoom: 11 },
-    airport: { center: [32.4297, 34.7753], zoom: 12 },
+    paphos: { center: [32.42293021940422, 34.774631500416966], zoom: 10 },
+    polis: { center: [32.425647063063586, 35.03373715925951], zoom: 11 },
+    airport: { center: [32.490296426999045, 34.70974769197728], zoom: 12 },
   };
 
 
@@ -442,11 +442,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (val === 'default') {
       showDefaultRoute();
     } else if (val === 'paphos') {
-      showDrivingRoute([32.4297, 34.7753], [32.3975751, 34.9627965]);
+      showDrivingRoute([32.42293021940422, 34.774631500416966], [32.397643, 34.959782]);
     } else if (val === 'polis') {
-      showDrivingRoute([32.4147, 35.0360], [32.3975751, 34.9627965]);
+      showDrivingRoute([32.425647063063586, 35.03373715925951], [32.397643, 34.959782]);
     } else if (val === 'airport') {
-      showDrivingRoute([32.4858, 34.7174], [32.3975751, 34.9627965]);
+      showDrivingRoute([32.490296426999045, 34.70974769197728], [32.397643, 34.959782]);
     }
     // Re-apply the center after controls adjust the map
     setTimeout(() => applyRouteSettings(val), 1000);
