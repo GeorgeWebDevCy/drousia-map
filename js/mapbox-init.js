@@ -245,6 +245,11 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.textContent = !wasMuted ? "🔇 Mute Directions" : "🔊 Unmute Directions";
       if (!wasMuted && window.speechSynthesis) {
         window.speechSynthesis.cancel();
+      } else if (wasMuted && isNavigating && window.gnNavState) {
+        const { steps, stepIndex, speakInstruction } = window.gnNavState;
+        if (steps && steps[stepIndex]) {
+          speakInstruction(steps[stepIndex]);
+        }
       }
     };
 
@@ -316,6 +321,7 @@ document.addEventListener("DOMContentLoaded", function () {
       watchId = null;
     }
     trail = [];
+    window.gnNavState = null;
     isNavigating = false;
     const btn = document.getElementById('gn-nav-toggle');
     if (btn) btn.textContent = '▶ Start Navigation';
@@ -806,6 +812,7 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.volume = 1.0;
         if (!isVoiceMuted()) window.speechSynthesis.speak(msg);
       };
+      window.gnNavState = { steps, stepIndex, speakInstruction };
       if (steps.length) speakInstruction(steps[0]);
 
       const calcRemaining = (cur) => {
@@ -829,6 +836,9 @@ document.addEventListener("DOMContentLoaded", function () {
           const target = steps[stepIndex].maneuver.location;
           if (haversineDistance(cur, target) < 20) {
             stepIndex++;
+            if (window.gnNavState) {
+              window.gnNavState.stepIndex = stepIndex;
+            }
             if (stepIndex < steps.length) speakInstruction(steps[stepIndex]);
           }
         }
