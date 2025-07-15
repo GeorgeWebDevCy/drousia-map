@@ -881,7 +881,12 @@ document.addEventListener("DOMContentLoaded", function () {
         id: 'trail-line',
         type: 'line',
         source: 'trail-line',
-        paint: { 'line-color': '#002D44', 'line-width': 3, 'line-opacity': 0.7 }
+        paint: {
+          // show covered portion of the route in green
+          'line-color': '#66cc33',
+          'line-width': 3,
+          'line-opacity': 0.7
+        }
       });
     }
     trail.push(coord);
