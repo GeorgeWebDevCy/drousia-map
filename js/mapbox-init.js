@@ -882,9 +882,9 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'line',
         source: 'trail-line',
         paint: {
-          // show covered portion of the route in green
-          'line-color': '#66cc33',
-          'line-width': 3,
+          // show covered portion of the route in blue to match the navigation button
+          'line-color': '#007cbf',
+          'line-width': 5,
           'line-opacity': 0.7
         }
       });
