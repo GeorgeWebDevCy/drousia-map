@@ -31,6 +31,9 @@ Create `Map Location` posts with latitude and longitude fields and place the `[g
 ### 2.149.0
 - All routes now use the Mapbox Directions API for navigation
 
+
+- Covered segments of the route now display in green during navigation
+- Bumped plugin version
 ### 2.148.0
 - Reverted to v2.145.0 code base and bumped version
 ### 2.145.0
