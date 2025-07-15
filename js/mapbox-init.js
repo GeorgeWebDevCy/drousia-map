@@ -729,9 +729,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const destination = coords[coords.length - 1];
       const ordered = [userLngLat, ...waypoints, destination];
       const stopIndexes = [0];
-      gnMapData.locations.forEach((loc, i) => {
-        if (!loc.waypoint) stopIndexes.push(i + 1);
-      });
+      if (currentRoute === 'default') {
+        gnMapData.locations.forEach((loc, i) => {
+          if (!loc.waypoint) stopIndexes.push(i + 1);
+        });
+      } else {
+        for (let i = 1; i < ordered.length; i++) {
+          stopIndexes.push(i);
+        }
+      }
       const bearings = computeBearings(ordered);
       const {
         coordinates: routeCoords,
