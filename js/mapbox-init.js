@@ -792,7 +792,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: "line",
           source: "nav-route",
           paint: {
-            "line-color": "#002D44",
+            "line-color": "#1198B3",
             "line-width": 8,
           },
         });
