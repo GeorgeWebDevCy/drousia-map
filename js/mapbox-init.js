@@ -925,7 +925,7 @@ document.addEventListener("DOMContentLoaded", function () {
         source: 'route-tracker',
         layout: {
           'text-field': getTrackerEmoji(),
-          'text-size': 24,
+          'text-size': 36,
           'text-allow-overlap': true
         }
       });
@@ -944,8 +944,8 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'line',
         source: 'trail-line',
         paint: {
-          // show covered portion of the route in green
-          'line-color': '#66cc33',
+          // show covered portion of the route in blue
+          'line-color': '#007CBF',
           'line-width': 3,
           'line-opacity': 0.7
         }
