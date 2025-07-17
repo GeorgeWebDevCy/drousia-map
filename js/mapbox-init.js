@@ -402,6 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         el.addEventListener('mouseenter', showPopup);
         el.addEventListener('click', showPopup);
+        el.addEventListener('touchstart', showPopup);
         markers.push(marker);
       }
     });
