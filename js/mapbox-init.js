@@ -926,7 +926,13 @@ document.addEventListener("DOMContentLoaded", function () {
         layout: {
           'text-field': getTrackerEmoji(),
           'text-size': 36,
-          'text-allow-overlap': true
+          'text-allow-overlap': true,
+          'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular']
+        },
+        paint: {
+          'text-color': '#ff4500',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2
         }
       });
     } else {
@@ -946,7 +952,7 @@ document.addEventListener("DOMContentLoaded", function () {
         paint: {
           // show covered portion of the route in blue
           'line-color': '#007CBF',
-          'line-width': 3,
+          'line-width': 6,
           'line-opacity': 0.7
         }
       });
