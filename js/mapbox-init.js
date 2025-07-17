@@ -414,7 +414,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const bearings = computeBearings(coords);
       const res = await fetchDirections(
         coords,
-        'walking',
+        navigationMode,
         false,
         getSelectedLanguage(),
         stopIndexes,
@@ -531,9 +531,18 @@ document.addEventListener("DOMContentLoaded", function () {
   window.setMode = function (mode) {
     const sel = document.getElementById("gn-mode-select");
     if (sel) sel.value = mode;
+    const prev = navigationMode;
     navigationMode = mode;
     if (map && map.getLayer('route-tracker')) {
       map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+    }
+    if (prev !== mode) {
+      if (isNavigating) {
+        stopNavigation();
+        startNavigation();
+      } else {
+        selectRoute(currentRoute);
+      }
     }
     log(
       "Navigation mode icon:",
