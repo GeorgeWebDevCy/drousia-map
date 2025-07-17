@@ -286,6 +286,36 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   }
 
+  function setupCarousel(rootEl = document) {
+    rootEl.querySelectorAll('.gn-carousel').forEach(carousel => {
+      const slides = carousel.querySelectorAll('.gn-slide');
+      if (slides.length === 0) return;
+      let index = 0;
+      const show = i => {
+        slides.forEach((s, idx) => {
+          s.classList.toggle('active', idx === i);
+        });
+      };
+      show(0);
+      const prev = carousel.querySelector('.gn-carousel-prev');
+      const next = carousel.querySelector('.gn-carousel-next');
+      if (prev) {
+        prev.addEventListener('click', e => {
+          e.stopPropagation();
+          index = (index - 1 + slides.length) % slides.length;
+          show(index);
+        });
+      }
+      if (next) {
+        next.addEventListener('click', e => {
+          e.stopPropagation();
+          index = (index + 1) % slides.length;
+          show(index);
+        });
+      }
+    });
+  }
+
   function clearMap() {
     log('Clearing map');
     markers.forEach(m => m.remove());
@@ -334,15 +364,17 @@ document.addEventListener("DOMContentLoaded", function () {
       log('Expected 15 coordinates but got', coords.length);
     }
     gnMapData.locations.forEach(loc => {
-      const firstImages = (loc.gallery || []).slice(0, 2)
-        .map(item => item.type === 'video'
-          ? `<video src="${item.url}" controls></video>`
-          : `<img src="${item.url}" alt="${loc.title}">`).join('');
-      const galleryHTML = loc.gallery && loc.gallery.length
-        ? '<div class="gallery">' +
-          loc.gallery.map(item => item.type === 'video'
-            ? `<video src="${item.url}" controls></video>`
-            : `<img src="${item.url}" alt="${loc.title}">`).join('') +
+      const carouselHTML = loc.gallery && loc.gallery.length
+        ? '<div class="gn-carousel">' +
+          '<button class="gn-carousel-prev" aria-label="Prev">&#10094;</button>' +
+          '<div class="gn-carousel-track">' +
+          loc.gallery.map(item =>
+            `<div class="gn-slide">${item.type === 'video'
+              ? `<video src="${item.url}" controls></video>`
+              : `<img src="${item.url}" alt="${loc.title}">`}</div>`
+          ).join('') +
+          '</div>' +
+          '<button class="gn-carousel-next" aria-label="Next">&#10095;</button>' +
           '</div>'
         : '';
       const uploadHTML = loc.upload_form ? `<div class="gn-upload-form">${loc.upload_form}</div>` : '';
@@ -350,10 +382,9 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="popup-content">
           <h3>${loc.title}</h3>
           ${loc.image ? `<img src="${loc.image}" alt="${loc.title}">` : ''}
-          ${firstImages}
           <div class="gn-desc-label">Description &raquo;</div>
           <div class="gn-desc-content">${loc.content}</div>
-          ${galleryHTML}
+          ${carouselHTML}
           ${uploadHTML}
         </div>`;
       if (!loc.waypoint) {
@@ -367,6 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
           popups = [];
           popup.setLngLat([loc.lng, loc.lat]).addTo(map);
           popups.push(popup);
+          setupCarousel(popup.getElement());
         };
         el.addEventListener('mouseenter', showPopup);
         el.addEventListener('click', showPopup);
@@ -871,6 +903,7 @@ document.addEventListener("DOMContentLoaded", function () {
   setupDebugPanel();
   setupNavPanel();
   setupLightbox();
+  setupCarousel();
   function getTrackerEmoji() {
     if (navigationMode === 'driving') return '🚗';
     if (navigationMode === 'cycling') return '🚲';

@@ -58,20 +58,50 @@
   border-radius: 6px !important;
 }
 
-/* Optional media gallery */
-#gn-mapbox-map .popup-content .gallery {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 10px !important;
-  margin-top: 15px !important;
+/* === Carousel === */
+#gn-mapbox-map .gn-carousel {
+  position: relative;
+  margin-top: 15px;
 }
 
-#gn-mapbox-map .popup-content .gallery img,
-#gn-mapbox-map .popup-content .gallery video {
-  width: 48% !important;
-  height: auto !important;
-  border-radius: 4px !important;
-  object-fit: cover !important;
+#gn-mapbox-map .gn-carousel-track {
+  overflow: hidden;
+}
+
+#gn-mapbox-map .gn-slide {
+  display: none;
+}
+
+#gn-mapbox-map .gn-slide.active {
+  display: block;
+}
+
+#gn-mapbox-map .gn-slide img,
+#gn-mapbox-map .gn-slide video {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+#gn-mapbox-map .gn-carousel-prev,
+#gn-mapbox-map .gn-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+#gn-mapbox-map .gn-carousel-prev {
+  left: 10px;
+}
+
+#gn-mapbox-map .gn-carousel-next {
+  right: 10px;
 }
 
 /* Scrollbar for overflow content */
