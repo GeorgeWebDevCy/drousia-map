@@ -769,11 +769,6 @@ document.addEventListener("DOMContentLoaded", function () {
           // alert("Voice guidance is not supported in your browser.");
         } else {
           checkVoiceAvailability(lang);
-          if (!localStorage.getItem("gn_voice_prompted")) {
-            const consent = confirm(`Enable voice directions in ${lang}?`);
-            if (!consent) localStorage.setItem("gn_voice_muted", true);
-            localStorage.setItem("gn_voice_prompted", true);
-          }
         }
       const userLngLat = [pos.coords.longitude, pos.coords.latitude];
       const waypoints = coords.slice(0, -1);
