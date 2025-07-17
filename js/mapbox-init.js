@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const updatedVoices = window.speechSynthesis.getVoices();
         window.speechSynthesis.removeEventListener("voiceschanged", onVoicesChanged);
         if (!updatedVoices.some(v => v.lang === lang)) {
-          alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+          // alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
         }
       };
       window.speechSynthesis.addEventListener("voiceschanged", onVoicesChanged);
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const hasVoice = voices.some(v => v.lang === lang);
     if (!hasVoice) {
-      alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
+      // alert(`Voice for ${lang} not found. Please install it from your system's language or speech settings to enable spoken directions.`);
     }
     return hasVoice;
   }
@@ -766,7 +766,7 @@ document.addEventListener("DOMContentLoaded", function () {
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const lang = getSelectedLanguage();
         if (!window.speechSynthesis) {
-          alert("Voice guidance is not supported in your browser.");
+          // alert("Voice guidance is not supported in your browser.");
         } else {
           checkVoiceAvailability(lang);
           if (!localStorage.getItem("gn_voice_prompted")) {
