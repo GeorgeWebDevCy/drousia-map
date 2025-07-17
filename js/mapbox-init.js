@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   mapboxgl.accessToken = gnMapData.accessToken;
   const debugEnabled = gnMapData.debug === true;
   let coords = [];
-  // default icon shows driving but we actually request walking directions
-  let navigationMode = "walking";
+  // initial navigation mode matches dropdown selection
+  let navigationMode = "driving";
   let map;
   let languageControl;
   let markers = [];
@@ -184,6 +184,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modeSel = navPanel.querySelector("#gn-mode-select");
     if (modeSel) {
       modeSel.value = 'driving';
+      navigationMode = modeSel.value;
       modeSel.onchange = () => setMode(modeSel.value);
     }
 
