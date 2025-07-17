@@ -400,6 +400,15 @@ document.addEventListener("DOMContentLoaded", function () {
           layout: { 'line-join': 'round', 'line-cap': 'round' },
           paint: { 'line-color': '#1198B3', 'line-width': 4 }
         });
+        const elevationGain = await getElevationGain(res.coordinates);
+        const panel = document.getElementById('gn-distance-panel');
+        if (panel) {
+          const km = (res.distance / 1000).toFixed(2);
+          const mins = Math.ceil(res.duration / 60);
+          panel.innerHTML = `Distance: ${km} km<br>Time: ${mins} min<br>Elevation: ${Math.round(
+            elevationGain
+          )} m`;
+        }
         log('Route line drawn with', res.coordinates.length, 'points');
       } else {
         log('No coordinates returned for default route');
@@ -445,6 +454,15 @@ document.addEventListener("DOMContentLoaded", function () {
         layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: { 'line-color': '#1198B3', 'line-width': 4 }
       });
+      const elevationGain = await getElevationGain(res.coordinates);
+      const panel = document.getElementById('gn-distance-panel');
+      if (panel) {
+        const km = (res.distance / 1000).toFixed(2);
+        const mins = Math.ceil(res.duration / 60);
+        panel.innerHTML = `Distance: ${km} km<br>Time: ${mins} min<br>Elevation: ${Math.round(
+          elevationGain
+        )} m`;
+      }
       log('Route line drawn with', res.coordinates.length, 'points');
     } else {
       log('No coordinates returned for route');
