@@ -534,7 +534,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const prev = navigationMode;
     navigationMode = mode;
     if (map && map.getLayer('route-tracker')) {
-      map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+      map.setLayoutProperty('route-tracker', 'icon-image', getTrackerIcon());
     }
     if (prev !== mode) {
       if (isNavigating) {
@@ -909,10 +909,10 @@ document.addEventListener("DOMContentLoaded", function () {
   setupNavPanel();
   setupLightbox();
   setupCarousel();
-  function getTrackerEmoji() {
-    if (navigationMode === 'driving') return '🚗';
-    if (navigationMode === 'cycling') return '🚲';
-    return '🚶';
+  function getTrackerIcon() {
+    if (navigationMode === 'driving') return 'car-15';
+    if (navigationMode === 'cycling') return 'bicycle-15';
+    return 'pedestrian-15';
   }
 
   function updateTracker(coord) {
@@ -924,20 +924,14 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'symbol',
         source: 'route-tracker',
         layout: {
-          'text-field': getTrackerEmoji(),
-          'text-size': 36,
-          'text-allow-overlap': true,
-          'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular']
-        },
-        paint: {
-          'text-color': '#ff4500',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2
+          'icon-image': getTrackerIcon(),
+          'icon-size': 1.5,
+          'icon-allow-overlap': true
         }
       });
     } else {
       map.getSource('route-tracker').setData(data);
-      map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+      map.setLayoutProperty('route-tracker', 'icon-image', getTrackerIcon());
     }
 
     if (!map.getSource('trail-line')) {

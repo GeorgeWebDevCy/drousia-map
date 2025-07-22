@@ -28,6 +28,9 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
+### 2.163.0
+- Replace emoji tracker with Mapbox icons
+- Bumped plugin version
 ### 2.162.0
 - Thicker tracker line and visible tracker emoji
 - Bumped plugin version
