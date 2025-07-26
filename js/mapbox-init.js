@@ -540,7 +540,8 @@
       const prev = navigationMode;
       navigationMode = mode;
       if (map && map.getLayer('route-tracker')) {
-        map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+        // Update the tracker to use the correct icon when switching modes
+        map.setLayoutProperty('route-tracker', 'icon-image', getTrackerIcon());
       }
       if (prev !== mode) {
         if (isNavigating) {
@@ -927,6 +928,14 @@
       if (navigationMode === 'cycling') return '🚲';
       return '🚶';
     }
+
+    // Return Mapbox Maki icon name for the current navigation mode.  Using
+    // icons instead of emojis ensures the tracker is visible on all systems.
+    function getTrackerIcon() {
+      if (navigationMode === 'driving') return 'car-15';
+      if (navigationMode === 'cycling') return 'bicycle-15';
+      return 'pedestrian-15';
+    }
   
     function updateTracker(coord) {
       // Convert the provided coordinate into a GeoJSON point so Mapbox GL can
@@ -953,20 +962,16 @@
             type: 'symbol',
             source: 'route-tracker',
             layout: {
-              // Tracker emoji indicates the mode of travel. It updates whenever the
-              // navigation mode changes (driving, cycling or walking).
-              'text-field': getTrackerEmoji(),
-              'text-size': 36,
-              'text-allow-overlap': true,
-              // Use widely supported fonts to avoid 404 errors on Mapbox font API
-              'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
+              // Use a Maki icon instead of emoji for better cross-device support
+              'icon-image': getTrackerIcon(),
+              'icon-size': 1.5,
+              'icon-allow-overlap': true
             },
             paint: {
-              // Use a vibrant orange color with a white halo so the emoji stands out
-              // against any map background.
-              'text-color': '#ff4500',
-              'text-halo-color': '#ffffff',
-              'text-halo-width': 2
+              // Set the icon colour and halo for visibility
+              'icon-color': '#ff4500',
+              'icon-halo-color': '#ffffff',
+              'icon-halo-width': 2
             }
           });
         }
@@ -975,13 +980,13 @@
         // the current emoji matches the navigation mode.
         console.log('[GN DEBUG]', 'Updating existing route-tracker layer');
         map.getSource('route-tracker').setData(data);
-        map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
+        map.setLayoutProperty('route-tracker', 'icon-image', getTrackerIcon());
       }
   
       // After updating, log the icon actually being used so we can verify it
       // appears on screen. If the layer failed to add, this will output "null".
       const icon = map.getLayer('route-tracker')
-        ? map.getLayoutProperty('route-tracker', 'text-field')
+        ? map.getLayoutProperty('route-tracker', 'icon-image')
         : null;
       console.log('[GN DEBUG]', 'Current tracker icon:', icon);
   
