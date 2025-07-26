@@ -236,14 +236,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const btn = document.createElement("button");
     btn.id = "gn-voice-toggle";
     btn.title = "Toggle Voice";
-    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔇 Mute Directions" : "🔊 Unmute Directions";
+    btn.textContent = localStorage.getItem("gn_voice_muted") === "true" ? "🔊 Unmute Directions" : "🔇 Mute Directions";
     btn.className = "gn-nav-btn";
 
     btn.onclick = () => {
       const wasMuted = localStorage.getItem("gn_voice_muted") === "true";
-      localStorage.setItem("gn_voice_muted", !wasMuted);
-      btn.textContent = !wasMuted ? "🔇 Mute Directions" : "🔊 Unmute Directions";
-      if (!wasMuted && window.speechSynthesis) {
+      const nowMuted = !wasMuted;
+      localStorage.setItem("gn_voice_muted", nowMuted);
+      btn.textContent = nowMuted ? "🔊 Unmute Directions" : "🔇 Mute Directions";
+      if (wasMuted && window.speechSynthesis) {
+        // voice was muted and is now unmuted
+        // nothing to cancel
+      } else if (!wasMuted && window.speechSynthesis) {
+        // voice was playing and is now muted
         window.speechSynthesis.cancel();
       }
     };
@@ -765,6 +770,9 @@ document.addEventListener("DOMContentLoaded", function () {
   async function startNavigation() {
     if (!navigator.geolocation) {
       log("Geolocation not supported.");
+      isNavigating = false;
+      const btn = document.getElementById('gn-nav-toggle');
+      if (btn) btn.textContent = '▶ Start Navigation';
       return;
     }
 
@@ -809,6 +817,8 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       if (!routeCoords.length) {
         log("No route found.");
+        isNavigating = false;
+        if (toggleBtn) toggleBtn.textContent = '▶ Start Navigation';
         return;
       }
 
@@ -902,6 +912,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // store watchId globally if needed to stop later
     }, err => {
       log("Geolocation error:", err.message);
+      isNavigating = false;
+      if (toggleBtn) toggleBtn.textContent = '▶ Start Navigation';
     });
   }
 
