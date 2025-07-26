@@ -928,29 +928,54 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateTracker(coord) {
+    // Convert the provided coordinate into a GeoJSON point so Mapbox GL can
+    // easily render it as a layer source. The tracker layer displays a moving
+    // emoji that represents the user's position during navigation.
     const data = { type: 'Feature', geometry: { type: 'Point', coordinates: coord } };
+
+    // Log whenever updateTracker runs so we know the function is executing and
+    // which coordinate it's attempting to render.
+    console.log('[GN DEBUG]', 'updateTracker called with', coord);
+
     if (!map.getSource('route-tracker')) {
+      // When the source doesn't exist we create both the source and the layer.
+      // This only happens once at the beginning of navigation.
+      console.log('[GN DEBUG]', 'Adding route-tracker source and layer');
       map.addSource('route-tracker', { type: 'geojson', data });
       map.addLayer({
         id: 'route-tracker',
         type: 'symbol',
         source: 'route-tracker',
         layout: {
+          // Tracker emoji indicates the mode of travel. It updates whenever the
+          // navigation mode changes (driving, cycling or walking).
           'text-field': getTrackerEmoji(),
           'text-size': 36,
           'text-allow-overlap': true,
           'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular']
         },
         paint: {
+          // Use a vibrant orange color with a white halo so the emoji stands out
+          // against any map background.
           'text-color': '#ff4500',
           'text-halo-color': '#ffffff',
           'text-halo-width': 2
         }
       });
     } else {
+      // If the layer already exists, simply update the source data and ensure
+      // the current emoji matches the navigation mode.
+      console.log('[GN DEBUG]', 'Updating existing route-tracker layer');
       map.getSource('route-tracker').setData(data);
       map.setLayoutProperty('route-tracker', 'text-field', getTrackerEmoji());
     }
+
+    // After updating, log the icon actually being used so we can verify it
+    // appears on screen. If the layer failed to add, this will output "null".
+    const icon = map.getLayer('route-tracker')
+      ? map.getLayoutProperty('route-tracker', 'text-field')
+      : null;
+    console.log('[GN DEBUG]', 'Current tracker icon:', icon);
 
     if (!map.getSource('trail-line')) {
       map.addSource('trail-line', {
