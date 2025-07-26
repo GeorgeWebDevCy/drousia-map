@@ -2,11 +2,22 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.165.0
+Version: 2.166.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
 */
+
+/**
+ * -----------------------------------------------------------------------------
+ *  About This File
+ * -----------------------------------------------------------------------------
+ *  This is the main PHP file for the GN Mapbox plugin. WordPress loads it when
+ *  the plugin is activated. Every function below is responsible for a small
+ *  piece of the plugin's behaviour, such as registering custom posts or loading
+ *  scripts for the interactive map. Extensive comments explain each step so
+ *  that even readers with no coding background can follow along.
+ */
 
 defined('ABSPATH') || exit;
 
@@ -20,11 +31,23 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 );
 $myUpdateChecker->setBranch('main');
 
+/**
+ * Load any available translation files so that plugin text appears in the
+ * visitor's language. WordPress triggers this function after all plugins are
+ * loaded, ensuring translations are ready before any output.
+ */
 function gn_mapbox_load_textdomain() {
     load_plugin_textdomain('gn-mapbox', false, dirname(plugin_basename(__FILE__)) . '/languages');
 }
+
 add_action('plugins_loaded', 'gn_mapbox_load_textdomain');
 
+/**
+ * Register a custom post type called "Map Location". Each of these posts holds
+ * information about a place on the map such as its coordinates and text
+ * description. Making the type public means you could view these posts on their
+ * own page, although the plugin mainly uses them as data.
+ */
 function gn_register_map_location_cpt() {
     register_post_type('map_location', [
         'label' => __('Map Locations', 'gn-mapbox'),
@@ -35,6 +58,11 @@ function gn_register_map_location_cpt() {
 }
 add_action('init', 'gn_register_map_location_cpt');
 
+/**
+ * Check if a location already exists in the database. It first looks for a post
+ * with the same title. If coordinates are provided it also checks for posts with
+ * matching latitude and longitude to avoid duplicates when importing data.
+ */
 function gn_location_exists($title, $lat = null, $lng = null) {
     $existing = get_page_by_title($title, OBJECT, 'map_location');
     if ($existing) {
@@ -65,6 +93,12 @@ function gn_location_exists($title, $lat = null, $lng = null) {
     return false;
 }
 
+/**
+ * Load the fallback location data shipped with the plugin. It reads a JSON file
+ * from the plugin's data folder and creates Map Location posts for each entry
+ * that does not already exist. This ensures the map has example points when the
+ * plugin is first installed.
+ */
 function gn_import_default_locations() {
     $json_file = plugin_dir_path(__FILE__) . 'data/locations.json';
     if (!file_exists($json_file)) {
@@ -109,6 +143,12 @@ function gn_import_default_locations() {
         }
     }
 }
+
+/**
+ * Ensure that each Map Location post contains the front-end photo upload
+ * shortcode. When editing a location this function checks the content and adds
+ * the shortcode if it is missing so visitors can submit media for that place.
+ */
 function gn_add_upload_shortcode_if_missing($post_id) {
     if (get_post_type($post_id) !== 'map_location') {
         return;
@@ -131,11 +171,21 @@ function gn_add_upload_shortcode_if_missing($post_id) {
     }
 }
 
+/**
+ * Hooked into the save process for a Map Location. It simply calls the helper
+ * above so the upload form is always present whenever a location is saved or
+ * updated.
+ */
 function gn_add_upload_shortcode_on_save($post_id, $post, $update) {
     gn_add_upload_shortcode_if_missing($post_id);
 }
 add_action('save_post_map_location', 'gn_add_upload_shortcode_on_save', 20, 3);
 
+/**
+ * Go through all existing Map Location posts and make sure the upload shortcode
+ * is present. Useful when the plugin is activated to update older posts that
+ * may not yet include the form.
+ */
 function gn_ensure_shortcodes_for_all_locations() {
     $posts = get_posts([
         'post_type' => 'map_location',
@@ -146,6 +196,11 @@ function gn_ensure_shortcodes_for_all_locations() {
     }
 }
 
+/**
+ * When the plugin is activated this function runs once. It imports example
+ * locations from the bundled JSON file and then ensures every location has the
+ * photo upload form shortcode.
+ */
 function gn_plugin_activate() {
     gn_import_default_locations();
     gn_ensure_shortcodes_for_all_locations();
@@ -153,20 +208,36 @@ function gn_plugin_activate() {
 register_activation_hook(__FILE__, 'gn_plugin_activate');
 
 // Add photo gallery meta box
+
+/**
+ * Create a box in the WordPress editor where administrators can upload and
+ * manage gallery photos for a location. This box appears on the main editing
+ * screen when editing a Map Location post.
+ */
 function gn_add_photos_meta_box() {
     add_meta_box('gn_location_photos', 'Location Photos', 'gn_photos_meta_box_html', 'map_location', 'normal', 'default');
 }
 add_action('add_meta_boxes', 'gn_add_photos_meta_box');
 
 function gn_add_waypoint_meta_box() {
+    // This meta box allows admins to mark a location as a hidden waypoint. When
+    // checked the marker will not appear on the map but can still be used when
+    // calculating routes.
     add_meta_box('gn_waypoint', __('Invisible Waypoint', 'gn-mapbox'), 'gn_waypoint_meta_box_html', 'map_location', 'side', 'default');
 }
 add_action('add_meta_boxes', 'gn_add_waypoint_meta_box');
 
 function gn_add_order_meta_box() {
+    // This meta box lets admins choose the order in which locations appear on
+    // the map and in route directions. Lower numbers come first.
     add_meta_box('gn_location_order', __('Position', 'gn-mapbox'), 'gn_order_meta_box_html', 'map_location', 'side', 'default');
 }
 add_action('add_meta_boxes', 'gn_add_order_meta_box');
+/**
+ * Output the user interface for managing a location's photo gallery. This
+ * includes showing thumbnails of existing images and buttons to add or clear
+ * photos using WordPress's media picker.
+ */
 
 function gn_photos_meta_box_html($post) {
     wp_enqueue_media();
@@ -219,6 +290,10 @@ function gn_photos_meta_box_html($post) {
     <?php
 }
 
+/**
+ * Save the photo gallery data entered in the meta box. It verifies a security
+ * nonce, skips auto-saves and stores the chosen attachment IDs in post meta.
+ */
 function gn_save_photos_meta_box($post_id) {
     if (!isset($_POST['gn_photos_nonce']) || !wp_verify_nonce($_POST['gn_photos_nonce'], 'gn_save_photos')) {
         return;
@@ -229,6 +304,11 @@ function gn_save_photos_meta_box($post_id) {
     }
 }
 add_action('save_post_map_location', 'gn_save_photos_meta_box');
+/**
+ * Render a checkbox allowing a location to be marked as an invisible waypoint.
+ * This option hides the marker from the map while still letting routing logic
+ * use the coordinates as part of a path.
+ */
 
 function gn_waypoint_meta_box_html($post) {
     wp_nonce_field('gn_save_waypoint', 'gn_waypoint_nonce');
@@ -239,10 +319,18 @@ function gn_waypoint_meta_box_html($post) {
 
 function gn_order_meta_box_html($post) {
     wp_nonce_field('gn_save_order', 'gn_order_nonce');
+/**
+ * Provide an input field for setting the display order of this location.
+ * WordPress saves the number so the plugin can sort markers consistently.
+ */
     $order = get_post_meta($post->ID, '_gn_location_order', true);
     echo '<input type="number" name="gn_location_order" value="' . esc_attr($order) . '" style="width:100%;">';
 }
 
+/**
+ * Save whether the location should be treated as a waypoint only.
+ * Uses a nonce to ensure the request came from the editor screen.
+ */
 function gn_save_waypoint_meta_box($post_id) {
     if (!isset($_POST['gn_waypoint_nonce']) || !wp_verify_nonce($_POST['gn_waypoint_nonce'], 'gn_save_waypoint')) {
         return;
@@ -253,6 +341,10 @@ function gn_save_waypoint_meta_box($post_id) {
 }
 add_action('save_post_map_location', 'gn_save_waypoint_meta_box');
 
+/**
+ * Save the order number entered in the meta box so markers can be
+ * sorted consistently.
+ */
 function gn_save_order_meta_box($post_id) {
     if (!isset($_POST['gn_order_nonce']) || !wp_verify_nonce($_POST['gn_order_nonce'], 'gn_save_order')) {
         return;
