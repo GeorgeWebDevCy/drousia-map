@@ -952,7 +952,8 @@ document.addEventListener("DOMContentLoaded", function () {
           'text-field': getTrackerEmoji(),
           'text-size': 36,
           'text-allow-overlap': true,
-          'text-font': ['Noto Sans Regular', 'Arial Unicode MS Regular']
+          // Use widely supported fonts to avoid 404 errors on Mapbox font API
+          'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
         },
         paint: {
           // Use a vibrant orange color with a white halo so the emoji stands out
