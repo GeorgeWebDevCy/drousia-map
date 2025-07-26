@@ -2,7 +2,7 @@
 /*
 Plugin Name: GN Mapbox Locations with ACF
 Description: Display custom post type locations using Mapbox with ACF-based coordinates, navigation, elevation, optional galleries and full debug panel.
-Version: 2.169.0
+Version: 2.170.0
 Author: George Nicolaou
 Text Domain: gn-mapbox
 Domain Path: /languages
@@ -444,6 +444,8 @@ function gn_enqueue_mapbox_assets() {
 add_action('wp_enqueue_scripts', 'gn_enqueue_mapbox_assets');
 
 function gn_get_map_locations() {
+    // Determine if verbose debug logging is enabled via plugin settings.
+    $debug_enabled = get_option('gn_mapbox_debug') === '1';
     $query = new WP_Query([
         'post_type'      => 'map_location',
         'posts_per_page' => -1,
@@ -459,10 +461,12 @@ function gn_get_map_locations() {
         $lat = get_field('latitude');
         $lng = get_field('longitude');
 
-        // Debug output to error log
-        error_log('Checking post: ' . get_the_title());
-        error_log('Latitude: ' . print_r($lat, true));
-        error_log('Longitude: ' . print_r($lng, true));
+        // Debug output to error log if enabled
+        if ($debug_enabled) {
+            error_log('Checking post: ' . get_the_title());
+            error_log('Latitude: ' . print_r($lat, true));
+            error_log('Longitude: ' . print_r($lng, true));
+        }
 
         if ($lat && $lng) {
             $gallery_ids = get_post_meta(get_the_ID(), '_gn_location_photos', true);
@@ -498,7 +502,9 @@ function gn_get_map_locations() {
     }
     wp_reset_postdata();
 
-    error_log('Total locations returned: ' . count($locations));
+    if ($debug_enabled) {
+        error_log('Total locations returned: ' . count($locations));
+    }
 
     if (empty($locations)) {
         gn_import_default_locations();
@@ -561,12 +567,18 @@ function gn_get_map_locations() {
                         $loc['waypoint'] = !empty($loc['waypoint']);
                     }
                     $locations = $data;
-                    error_log('Loaded ' . count($locations) . ' locations from JSON fallback');
+                    if ($debug_enabled) {
+                        error_log('Loaded ' . count($locations) . ' locations from JSON fallback');
+                    }
                 } else {
-                    error_log('Failed to parse locations JSON');
+                    if ($debug_enabled) {
+                        error_log('Failed to parse locations JSON');
+                    }
                 }
             } else {
-                error_log('Fallback locations file not found');
+                if ($debug_enabled) {
+                    error_log('Fallback locations file not found');
+                }
             }
         }
     }
@@ -1068,7 +1080,8 @@ function gn_mapbox_drousia_to_polis_shortcode() {
 add_shortcode('gn_mapbox_drousia_polis', 'gn_mapbox_drousia_to_polis_shortcode');
 
 // Paphos Airport to Drouseia
-function gn_mapbox_paphos_to_airport_shortcode() {
+// Function name previously suggested opposite direction. Renamed for clarity.
+function gn_mapbox_airport_to_drousia_shortcode() {
     if (!get_option('gn_mapbox_token')) {
         return '<p class="gn-mapbox-error">' . esc_html__('Mapbox access token missing. Set one under Settings → GN Mapbox.', 'gn-mapbox') . '</p>';
     }
@@ -1102,7 +1115,7 @@ function gn_mapbox_paphos_to_airport_shortcode() {
     <?php
     return ob_get_clean();
 }
-add_shortcode('gn_mapbox_paphos_airport', 'gn_mapbox_paphos_to_airport_shortcode');
+add_shortcode('gn_mapbox_paphos_airport', 'gn_mapbox_airport_to_drousia_shortcode');
 
 
 
