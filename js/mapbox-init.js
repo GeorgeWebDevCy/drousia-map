@@ -938,31 +938,37 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('[GN DEBUG]', 'updateTracker called with', coord);
 
     if (!map.getSource('route-tracker')) {
-      // When the source doesn't exist we create both the source and the layer.
-      // This only happens once at the beginning of navigation.
+      // When the source doesn't exist we create it and also add the layer that
+      // displays the moving tracker icon. This ensures the layer gets added only
+      // once during initial navigation start.
       console.log('[GN DEBUG]', 'Adding route-tracker source and layer');
       map.addSource('route-tracker', { type: 'geojson', data });
-      map.addLayer({
-        id: 'route-tracker',
-        type: 'symbol',
-        source: 'route-tracker',
-        layout: {
-          // Tracker emoji indicates the mode of travel. It updates whenever the
-          // navigation mode changes (driving, cycling or walking).
-          'text-field': getTrackerEmoji(),
-          'text-size': 36,
-          'text-allow-overlap': true,
-          // Use widely supported fonts to avoid 404 errors on Mapbox font API
-          'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
-        },
-        paint: {
-          // Use a vibrant orange color with a white halo so the emoji stands out
-          // against any map background.
-          'text-color': '#ff4500',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2
-        }
-      });
+
+      // Add the tracker layer if it doesn't already exist. Without this check
+      // Mapbox would throw an error when the layer ID is duplicated.
+      if (!map.getLayer('route-tracker')) {
+        map.addLayer({
+          id: 'route-tracker',
+          type: 'symbol',
+          source: 'route-tracker',
+          layout: {
+            // Tracker emoji indicates the mode of travel. It updates whenever the
+            // navigation mode changes (driving, cycling or walking).
+            'text-field': getTrackerEmoji(),
+            'text-size': 36,
+            'text-allow-overlap': true,
+            // Use widely supported fonts to avoid 404 errors on Mapbox font API
+            'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular']
+          },
+          paint: {
+            // Use a vibrant orange color with a white halo so the emoji stands out
+            // against any map background.
+            'text-color': '#ff4500',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 2
+          }
+        });
+      }
     } else {
       // If the layer already exists, simply update the source data and ensure
       // the current emoji matches the navigation mode.
