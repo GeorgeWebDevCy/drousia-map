@@ -13,8 +13,8 @@
     mapboxgl.accessToken = gnMapData.accessToken;
     const debugEnabled = gnMapData.debug === true;
     let coords = [];
-    // default icon shows driving but we actually request walking directions
-    let navigationMode = "walking";
+    // default to driving so the tracker icon matches the initial mode
+    let navigationMode = "driving";
     let map;
     let languageControl;
     let markers = [];
@@ -185,6 +185,7 @@
       const modeSel = navPanel.querySelector("#gn-mode-select");
       if (modeSel) {
         modeSel.value = 'driving';
+        setMode('driving');
         modeSel.onchange = () => setMode(modeSel.value);
       }
   
@@ -923,6 +924,19 @@
     setupNavPanel();
     setupLightbox();
     setupCarousel();
+    function preloadIcons() {
+      const icons = {
+        car: 'https://docs.mapbox.com/mapbox-gl-js/assets/car.png',
+        walking: 'https://docs.mapbox.com/mapbox-gl-js/assets/walking.png',
+        bicycle: 'https://docs.mapbox.com/mapbox-gl-js/assets/bicycle.png'
+      };
+      Object.entries(icons).forEach(([name, url]) => {
+        map.loadImage(url, (err, image) => {
+          if (err) return;
+          if (!map.hasImage(name)) map.addImage(name, image);
+        });
+      });
+    }
     function getTrackerEmoji() {
       if (navigationMode === 'driving') return '🚗';
       if (navigationMode === 'cycling') return '🚲';
@@ -932,9 +946,9 @@
     // Return Mapbox Maki icon name for the current navigation mode.  Using
     // icons instead of emojis ensures the tracker is visible on all systems.
     function getTrackerIcon() {
-      if (navigationMode === 'driving') return 'car-15';
-      if (navigationMode === 'cycling') return 'bicycle-15';
-      return 'walking-15';
+      if (navigationMode === 'driving') return 'car';
+      if (navigationMode === 'cycling') return 'bicycle';
+      return 'walking';
     }
 
     function updateTracker(coord) {
@@ -1024,9 +1038,10 @@
       defaultLanguage: mapLangPart(defaultLang)
     });
     map.addControl(languageControl);
-  
+
     map.on("load", () => {
       log("Map loaded");
+      preloadIcons();
       const routeSel = document.getElementById("gn-route-select");
       if (routeSel) routeSel.value = "default";
       selectRoute("default");
