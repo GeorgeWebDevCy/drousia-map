@@ -934,13 +934,13 @@
     function getTrackerIcon() {
       if (navigationMode === 'driving') return 'car-15';
       if (navigationMode === 'cycling') return 'bicycle-15';
-      return 'pedestrian-15';
+      return 'walking-15';
     }
-  
+
     function updateTracker(coord) {
       // Convert the provided coordinate into a GeoJSON point so Mapbox GL can
       // easily render it as a layer source. The tracker layer displays a moving
-      // emoji that represents the user's position during navigation.
+      // icon that represents the user's position during navigation.
       const data = { type: 'Feature', geometry: { type: 'Point', coordinates: coord } };
   
       // Log whenever updateTracker runs so we know the function is executing and
@@ -977,7 +977,7 @@
         }
       } else {
         // If the layer already exists, simply update the source data and ensure
-        // the current emoji matches the navigation mode.
+        // the current icon matches the navigation mode.
         console.log('[GN DEBUG]', 'Updating existing route-tracker layer');
         map.getSource('route-tracker').setData(data);
         map.setLayoutProperty('route-tracker', 'icon-image', getTrackerIcon());

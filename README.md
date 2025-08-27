@@ -28,6 +28,9 @@ This WordPress plugin displays custom post type locations on a Mapbox map. It al
 
 ## Usage
 Create `Map Location` posts with latitude and longitude fields and place the `[gn_map]` shortcode on any page.
+### 2.173.0
+- Ensure walking tracker uses Mapbox walking icon
+- Bumped plugin version
 ### 2.172.0
 - Fix tracker icon not showing in navigation mode by using Mapbox Maki icons for different navigation modes (car, bicycle and pedestrian)
 - Bumped plugin version
