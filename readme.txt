@@ -3,7 +3,7 @@ Contributors: georgewebdev
 Tags: mapbox,acf,locations,map
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 2.173.0
+Stable tag: 2.174.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,9 @@ Enable the Debug Panel option in **Settings → GN Mapbox** to output verbose lo
 Markers are logged in the order they appear in `data/locations.json`.
 
 == Changelog ==
+= 2.174.0 =
+* Preload Mapbox navigation icons and default to driving so tracker icons appear immediately
+* Bumped plugin version
 = 2.173.0 =
 * Ensure walking tracker uses Mapbox walking icon
 * Bumped plugin version
